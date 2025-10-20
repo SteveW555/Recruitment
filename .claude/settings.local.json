@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python .claude/skills/recruitment-fake-data-generator/scripts/generate_candidates.py --count 5 --output test_candidates.csv)",
+      "Bash(python .claude/skills/recruitment-fake-data-generator/scripts/generate_jobs.py --count 5 --output test_jobs.csv)",
+      "Bash(python .claude/skills/recruitment-fake-data-generator/scripts/generate_jobs.py --count 5 --clients test_clients.csv --output test_jobs_with_clients.csv)",
+      "Bash(python .claude/skills/recruitment-fake-data-generator/scripts/generate_placements.py --count 5 --candidates test_candidates.csv --jobs test_jobs_with_clients.csv --clients test_clients.csv --output test_placements.csv)",
+      "Bash(python .claude/skills/recruitment-fake-data-generator/scripts/generate_all.py --count 3 --output-dir test_full_data)",
+      "Bash(python .claude/skills/recruitment-fake-data-generator/scripts/generate_all.py --count 10 --output-dir .claude/skills/recruitment-fake-data-generator/assets/sample_output)",
+      "Skill(skill-creator)",
+      "Bash(python d:Recruitment.claudeskillsskill-creatorscriptsinit_skill.py recruitment-source-finder --path d:Recruitment.claudeskills)",
+      "Bash(python \"d:\\Recruitment\\.claude\\skills\\skill-creator\\scripts\\init_skill.py\" recruitment-source-finder --path \"d:\\Recruitment\\.claude\\skills\")",
+      "Bash(set PYTHONIOENCODING=utf-8)",
+      "Bash(python \"..\\skills\\skill-creator\\scripts\\init_skill.py\" recruitment-source-finder --path .)",
+      "Bash(python \"d:\\Recruitment\\.claude\\skills\\recruitment-source-finder\\scripts\\find_sources.py\" \"GDPR data protection\" --limit 5 --format readable)",
+      "Bash(python \"d:\\Recruitment\\.claude\\skills\\recruitment-source-finder\\scripts\\find_sources.py\" \"recruitment software ATS\" --limit 8 --format readable)",
+      "Bash(dir \"d:\\Recruitment\\.claude\\skills\\skill-creator\\scripts\\package_skill.py\")",
+      "Bash(python \"skill-creator\\scripts\\package_skill.py\" \"recruitment-source-finder\")",
+      "Bash(python \"d:\\Recruitment\\.claude\\skills\\recruitment-source-finder\\scripts\\find_sources.py\" \"business development\" --limit 5 --format json)",
+      "Bash(python \"d:\\Recruitment\\.claude\\skills\\recruitment-source-finder\\scripts\\find_sources.py\" \"client pricing rates fees\" --limit 10 --format readable)",
+      "Bash(git remote add Recruitment https://github.com/SteveW555/Recruitment.git)",
+      "Bash(git push Recruitment master)",
+      "Bash(npx:*)",
+      "Bash(git push:*)",
+      "Bash(git pull:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git rm:*)",
+      "Bash(git filter-branch:*)",
+      "Bash(git checkout:*)"
+    ],
+    "deny": [],
+    "ask": []
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "firecrawl",
+    "github"
+  ]
+}

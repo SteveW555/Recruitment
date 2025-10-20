@@ -1,0 +1,324 @@
+version: '3.8'
+
+services:
+  # ===== Databases =====
+  postgres:
+    image: postgres:15-alpine
+    container_name: recruitment-postgres
+    environment:
+      POSTGRES_DB: recruitment
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: dev_password_change_in_prod
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./data/migrations/postgres:/docker-entrypoint-initdb.d
+    networks:
+      - recruitment-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongodb:
+    image: mongo:6
+    container_name: recruitment-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: dev_password_change_in_prod
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - recruitment-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: recruitment-redis
+    command: redis-server --requirepass dev_password_change_in_prod
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - recruitment-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    container_name: recruitment-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - recruitment-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # ===== Message Queue =====
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: recruitment-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: dev_password_change_in_prod
+    ports:
+      - "5672:5672"   # AMQP port
+      - "15672:15672" # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - recruitment-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ===== Backend Services =====
+  api-gateway:
+    build:
+      context: ./backend/services/api-gateway
+      dockerfile: Dockerfile
+    container_name: recruitment-api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      NODE_ENV: development
+      PORT: 8080
+      POSTGRES_HOST: postgres
+      REDIS_HOST: redis
+      RABBITMQ_URL: amqp://admin:dev_password_change_in_prod@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - recruitment-network
+    volumes:
+      - ./backend/services/api-gateway:/app
+      - /app/node_modules
+
+  candidate-service:
+    build:
+      context: ./backend/services/candidate-service
+      dockerfile: Dockerfile
+    container_name: recruitment-candidate-service
+    ports:
+      - "8081:8081"
+    environment:
+      NODE_ENV: development
+      PORT: 8081
+      POSTGRES_HOST: postgres
+      MONGODB_HOST: mongodb
+      REDIS_HOST: redis
+      RABBITMQ_URL: amqp://admin:dev_password_change_in_prod@rabbitmq:5672
+      ELASTICSEARCH_HOST: elasticsearch:9200
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - recruitment-network
+    volumes:
+      - ./backend/services/candidate-service:/app
+      - /app/node_modules
+
+  client-service:
+    build:
+      context: ./backend/services/client-service
+      dockerfile: Dockerfile
+    container_name: recruitment-client-service
+    ports:
+      - "8082:8082"
+    environment:
+      NODE_ENV: development
+      PORT: 8082
+      POSTGRES_HOST: postgres
+      REDIS_HOST: redis
+      RABBITMQ_URL: amqp://admin:dev_password_change_in_prod@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - recruitment-network
+    volumes:
+      - ./backend/services/client-service:/app
+      - /app/node_modules
+
+  job-service:
+    build:
+      context: ./backend/services/job-service
+      dockerfile: Dockerfile
+    container_name: recruitment-job-service
+    ports:
+      - "8083:8083"
+    environment:
+      NODE_ENV: development
+      PORT: 8083
+      POSTGRES_HOST: postgres
+      REDIS_HOST: redis
+      RABBITMQ_URL: amqp://admin:dev_password_change_in_prod@rabbitmq:5672
+      ELASTICSEARCH_HOST: elasticsearch:9200
+    depends_on:
+      postgres:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - recruitment-network
+    volumes:
+      - ./backend/services/job-service:/app
+      - /app/node_modules
+
+  matching-service:
+    build:
+      context: ./backend/services/matching-service
+      dockerfile: Dockerfile
+    container_name: recruitment-matching-service
+    ports:
+      - "8084:8084"
+    environment:
+      NODE_ENV: development
+      PORT: 8084
+      POSTGRES_HOST: postgres
+      REDIS_HOST: redis
+      RABBITMQ_URL: amqp://admin:dev_password_change_in_prod@rabbitmq:5672
+      MODEL_PATH: /models
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - recruitment-network
+    volumes:
+      - ./backend/services/matching-service:/app
+      - /app/node_modules
+      - ml_models:/models
+
+  workflow-service:
+    build:
+      context: ./backend/services/workflow-service
+      dockerfile: Dockerfile
+    container_name: recruitment-workflow-service
+    ports:
+      - "8085:8085"
+    environment:
+      NODE_ENV: development
+      PORT: 8085
+      POSTGRES_HOST: postgres
+      REDIS_HOST: redis
+      RABBITMQ_URL: amqp://admin:dev_password_change_in_prod@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - recruitment-network
+    volumes:
+      - ./backend/services/workflow-service:/app
+      - /app/node_modules
+
+  # ===== Frontend =====
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: recruitment-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: http://api-gateway:8080
+    depends_on:
+      - api-gateway
+    networks:
+      - recruitment-network
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+
+  # ===== Monitoring & Logging =====
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: recruitment-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./infrastructure/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - recruitment-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: recruitment-grafana
+    ports:
+      - "3002:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./infrastructure/monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+    depends_on:
+      - prometheus
+    networks:
+      - recruitment-network
+
+  elasticsearch-kibana:
+    image: docker.elastic.co/kibana/kibana:8.11.0
+    container_name: recruitment-kibana
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - recruitment-network
+
+volumes:
+  postgres_data:
+  mongodb_data:
+  redis_data:
+  elasticsearch_data:
+  rabbitmq_data:
+  prometheus_data:
+  grafana_data:
+  ml_models:
+
+networks:
+  recruitment-network:
+    driver: bridge

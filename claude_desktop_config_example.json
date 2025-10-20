@@ -1,0 +1,20 @@
+{
+    "mcpServers": {
+        "mcp-server-firecrawl": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "firecrawl-mcp"
+            ],
+            "env": {
+                "FIRECRAWL_API_KEY": "fc-c85aefe745134a5f8ed1e376e3d57457",
+                "FIRECRAWL_RETRY_MAX_ATTEMPTS": "5",
+                "FIRECRAWL_RETRY_INITIAL_DELAY": "2000",
+                "FIRECRAWL_RETRY_MAX_DELAY": "30000",
+                "FIRECRAWL_RETRY_BACKOFF_FACTOR": "3",
+                "FIRECRAWL_CREDIT_WARNING_THRESHOLD": "2000",
+                "FIRECRAWL_CREDIT_CRITICAL_THRESHOLD": "500"
+            }
+        }
+    }
+}
