@@ -1,0 +1,56 @@
+graph LR
+    A[Person 1: MD & Perm Sales] --> A1("<b>Time-Saving Data Access:</b><br/><br/>- Show YTD perm revenue split: Accountancy vs Technical?<br/><br/>- List active Platinum/Gold clients by last contact date?<br/><br/>- Find fee% & rebate period for Client X's recent Tech hire?");
+    A --> A2("<b>Problem Solving:</b><br/><br/>- Analyze reasons for delays in filling high-fee roles.<br/><br/>- Predict next quarter's permanent placement revenue using pipeline data.<br/><br/>- Identify external non-Accountancy hires at top clients for cross-selling.");
+    A --> A3("<b>Presentation Creation:</b><br/><br/>- Generate KPI dashboard (Revenue vs Target, Service Split, Growth).<br/><br/>- Create slide: Bristol Accountancy market position (Share, Client Mix, Fill Times).<br/><br/>- Produce report: Perm placement performance (Consultant breakdown, Avg Fees, Top Clients).");
+    A --> A4("<b>Automation Pipeline Request:</b><br/><br/>- Create pipeline: When a perm placement is marked 'Complete' in Bullhorn, automatically generate invoice draft in Xero & notify Finance.<br/><br/>- Design workflow: Check top client websites/LinkedIn weekly for new senior roles matching our sectors & create lead records in Bullhorn.<br/><br/>- Automate: Send templated follow-up email to placed candidates 1 week and 1 month after start date, logging comms in Bullhorn.");
+
+    B[Person 2: Temp & CC Specialist] --> B1("<b>Time-Saving Data Access:</b><br/><br/>- List available Bristol CC temps (worked for Client Y, available Mon, positive feedback).<br/><br/>- Show temps whose timesheets await client approval for last week.<br/><br/>- What's the status & next milestone for Company Z consultancy?");
+    B --> B2("<b>Problem Solving:</b><br/><br/>- Analyze temp CC fill rate bottlenecks (by client/role).<br/><br/>- Predict seasonal temp Sales demand & check candidate pool sufficiency.<br/><br/>- Find companies expanding contact centres near Bristol for consultancy leads.");
+    B --> B3("<b>Presentation Creation:</b><br/><br/>- Dashboard: Quarterly Temp Desk activity (Fill Rate, Speed, Sector Split, Margin%).<br/><br/>- Slide: ROI case study for Company Z consultancy (Metrics, Testimonials, Impact).<br/><br/>- Report: Temp pool demographics (Location, Availability, Skills, Ratings).");
+    B --> B4("<b>Automation Pipeline Request:</b><br/><br/>- Create pipeline: When a client approves a timesheet via email/portal, update status in Bullhorn & notify Payroll.<br/><br/>- Design workflow: Automatically send assignment details (client, location, start time) via SMS/Email to confirmed temp workers.<br/><br/>- Automate: Check pool of available temps daily & send a 'Check-in/Update Availability' email/SMS to those not recently contacted.");
+
+    C[Person 3: Resourcer, Admin & Tech] --> C1("<b>Time-Saving Data Access:</b><br/><br/>- How many LinkedIn CVs added to Bullhorn this week? Any Jotform import errors?<br/><br/>- What are the contact details for external IT support?<br/><br/>- List Tech candidates in pipeline skilled in 'Azure'.");
+    C --> C2("<b>Problem Solving:</b><br/><br/>- Analyze sourcing channel effectiveness: Which yield best Sales vs CC candidates?<br/><br/>- Identify potential duplicate candidate records in Bullhorn.<br/><br/>- Summarize common Bullhorn/Broadbean user issues from internal comms.");
+    C --> C3("<b>Presentation Creation:</b><br/><br/>- Report: Sourcing channel effectiveness (CVs per channel, Conversion rates, Cost).<br/><br/>- Dashboard: Admin & System health (Email response, ATS uptime, IT tickets, Sync status).<br/><br/>- Slide: Bullhorn data quality overview (% Complete records, Duplicates, Growth).");
+    C --> C4("<b>Automation Pipeline Request:</b><br/><br/>- Create pipeline: When a new CV is submitted via Jotform, attempt to parse CV & create/update candidate record in Bullhorn, flagging for review if unsure.<br/><br/>- Design workflow: Monitor info@proactivepeople.com for specific keywords (e.g., 'job inquiry', 'CV attached'); create tasks in Bullhorn/ticketing system.<br/><br/>- Automate: When a job is posted via Broadbean, update the status on the company website (Joomla CMS).");
+
+    D[Person 4: Compliance & Wellbeing] --> D1("<b>Time-Saving Data Access:</b><br/><br/>- Report: Placed candidates needing Right to Work renewal in 60 days.<br/><br/>- Find John Smith's signed Temp Worker Agreement (Client Z).<br/><br/>- Show Emma Jane's schedule & available consultation slots next week.");
+    D --> D2("<b>Problem Solving:</b><br/><br/>- Review Right to Work process against guidelines for compliance gaps (esp. remote).<br/><br/>- Analyze time taken for temp compliance checks; suggest streamlining.<br/><br/>- Analyze anonymized Wellbeing data for workplace stress patterns/correlations.");
+    D --> D3("<b>Presentation Creation:</b><br/><br/>- Dashboard: Quarterly compliance status (% RTW complete, Pending DBS, GDPR consent).<br/><br/>- Summary: Annual Wellbeing service impact (Anonymized data: Users, Issues, Outcomes, Satisfaction).<br/><br/>- Report: DSO trends over 12 months (Avg DSO, Late payers analysis).");
+    D --> D4("<b>Automation Pipeline Request:</b><br/><br/>- Create pipeline: 90 days before a candidate's RTW visa expires, create a task in Bullhorn for Compliance Officer to request updated docs.<br/><br/>- Design workflow: When a Wellbeing consultation is booked, automatically send confirmation email with T&Cs and pre-session questionnaire link.<br/><br/>- Automate: Generate weekly report of placements missing key compliance docs (RTW, Signed Agreement) & email to Compliance Officer.");
+
+    E[Person 5: Finance, Training & Assess] --> E1("<b>Time-Saving Data Access:</b><br/><br/>- List client invoices >15 days overdue with amounts.<br/><br/>- What was last week's temp payroll breakdown (PAYE, NI)?<br/><br/>- Find participant feedback forms from Client A's Sales Training.");
+    E --> E2("<b>Problem Solving:</b><br/><br/>- Analyze temp placement gross profit margins; flag under-target instances.<br/><br/>- Identify perm recruitment clients (no Training/Assessment use) for cross-selling.<br/><br/>- Evaluate Assessment effectiveness by correlating scores with placement success/tenure.");
+    E --> E3("<b>Presentation Creation:</b><br/><br/>- Dashboard: Monthly financial summary (Revenue vs Cash, Service Split, Payroll vs Billed, Expenses).<br/><br/>- Report: Quarterly Training delivery summary (Programs delivered, Types, Satisfaction, Revenue).<br/><br/>- Breakdown: Annual Assessment usage stats (Candidates assessed, Types, Success Correlation, Revenue).");
+    E --> E4("<b>Automation Pipeline Request:</b><br/><br/>- Create pipeline: When approved timesheets are ready in Bullhorn, automatically create draft invoices in Xero & collate data for payroll processing.<br/><br/>- Design workflow: After a Training session is marked complete, automatically send feedback survey link to participants & reminder emails.<br/><br/>- Automate: When an Assessment service is added to a Bullhorn placement record, trigger invoice line item creation & send assessment link to candidate.");
+
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#ccf,stroke:#333,stroke-width:2px
+    style C fill:#cfc,stroke:#333,stroke-width:2px
+    style D fill:#ffc,stroke:#333,stroke-width:2px
+    style E fill:#fcc,stroke:#333,stroke-width:2px
+
+    style A1 fill:#fdf,stroke:#666,stroke-width:1px
+    style A2 fill:#fdf,stroke:#666,stroke-width:1px
+    style A3 fill:#fdf,stroke:#666,stroke-width:1px
+    style A4 fill:#fdf,stroke:#666,stroke-width:1px
+
+    style B1 fill:#eef,stroke:#666,stroke-width:1px
+    style B2 fill:#eef,stroke:#666,stroke-width:1px
+    style B3 fill:#eef,stroke:#666,stroke-width:1px
+    style B4 fill:#eef,stroke:#666,stroke-width:1px
+
+    style C1 fill:#efe,stroke:#666,stroke-width:1px
+    style C2 fill:#efe,stroke:#666,stroke-width:1px
+    style C3 fill:#efe,stroke:#666,stroke-width:1px
+    style C4 fill:#efe,stroke:#666,stroke-width:1px
+
+    style D1 fill:#fff0b3,stroke:#666,stroke-width:1px
+    style D2 fill:#fff0b3,stroke:#666,stroke-width:1px
+    style D3 fill:#fff0b3,stroke:#666,stroke-width:1px
+    style D4 fill:#fff0b3,stroke:#666,stroke-width:1px
+
+    style E1 fill:#fee,stroke:#666,stroke-width:1px
+    style E2 fill:#fee,stroke:#666,stroke-width:1px
+    style E3 fill:#fee,stroke:#666,stroke-width:1px
+    style E4 fill:#fee,stroke:#666,stroke-width:1px
