@@ -2,7 +2,10 @@
   "permissions": {
     "allow": [
       "Bash(python:*)",
-      "Bash(dir:*)"
+      "Bash(dir:*)",
+      "Bash(pip install:*)",
+      "Bash(move groq.py groq_client.py)",
+      "Bash(ren:*)"
     ],
     "deny": [],
     "ask": []
@@ -10,6 +13,8 @@
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "firecrawl",
-    "github"
+    "github",
+    "supabase",
+    "context7"
   ]
 }
