@@ -1,0 +1,41 @@
+invoice_id,invoice_date,client_id,client_name,service_type,program_name,trainer,duration_days,number_participants,price_per_person,total_amount,invoice_status,payment_due_date,payment_received_date,notes
+INV-TRN-2024-001,2024-01-20,CLT-071,Sales Masters Ltd,Custom Program,Advanced Sales Techniques,Stuart Pearce,2,12,350.00,4200.00,Paid,2024-02-19,2024-02-15,Two-day intensive
+INV-TRN-2024-002,2024-02-05,CLT-072,Customer First,Workshop,Customer Service Excellence,Stuart Pearce,1,8,450.00,3600.00,Paid,2024-03-06,2024-03-10,Full-day workshop
+INV-TRN-2024-003,2024-02-15,CLT-073,Tech Leaders,One-on-One Coaching,Executive Leadership Coaching,Stuart Pearce,0.25,1,250.00,250.00,Paid,2024-03-16,2024-03-12,2-hour session
+INV-TRN-2024-004,2024-03-01,CLT-074,Retail Solutions,Custom Program,Retail Sales Training,Stuart Pearce,3,15,400.00,6000.00,Paid,2024-03-31,2024-04-05,Three-day program
+INV-TRN-2024-005,2024-03-18,CLT-075,Contact Centre Pro,Workshop,Effective Communication Skills,Stuart Pearce,1,20,350.00,7000.00,Paid,2024-04-17,2024-04-12,Large group workshop
+INV-TRN-2024-006,2024-04-02,CLT-076,Finance Group,One-on-One Coaching,Performance Coaching,Stuart Pearce,0.25,1,300.00,300.00,Paid,2024-05-02,2024-04-28,2-hour session
+INV-TRN-2024-007,2024-04-20,CLT-077,Engineering Co,Custom Program,Team Leadership Development,Stuart Pearce,2,10,500.00,5000.00,Paid,2024-05-20,2024-05-18,Two-day program
+INV-TRN-2024-008,2024-05-08,CLT-078,Hospitality Inc,Workshop,Objection Handling Mastery,Stuart Pearce,1,12,400.00,4800.00,Paid,2024-06-07,2024-06-10,Full-day workshop
+INV-TRN-2024-009,2024-05-25,CLT-079,Admin Solutions,One-on-One Coaching,Career Development Coaching,Stuart Pearce,0.5,1,500.00,500.00,Paid,2024-06-24,2024-06-20,Half-day session
+INV-TRN-2024-010,2024-06-10,CLT-080,Sales Dynamo,Custom Program,Consultative Selling,Stuart Pearce,3,18,450.00,8100.00,Paid,2024-07-10,2024-07-08,Three-day intensive
+INV-TRN-2024-011,2024-06-28,CLT-081,Health Services,Workshop,Conflict Resolution,Stuart Pearce,1,15,350.00,5250.00,Paid,2024-07-28,2024-07-25,Full-day workshop
+INV-TRN-2024-012,2024-07-15,CLT-082,Tech Ventures,One-on-One Coaching,Executive Presence Coaching,Stuart Pearce,0.25,1,250.00,250.00,Paid,2024-08-14,2024-08-10,2-hour session
+INV-TRN-2024-013,2024-08-02,CLT-071,Sales Masters Ltd,Custom Program,Advanced Negotiation Skills,Stuart Pearce,2,14,400.00,5600.00,Paid,2024-09-01,2024-08-28,Two-day program
+INV-TRN-2024-014,2024-08-20,CLT-083,Retail Chain,Workshop,Customer Retention Strategies,Stuart Pearce,1,25,350.00,8750.00,Paid,2024-09-19,2024-09-22,Large group
+INV-TRN-2024-015,2024-09-05,CLT-084,Charity Org,One-on-One Coaching,Fundraising Skills Coaching,Stuart Pearce,0.5,1,450.00,450.00,Paid,2024-10-05,2024-10-02,Half-day session
+INV-TRN-2024-016,2024-09-22,CLT-085,Construction Ltd,Custom Program,Safety Leadership,Stuart Pearce,2,12,500.00,6000.00,Paid,2024-10-22,2024-10-18,Two-day program
+INV-TRN-2024-017,2024-10-10,CLT-072,Customer First,Workshop,Difficult Customer Management,Stuart Pearce,1,10,400.00,4000.00,Paid,2024-11-09,2024-11-12,Full-day workshop
+INV-TRN-2024-018,2024-10-28,CLT-086,Legal Partners,One-on-One Coaching,Business Development Coaching,Stuart Pearce,0.25,1,300.00,300.00,Paid,2024-11-27,2024-11-25,2-hour session
+INV-TRN-2024-019,2024-11-15,CLT-087,Finance Pro,Custom Program,Sales Management Excellence,Stuart Pearce,3,8,550.00,4400.00,Outstanding,2024-12-15,,Three-day program
+INV-TRN-2024-020,2024-12-05,CLT-080,Sales Dynamo,Workshop,Closing Techniques Masterclass,Stuart Pearce,1,16,450.00,7200.00,Outstanding,2025-01-04,,Full-day workshop
+INV-TRN-2025-001,2025-01-18,CLT-088,Tech Innovators,Custom Program,Leadership Development,Stuart Pearce,2,12,450.00,5400.00,Outstanding,2025-02-17,,Two-day program
+INV-TRN-2025-002,2025-02-08,CLT-074,Retail Solutions,Workshop,Upselling and Cross-selling,Stuart Pearce,1,20,350.00,7000.00,Outstanding,2025-03-10,,Full-day workshop
+INV-TRN-2025-003,2025-02-25,CLT-089,Healthcare Group,One-on-One Coaching,Performance Improvement,Stuart Pearce,0.25,1,250.00,250.00,Projected,2025-03-27,,2-hour session
+INV-TRN-2025-004,2025-03-15,CLT-075,Contact Centre Pro,Custom Program,Quality Assurance Training,Stuart Pearce,2,15,400.00,6000.00,Projected,2025-04-14,,Two-day program
+INV-TRN-2025-005,2025-04-05,CLT-090,Engineering Works,Workshop,Team Collaboration,Stuart Pearce,1,18,350.00,6300.00,Projected,2025-05-05,,Full-day workshop
+INV-TRN-2025-006,2025-04-22,CLT-071,Sales Masters Ltd,One-on-One Coaching,Sales Coaching,Stuart Pearce,0.5,1,500.00,500.00,Projected,2025-05-22,,Half-day session
+INV-TRN-2025-007,2025-05-10,CLT-091,Hospitality Group,Custom Program,Service Excellence,Stuart Pearce,3,20,450.00,9000.00,Projected,2025-06-09,,Three-day program
+INV-TRN-2025-008,2025-05-28,CLT-083,Retail Chain,Workshop,Motivational Leadership,Stuart Pearce,1,12,400.00,4800.00,Projected,2025-06-27,,Full-day workshop
+INV-TRN-2025-009,2025-06-15,CLT-092,Digital Agency,One-on-One Coaching,Client Relationship Coaching,Stuart Pearce,0.25,1,300.00,300.00,Projected,2025-07-15,,2-hour session
+INV-TRN-2025-010,2025-07-03,CLT-072,Customer First,Custom Program,Customer Service Mastery,Stuart Pearce,2,15,450.00,6750.00,Projected,2025-08-02,,Two-day program
+INV-TRN-2025-011,2025-07-20,CLT-087,Finance Pro,Workshop,Consultative Sales Approach,Stuart Pearce,1,10,500.00,5000.00,Projected,2025-08-19,,Full-day workshop
+INV-TRN-2025-012,2025-08-08,CLT-093,Tech Solutions,One-on-One Coaching,Executive Coaching,Stuart Pearce,0.5,1,550.00,550.00,Projected,2025-09-07,,Half-day session
+INV-TRN-2025-013,2025-08-25,CLT-080,Sales Dynamo,Custom Program,Advanced Sales Leadership,Stuart Pearce,3,12,500.00,6000.00,Projected,2025-09-24,,Three-day program
+INV-TRN-2025-014,2025-09-12,CLT-094,Manufacturing Ltd,Workshop,Change Management,Stuart Pearce,1,25,350.00,8750.00,Projected,2025-10-12,,Large group workshop
+INV-TRN-2025-015,2025-09-30,CLT-075,Contact Centre Pro,One-on-One Coaching,Team Leader Coaching,Stuart Pearce,0.25,1,250.00,250.00,Projected,2025-10-30,,2-hour session
+INV-TRN-2025-016,2025-10-18,CLT-074,Retail Solutions,Custom Program,Retail Management Skills,Stuart Pearce,2,16,400.00,6400.00,Projected,2025-11-17,,Two-day program
+INV-TRN-2025-017,2025-11-05,CLT-095,Accounting Firm,Workshop,Business Development for Professionals,Stuart Pearce,1,8,550.00,4400.00,Projected,2025-12-05,,Full-day workshop
+INV-TRN-2025-018,2025-11-22,CLT-088,Tech Innovators,One-on-One Coaching,Leadership Presence,Stuart Pearce,0.25,1,300.00,300.00,Projected,2025-12-22,,2-hour session
+INV-TRN-2025-019,2025-12-10,CLT-071,Sales Masters Ltd,Custom Program,Strategic Account Management,Stuart Pearce,3,10,550.00,5500.00,Projected,2026-01-09,,Three-day program
+INV-TRN-2025-020,2025-12-28,CLT-083,Retail Chain,Workshop,New Year Sales Kickoff,Stuart Pearce,1,30,400.00,12000.00,Projected,2026-01-27,,Large group event

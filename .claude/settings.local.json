@@ -1,11 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(dir $env:APPDATAClaude)",
-      "Bash(dir:*)",
-      "Read(//c/Users/steve/**)",
-      "Bash(powershell -Command \"(Get-Content ''d:\\Recruitment\\sources_validated_summaries.md'' | Measure-Object -Line).Lines\")",
-      "Bash(powershell -Command \"Get-ChildItem ''d:\\Recruitment\\batch_*.md'' | Select-Object -ExpandProperty Name\")"
+      "Bash(python:*)",
+      "Bash(dir:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,0 +1,51 @@
+expense_id,expense_date,service_name,category,billing_cycle,amount,payment_status,payment_method,auto_renew
+TECH-202401-Bullhorn-A,2024-01-01,Bullhorn ATS,Software,650.0,650.00,Paid,Credit Card,Yes
+TECH-202401-Broadbean-,2024-01-01,Broadbean Multi-Posting,Software,450.0,450.00,Paid,Credit Card,Yes
+TECH-202401-LinkedIn-R,2024-01-01,LinkedIn Recruiter (3 licenses),Software,850.0,850.00,Paid,Credit Card,Yes
+TECH-202401-Microsoft-,2024-01-01,Microsoft 365 (5 users),Software,95.0,95.00,Paid,Credit Card,Yes
+TECH-202401-Website-Ho,2024-01-01,Website Hosting,Hosting,45.0,45.00,Paid,Credit Card,Yes
+TECH-202401-Jotform-Pr,2024-01-01,Jotform Professional,Software,35.0,35.00,Paid,Credit Card,Yes
+TECH-202401-Xero-Accou,2024-01-01,Xero Accounting,Software,55.0,55.00,Paid,Credit Card,Yes
+TECH-202401-Payroll-So,2024-01-01,Payroll Software,Software,120.0,120.00,Paid,Credit Card,Yes
+TECH-202402-Bullhorn-A,2024-02-01,Bullhorn ATS,Software,650.0,650.00,Paid,Credit Card,Yes
+TECH-202402-Broadbean-,2024-02-01,Broadbean Multi-Posting,Software,450.0,450.00,Paid,Credit Card,Yes
+TECH-202402-LinkedIn-R,2024-02-01,LinkedIn Recruiter (3 licenses),Software,850.0,850.00,Paid,Credit Card,Yes
+TECH-202402-Microsoft-,2024-02-01,Microsoft 365 (5 users),Software,95.0,95.00,Paid,Credit Card,Yes
+TECH-202402-Website-Ho,2024-02-01,Website Hosting,Hosting,45.0,45.00,Paid,Credit Card,Yes
+TECH-202402-Jotform-Pr,2024-02-01,Jotform Professional,Software,35.0,35.00,Paid,Credit Card,Yes
+TECH-202402-Xero-Accou,2024-02-01,Xero Accounting,Software,55.0,55.00,Paid,Credit Card,Yes
+TECH-202402-Payroll-So,2024-02-01,Payroll Software,Software,120.0,120.00,Paid,Credit Card,Yes
+TECH-202403-Bullhorn-A,2024-03-01,Bullhorn ATS,Software,650.0,650.00,Paid,Credit Card,Yes
+TECH-202403-Broadbean-,2024-03-01,Broadbean Multi-Posting,Software,450.0,450.00,Paid,Credit Card,Yes
+TECH-202403-LinkedIn-R,2024-03-01,LinkedIn Recruiter (3 licenses),Software,850.0,850.00,Paid,Credit Card,Yes
+TECH-202403-Microsoft-,2024-03-01,Microsoft 365 (5 users),Software,95.0,95.00,Paid,Credit Card,Yes
+TECH-202403-Website-Ho,2024-03-01,Website Hosting,Hosting,45.0,45.00,Paid,Credit Card,Yes
+TECH-202403-Jotform-Pr,2024-03-01,Jotform Professional,Software,35.0,35.00,Paid,Credit Card,Yes
+TECH-202403-Xero-Accou,2024-03-01,Xero Accounting,Software,55.0,55.00,Paid,Credit Card,Yes
+TECH-202403-Payroll-So,2024-03-01,Payroll Software,Software,120.0,120.00,Paid,Credit Card,Yes
+TECH-202404-Bullhorn-A,2024-04-01,Bullhorn ATS,Software,650.0,650.00,Paid,Credit Card,Yes
+TECH-202404-Broadbean-,2024-04-01,Broadbean Multi-Posting,Software,450.0,450.00,Paid,Credit Card,Yes
+TECH-202404-LinkedIn-R,2024-04-01,LinkedIn Recruiter (3 licenses),Software,850.0,850.00,Paid,Credit Card,Yes
+TECH-202404-Microsoft-,2024-04-01,Microsoft 365 (5 users),Software,95.0,95.00,Paid,Credit Card,Yes
+TECH-202404-Website-Ho,2024-04-01,Website Hosting,Hosting,45.0,45.00,Paid,Credit Card,Yes
+TECH-202404-Jotform-Pr,2024-04-01,Jotform Professional,Software,35.0,35.00,Paid,Credit Card,Yes
+TECH-202404-Xero-Accou,2024-04-01,Xero Accounting,Software,55.0,55.00,Paid,Credit Card,Yes
+TECH-202404-Payroll-So,2024-04-01,Payroll Software,Software,120.0,120.00,Paid,Credit Card,Yes
+TECH-202405-Bullhorn-A,2024-05-01,Bullhorn ATS,Software,650.0,650.00,Paid,Credit Card,Yes
+TECH-202405-Broadbean-,2024-05-01,Broadbean Multi-Posting,Software,450.0,450.00,Paid,Credit Card,Yes
+TECH-202405-LinkedIn-R,2024-05-01,LinkedIn Recruiter (3 licenses),Software,850.0,850.00,Paid,Credit Card,Yes
+TECH-202405-Microsoft-,2024-05-01,Microsoft 365 (5 users),Software,95.0,95.00,Paid,Credit Card,Yes
+TECH-202405-Website-Ho,2024-05-01,Website Hosting,Hosting,45.0,45.00,Paid,Credit Card,Yes
+TECH-202405-Jotform-Pr,2024-05-01,Jotform Professional,Software,35.0,35.00,Paid,Credit Card,Yes
+TECH-202405-Xero-Accou,2024-05-01,Xero Accounting,Software,55.0,55.00,Paid,Credit Card,Yes
+TECH-202405-Payroll-So,2024-05-01,Payroll Software,Software,120.0,120.00,Paid,Credit Card,Yes
+TECH-202406-Bullhorn-A,2024-06-01,Bullhorn ATS,Software,650.0,650.00,Paid,Credit Card,Yes
+TECH-202406-Broadbean-,2024-06-01,Broadbean Multi-Posting,Software,450.0,450.00,Paid,Credit Card,Yes
+TECH-202406-LinkedIn-R,2024-06-01,LinkedIn Recruiter (3 licenses),Software,850.0,850.00,Paid,Credit Card,Yes
+TECH-202406-Microsoft-,2024-06-01,Microsoft 365 (5 users),Software,95.0,95.00,Paid,Credit Card,Yes
+TECH-202406-Website-Ho,2024-06-01,Website Hosting,Hosting,45.0,45.00,Paid,Credit Card,Yes
+TECH-202406-Jotform-Pr,2024-06-01,Jotform Professional,Software,35.0,35.00,Paid,Credit Card,Yes
+TECH-202406-Xero-Accou,2024-06-01,Xero Accounting,Software,55.0,55.00,Paid,Credit Card,Yes
+TECH-202406-Payroll-So,2024-06-01,Payroll Software,Software,120.0,120.00,Paid,Credit Card,Yes
+TECH-202407-Bullhorn-A,2024-07-01,Bullhorn ATS,Software,650.0,650.00,Paid,Credit Card,Yes
+TECH-202407-Broadbean-,2024-07-01,Broadbean Multi-Posting,Software,450.0,450.00,Paid,Credit Card,Yes

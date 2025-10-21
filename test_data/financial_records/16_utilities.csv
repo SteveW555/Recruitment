@@ -1,0 +1,51 @@
+expense_id,expense_date,utility_type,location,amount,payment_status,payment_method
+UTIL-202401-Electricit,2024-01-15,Electricity,Bristol,325.51,Paid,Direct Debit
+UTIL-202401-GasBris,2024-01-15,Gas,Bristol,154.11,Paid,Direct Debit
+UTIL-202401-WaterBr,2024-01-15,Water,Bristol,56.89,Paid,Direct Debit
+UTIL-202401-Internet&,2024-01-15,Internet & Phones,Bristol,180.00,Paid,Direct Debit
+UTIL-202401-Electricit,2024-01-15,Electricity,Weston,141.12,Paid,Direct Debit
+UTIL-202401-GasWest,2024-01-15,Gas,Weston,85.92,Paid,Direct Debit
+UTIL-202401-WaterWe,2024-01-15,Water,Weston,28.18,Paid,Direct Debit
+UTIL-202401-Internet&,2024-01-15,Internet & Phones,Weston,90.00,Paid,Direct Debit
+UTIL-202402-Electricit,2024-02-15,Electricity,Bristol,338.12,Paid,Direct Debit
+UTIL-202402-GasBris,2024-02-15,Gas,Bristol,138.45,Paid,Direct Debit
+UTIL-202402-WaterBr,2024-02-15,Water,Bristol,58.33,Paid,Direct Debit
+UTIL-202402-Internet&,2024-02-15,Internet & Phones,Bristol,180.00,Paid,Direct Debit
+UTIL-202402-Electricit,2024-02-15,Electricity,Weston,153.61,Paid,Direct Debit
+UTIL-202402-GasWest,2024-02-15,Gas,Weston,89.42,Paid,Direct Debit
+UTIL-202402-WaterWe,2024-02-15,Water,Weston,32.66,Paid,Direct Debit
+UTIL-202402-Internet&,2024-02-15,Internet & Phones,Weston,90.00,Paid,Direct Debit
+UTIL-202403-Electricit,2024-03-15,Electricity,Bristol,283.53,Paid,Direct Debit
+UTIL-202403-GasBris,2024-03-15,Gas,Bristol,133.64,Paid,Direct Debit
+UTIL-202403-WaterBr,2024-03-15,Water,Bristol,58.25,Paid,Direct Debit
+UTIL-202403-Internet&,2024-03-15,Internet & Phones,Bristol,180.00,Paid,Direct Debit
+UTIL-202403-Electricit,2024-03-15,Electricity,Weston,175.44,Paid,Direct Debit
+UTIL-202403-GasWest,2024-03-15,Gas,Weston,81.29,Paid,Direct Debit
+UTIL-202403-WaterWe,2024-03-15,Water,Weston,25.86,Paid,Direct Debit
+UTIL-202403-Internet&,2024-03-15,Internet & Phones,Weston,90.00,Paid,Direct Debit
+UTIL-202404-Electricit,2024-04-15,Electricity,Bristol,286.32,Paid,Direct Debit
+UTIL-202404-GasBris,2024-04-15,Gas,Bristol,147.87,Paid,Direct Debit
+UTIL-202404-WaterBr,2024-04-15,Water,Bristol,55.67,Paid,Direct Debit
+UTIL-202404-Internet&,2024-04-15,Internet & Phones,Bristol,180.00,Paid,Direct Debit
+UTIL-202404-Electricit,2024-04-15,Electricity,Weston,152.77,Paid,Direct Debit
+UTIL-202404-GasWest,2024-04-15,Gas,Weston,84.77,Paid,Direct Debit
+UTIL-202404-WaterWe,2024-04-15,Water,Weston,32.04,Paid,Direct Debit
+UTIL-202404-Internet&,2024-04-15,Internet & Phones,Weston,90.00,Paid,Direct Debit
+UTIL-202405-Electricit,2024-05-15,Electricity,Bristol,303.18,Paid,Direct Debit
+UTIL-202405-GasBris,2024-05-15,Gas,Bristol,174.39,Paid,Direct Debit
+UTIL-202405-WaterBr,2024-05-15,Water,Bristol,55.50,Paid,Direct Debit
+UTIL-202405-Internet&,2024-05-15,Internet & Phones,Bristol,180.00,Paid,Direct Debit
+UTIL-202405-Electricit,2024-05-15,Electricity,Weston,147.13,Paid,Direct Debit
+UTIL-202405-GasWest,2024-05-15,Gas,Weston,72.43,Paid,Direct Debit
+UTIL-202405-WaterWe,2024-05-15,Water,Weston,26.56,Paid,Direct Debit
+UTIL-202405-Internet&,2024-05-15,Internet & Phones,Weston,90.00,Paid,Direct Debit
+UTIL-202406-Electricit,2024-06-15,Electricity,Bristol,298.21,Paid,Direct Debit
+UTIL-202406-GasBris,2024-06-15,Gas,Bristol,127.10,Paid,Direct Debit
+UTIL-202406-WaterBr,2024-06-15,Water,Bristol,48.34,Paid,Direct Debit
+UTIL-202406-Internet&,2024-06-15,Internet & Phones,Bristol,180.00,Paid,Direct Debit
+UTIL-202406-Electricit,2024-06-15,Electricity,Weston,145.60,Paid,Direct Debit
+UTIL-202406-GasWest,2024-06-15,Gas,Weston,70.21,Paid,Direct Debit
+UTIL-202406-WaterWe,2024-06-15,Water,Weston,28.75,Paid,Direct Debit
+UTIL-202406-Internet&,2024-06-15,Internet & Phones,Weston,90.00,Paid,Direct Debit
+UTIL-202407-Electricit,2024-07-15,Electricity,Bristol,323.35,Paid,Direct Debit
+UTIL-202407-GasBris,2024-07-15,Gas,Bristol,153.11,Paid,Direct Debit

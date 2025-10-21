@@ -1,0 +1,51 @@
+expense_id,expense_date,office_location,expense_type,square_feet,price_per_sqft,amount,payment_status,payment_method,notes
+RENT-BRS-202401,2024-01-01,Bristol Office,Rent,1200,42.5,4250.0,Paid,Direct Debit,Monthly rent - prime location
+RENT-WST-202401,2024-01-01,Weston Office,Rent,600,25.0,1250.0,Paid,Direct Debit,Monthly rent - secondary office
+SRVC-BRS-202401,2024-01-01,Bristol Office,Service Charge,1200,5.0,500.0,Paid,Direct Debit,Monthly service charge
+RENT-BRS-202402,2024-02-01,Bristol Office,Rent,1200,42.5,4250.0,Paid,Direct Debit,Monthly rent - prime location
+RENT-WST-202402,2024-02-01,Weston Office,Rent,600,25.0,1250.0,Paid,Direct Debit,Monthly rent - secondary office
+SRVC-BRS-202402,2024-02-01,Bristol Office,Service Charge,1200,5.0,500.0,Paid,Direct Debit,Monthly service charge
+RENT-BRS-202403,2024-03-01,Bristol Office,Rent,1200,42.5,4250.0,Paid,Direct Debit,Monthly rent - prime location
+RENT-WST-202403,2024-03-01,Weston Office,Rent,600,25.0,1250.0,Paid,Direct Debit,Monthly rent - secondary office
+SRVC-BRS-202403,2024-03-01,Bristol Office,Service Charge,1200,5.0,500.0,Paid,Direct Debit,Monthly service charge
+RENT-BRS-202404,2024-04-01,Bristol Office,Rent,1200,42.5,4250.0,Paid,Direct Debit,Monthly rent - prime location
+RENT-WST-202404,2024-04-01,Weston Office,Rent,600,25.0,1250.0,Paid,Direct Debit,Monthly rent - secondary office
+SRVC-BRS-202404,2024-04-01,Bristol Office,Service Charge,1200,5.0,500.0,Paid,Direct Debit,Monthly service charge
+RENT-BRS-202405,2024-05-01,Bristol Office,Rent,1200,42.5,4250.0,Paid,Direct Debit,Monthly rent - prime location
+RENT-WST-202405,2024-05-01,Weston Office,Rent,600,25.0,1250.0,Paid,Direct Debit,Monthly rent - secondary office
+SRVC-BRS-202405,2024-05-01,Bristol Office,Service Charge,1200,5.0,500.0,Paid,Direct Debit,Monthly service charge
+RENT-BRS-202406,2024-06-01,Bristol Office,Rent,1200,42.5,4250.0,Paid,Direct Debit,Monthly rent - prime location
+RENT-WST-202406,2024-06-01,Weston Office,Rent,600,25.0,1250.0,Paid,Direct Debit,Monthly rent - secondary office
+SRVC-BRS-202406,2024-06-01,Bristol Office,Service Charge,1200,5.0,500.0,Paid,Direct Debit,Monthly service charge
+RENT-BRS-202407,2024-07-01,Bristol Office,Rent,1200,42.5,4250.0,Paid,Direct Debit,Monthly rent - prime location
+RENT-WST-202407,2024-07-01,Weston Office,Rent,600,25.0,1250.0,Paid,Direct Debit,Monthly rent - secondary office
+SRVC-BRS-202407,2024-07-01,Bristol Office,Service Charge,1200,5.0,500.0,Paid,Direct Debit,Monthly service charge
+RENT-BRS-202408,2024-08-01,Bristol Office,Rent,1200,42.5,4250.0,Paid,Direct Debit,Monthly rent - prime location
+RENT-WST-202408,2024-08-01,Weston Office,Rent,600,25.0,1250.0,Paid,Direct Debit,Monthly rent - secondary office
+SRVC-BRS-202408,2024-08-01,Bristol Office,Service Charge,1200,5.0,500.0,Paid,Direct Debit,Monthly service charge
+RENT-BRS-202409,2024-09-01,Bristol Office,Rent,1200,42.5,4250.0,Paid,Direct Debit,Monthly rent - prime location
+RENT-WST-202409,2024-09-01,Weston Office,Rent,600,25.0,1250.0,Paid,Direct Debit,Monthly rent - secondary office
+SRVC-BRS-202409,2024-09-01,Bristol Office,Service Charge,1200,5.0,500.0,Paid,Direct Debit,Monthly service charge
+RENT-BRS-202410,2024-10-01,Bristol Office,Rent,1200,42.5,4250.0,Paid,Direct Debit,Monthly rent - prime location
+RENT-WST-202410,2024-10-01,Weston Office,Rent,600,25.0,1250.0,Paid,Direct Debit,Monthly rent - secondary office
+SRVC-BRS-202410,2024-10-01,Bristol Office,Service Charge,1200,5.0,500.0,Paid,Direct Debit,Monthly service charge
+RENT-BRS-202411,2024-11-01,Bristol Office,Rent,1200,42.5,4250.0,Paid,Direct Debit,Monthly rent - prime location
+RENT-WST-202411,2024-11-01,Weston Office,Rent,600,25.0,1250.0,Paid,Direct Debit,Monthly rent - secondary office
+SRVC-BRS-202411,2024-11-01,Bristol Office,Service Charge,1200,5.0,500.0,Paid,Direct Debit,Monthly service charge
+RENT-BRS-202412,2024-12-01,Bristol Office,Rent,1200,42.5,4250.0,Paid,Direct Debit,Monthly rent - prime location
+RENT-WST-202412,2024-12-01,Weston Office,Rent,600,25.0,1250.0,Paid,Direct Debit,Monthly rent - secondary office
+SRVC-BRS-202412,2024-12-01,Bristol Office,Service Charge,1200,5.0,500.0,Paid,Direct Debit,Monthly service charge
+RENT-BRS-202501,2025-01-01,Bristol Office,Rent,1200,42.5,4250.0,Paid,Direct Debit,Monthly rent - prime location
+RENT-WST-202501,2025-01-01,Weston Office,Rent,600,25.0,1250.0,Paid,Direct Debit,Monthly rent - secondary office
+SRVC-BRS-202501,2025-01-01,Bristol Office,Service Charge,1200,5.0,500.0,Paid,Direct Debit,Monthly service charge
+RENT-BRS-202502,2025-02-01,Bristol Office,Rent,1200,42.5,4250.0,Paid,Direct Debit,Monthly rent - prime location
+RENT-WST-202502,2025-02-01,Weston Office,Rent,600,25.0,1250.0,Paid,Direct Debit,Monthly rent - secondary office
+SRVC-BRS-202502,2025-02-01,Bristol Office,Service Charge,1200,5.0,500.0,Paid,Direct Debit,Monthly service charge
+RENT-BRS-202503,2025-03-01,Bristol Office,Rent,1200,42.5,4250.0,Paid,Direct Debit,Monthly rent - prime location
+RENT-WST-202503,2025-03-01,Weston Office,Rent,600,25.0,1250.0,Paid,Direct Debit,Monthly rent - secondary office
+SRVC-BRS-202503,2025-03-01,Bristol Office,Service Charge,1200,5.0,500.0,Paid,Direct Debit,Monthly service charge
+RENT-BRS-202504,2025-04-01,Bristol Office,Rent,1200,42.5,4250.0,Paid,Direct Debit,Monthly rent - prime location
+RENT-WST-202504,2025-04-01,Weston Office,Rent,600,25.0,1250.0,Paid,Direct Debit,Monthly rent - secondary office
+SRVC-BRS-202504,2025-04-01,Bristol Office,Service Charge,1200,5.0,500.0,Paid,Direct Debit,Monthly service charge
+RENT-BRS-202505,2025-05-01,Bristol Office,Rent,1200,42.5,4250.0,Paid,Direct Debit,Monthly rent - prime location
+RENT-WST-202505,2025-05-01,Weston Office,Rent,600,25.0,1250.0,Paid,Direct Debit,Monthly rent - secondary office

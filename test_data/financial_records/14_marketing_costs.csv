@@ -1,0 +1,51 @@
+expense_id,expense_date,marketing_activity,category,amount,frequency,payment_status,payment_method
+MKT-20240101-000,2024-01-01,Google Ads,Digital Marketing,450.00,monthly,Paid,Credit Card
+MKT-20240111-001,2024-01-11,LinkedIn Advertising,Digital Marketing,600.00,monthly,Paid,Credit Card
+MKT-20240121-002,2024-01-21,SEO Services,Digital Marketing,800.00,monthly,Paid,Credit Card
+MKT-20240131-003,2024-01-31,Website Maintenance,Digital Marketing,150.00,monthly,Paid,Credit Card
+MKT-20240210-004,2024-02-10,Networking Event Fee,Events & Hospitality,125.00,one-time,Paid,Credit Card
+MKT-20240220-005,2024-02-20,Conference Attendance,Events & Hospitality,450.00,one-time,Paid,Credit Card
+MKT-20240301-006,2024-03-01,Client Hospitality,Events & Hospitality,180.00,one-time,Paid,Credit Card
+MKT-20240311-007,2024-03-11,Corporate Gifts,Events & Hospitality,220.00,one-time,Paid,Credit Card
+MKT-20240321-008,2024-03-21,Branding Design,Events & Hospitality,1200.00,one-time,Paid,Credit Card
+MKT-20240331-009,2024-03-31,Google Ads,Digital Marketing,450.00,monthly,Paid,Credit Card
+MKT-20240410-010,2024-04-10,LinkedIn Advertising,Digital Marketing,600.00,monthly,Paid,Credit Card
+MKT-20240420-011,2024-04-20,SEO Services,Digital Marketing,800.00,monthly,Paid,Credit Card
+MKT-20240430-012,2024-04-30,Website Maintenance,Digital Marketing,150.00,monthly,Paid,Credit Card
+MKT-20240510-013,2024-05-10,Networking Event Fee,Events & Hospitality,125.00,one-time,Paid,Credit Card
+MKT-20240520-014,2024-05-20,Conference Attendance,Events & Hospitality,450.00,one-time,Paid,Credit Card
+MKT-20240530-015,2024-05-30,Client Hospitality,Events & Hospitality,180.00,one-time,Paid,Credit Card
+MKT-20240609-016,2024-06-09,Corporate Gifts,Events & Hospitality,220.00,one-time,Paid,Credit Card
+MKT-20240619-017,2024-06-19,Branding Design,Events & Hospitality,1200.00,one-time,Paid,Credit Card
+MKT-20240629-018,2024-06-29,Google Ads,Digital Marketing,450.00,monthly,Paid,Credit Card
+MKT-20240709-019,2024-07-09,LinkedIn Advertising,Digital Marketing,600.00,monthly,Paid,Credit Card
+MKT-20240719-020,2024-07-19,SEO Services,Digital Marketing,800.00,monthly,Paid,Credit Card
+MKT-20240729-021,2024-07-29,Website Maintenance,Digital Marketing,150.00,monthly,Paid,Credit Card
+MKT-20240808-022,2024-08-08,Networking Event Fee,Events & Hospitality,125.00,one-time,Paid,Credit Card
+MKT-20240818-023,2024-08-18,Conference Attendance,Events & Hospitality,450.00,one-time,Paid,Credit Card
+MKT-20240828-024,2024-08-28,Client Hospitality,Events & Hospitality,180.00,one-time,Paid,Credit Card
+MKT-20240907-025,2024-09-07,Corporate Gifts,Events & Hospitality,220.00,one-time,Paid,Credit Card
+MKT-20240917-026,2024-09-17,Branding Design,Events & Hospitality,1200.00,one-time,Paid,Credit Card
+MKT-20240927-027,2024-09-27,Google Ads,Digital Marketing,450.00,monthly,Paid,Credit Card
+MKT-20241007-028,2024-10-07,LinkedIn Advertising,Digital Marketing,600.00,monthly,Paid,Credit Card
+MKT-20241017-029,2024-10-17,SEO Services,Digital Marketing,800.00,monthly,Paid,Credit Card
+MKT-20241027-030,2024-10-27,Website Maintenance,Digital Marketing,150.00,monthly,Paid,Credit Card
+MKT-20241106-031,2024-11-06,Networking Event Fee,Events & Hospitality,125.00,one-time,Paid,Credit Card
+MKT-20241116-032,2024-11-16,Conference Attendance,Events & Hospitality,450.00,one-time,Paid,Credit Card
+MKT-20241126-033,2024-11-26,Client Hospitality,Events & Hospitality,180.00,one-time,Paid,Credit Card
+MKT-20241206-034,2024-12-06,Corporate Gifts,Events & Hospitality,220.00,one-time,Outstanding,Credit Card
+MKT-20241216-035,2024-12-16,Branding Design,Events & Hospitality,1200.00,one-time,Outstanding,Credit Card
+MKT-20241226-036,2024-12-26,Google Ads,Digital Marketing,450.00,monthly,Outstanding,Credit Card
+MKT-20250105-037,2025-01-05,LinkedIn Advertising,Digital Marketing,600.00,monthly,Outstanding,Credit Card
+MKT-20250115-038,2025-01-15,SEO Services,Digital Marketing,800.00,monthly,Outstanding,Credit Card
+MKT-20250125-039,2025-01-25,Website Maintenance,Digital Marketing,150.00,monthly,Outstanding,Credit Card
+MKT-20250204-040,2025-02-04,Networking Event Fee,Events & Hospitality,125.00,one-time,Outstanding,Credit Card
+MKT-20250214-041,2025-02-14,Conference Attendance,Events & Hospitality,450.00,one-time,Outstanding,Credit Card
+MKT-20250224-042,2025-02-24,Client Hospitality,Events & Hospitality,180.00,one-time,Outstanding,Credit Card
+MKT-20250306-043,2025-03-06,Corporate Gifts,Events & Hospitality,220.00,one-time,Outstanding,Credit Card
+MKT-20250316-044,2025-03-16,Branding Design,Events & Hospitality,1200.00,one-time,Outstanding,Credit Card
+MKT-20250326-045,2025-03-26,Google Ads,Digital Marketing,450.00,monthly,Outstanding,Credit Card
+MKT-20250405-046,2025-04-05,LinkedIn Advertising,Digital Marketing,600.00,monthly,Outstanding,Credit Card
+MKT-20250415-047,2025-04-15,SEO Services,Digital Marketing,800.00,monthly,Outstanding,Credit Card
+MKT-20250425-048,2025-04-25,Website Maintenance,Digital Marketing,150.00,monthly,Outstanding,Credit Card
+MKT-20250505-049,2025-05-05,Networking Event Fee,Events & Hospitality,125.00,one-time,Outstanding,Credit Card

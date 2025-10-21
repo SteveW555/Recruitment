@@ -1,0 +1,51 @@
+expense_id,expense_date,service_name,category,amount,frequency,payment_status,payment_method
+PROF-20240101-000,2024-01-01,External Accountant,Accounting,750.00,monthly,Paid,BACS
+PROF-20240131-001,2024-01-31,Legal Advisor Retainer,Legal,450.00,monthly,Paid,BACS
+PROF-20240301-002,2024-03-01,IT Support Services,IT,320.00,monthly,Paid,BACS
+PROF-20240101-003,2024-01-01,Year-End Accounts,Accounting,2500.00,annual,Paid,BACS
+PROF-20240110-004,2024-01-10,Legal Contract Review,Legal,850.00,ad-hoc,Paid,BACS
+PROF-20240101-005,2024-01-01,Network Security Audit,IT,1200.00,annual,Paid,BACS
+PROF-20240629-006,2024-06-29,External Accountant,Accounting,750.00,monthly,Paid,BACS
+PROF-20240729-007,2024-07-29,Legal Advisor Retainer,Legal,450.00,monthly,Paid,BACS
+PROF-20240828-008,2024-08-28,IT Support Services,IT,320.00,monthly,Paid,BACS
+PROF-20241231-009,2024-12-31,Year-End Accounts,Accounting,2500.00,annual,Outstanding,BACS
+PROF-20240916-010,2024-09-16,Legal Contract Review,Legal,850.00,ad-hoc,Paid,BACS
+PROF-20241231-011,2024-12-31,Network Security Audit,IT,1200.00,annual,Outstanding,BACS
+PROF-20241226-012,2024-12-26,External Accountant,Accounting,750.00,monthly,Outstanding,BACS
+PROF-20250125-013,2025-01-25,Legal Advisor Retainer,Legal,450.00,monthly,Outstanding,BACS
+PROF-20250224-014,2025-02-24,IT Support Services,IT,320.00,monthly,Outstanding,BACS
+PROF-20251231-015,2025-12-31,Year-End Accounts,Accounting,2500.00,annual,Outstanding,BACS
+PROF-20250523-016,2025-05-23,Legal Contract Review,Legal,850.00,ad-hoc,Outstanding,BACS
+PROF-20251231-017,2025-12-31,Network Security Audit,IT,1200.00,annual,Outstanding,BACS
+PROF-20250624-018,2025-06-24,External Accountant,Accounting,750.00,monthly,Outstanding,BACS
+PROF-20250724-019,2025-07-24,Legal Advisor Retainer,Legal,450.00,monthly,Outstanding,BACS
+PROF-20250823-020,2025-08-23,IT Support Services,IT,320.00,monthly,Outstanding,BACS
+PROF-20261231-021,2026-12-31,Year-End Accounts,Accounting,2500.00,annual,Outstanding,BACS
+PROF-20240503-022,2024-05-03,Legal Contract Review,Legal,850.00,ad-hoc,Paid,BACS
+PROF-20261231-023,2026-12-31,Network Security Audit,IT,1200.00,annual,Outstanding,BACS
+PROF-20251221-024,2025-12-21,External Accountant,Accounting,750.00,monthly,Outstanding,BACS
+PROF-20260120-025,2026-01-20,Legal Advisor Retainer,Legal,450.00,monthly,Outstanding,BACS
+PROF-20260219-026,2026-02-19,IT Support Services,IT,320.00,monthly,Outstanding,BACS
+PROF-20271231-027,2027-12-31,Year-End Accounts,Accounting,2500.00,annual,Outstanding,BACS
+PROF-20250609-028,2025-06-09,Legal Contract Review,Legal,850.00,ad-hoc,Outstanding,BACS
+PROF-20271231-029,2027-12-31,Network Security Audit,IT,1200.00,annual,Outstanding,BACS
+PROF-20260619-030,2026-06-19,External Accountant,Accounting,750.00,monthly,Outstanding,BACS
+PROF-20260719-031,2026-07-19,Legal Advisor Retainer,Legal,450.00,monthly,Outstanding,BACS
+PROF-20260818-032,2026-08-18,IT Support Services,IT,320.00,monthly,Outstanding,BACS
+PROF-20281230-033,2028-12-30,Year-End Accounts,Accounting,2500.00,annual,Outstanding,BACS
+PROF-20250216-034,2025-02-16,Legal Contract Review,Legal,850.00,ad-hoc,Outstanding,BACS
+PROF-20281230-035,2028-12-30,Network Security Audit,IT,1200.00,annual,Outstanding,BACS
+PROF-20261216-036,2026-12-16,External Accountant,Accounting,750.00,monthly,Outstanding,BACS
+PROF-20270115-037,2027-01-15,Legal Advisor Retainer,Legal,450.00,monthly,Outstanding,BACS
+PROF-20270214-038,2027-02-14,IT Support Services,IT,320.00,monthly,Outstanding,BACS
+PROF-20291230-039,2029-12-30,Year-End Accounts,Accounting,2500.00,annual,Outstanding,BACS
+PROF-20250831-040,2025-08-31,Legal Contract Review,Legal,850.00,ad-hoc,Outstanding,BACS
+PROF-20291230-041,2029-12-30,Network Security Audit,IT,1200.00,annual,Outstanding,BACS
+PROF-20270614-042,2027-06-14,External Accountant,Accounting,750.00,monthly,Outstanding,BACS
+PROF-20270714-043,2027-07-14,Legal Advisor Retainer,Legal,450.00,monthly,Outstanding,BACS
+PROF-20270813-044,2027-08-13,IT Support Services,IT,320.00,monthly,Outstanding,BACS
+PROF-20301230-045,2030-12-30,Year-End Accounts,Accounting,2500.00,annual,Outstanding,BACS
+PROF-20240327-046,2024-03-27,Legal Contract Review,Legal,850.00,ad-hoc,Paid,BACS
+PROF-20301230-047,2030-12-30,Network Security Audit,IT,1200.00,annual,Outstanding,BACS
+PROF-20271211-048,2027-12-11,External Accountant,Accounting,750.00,monthly,Outstanding,BACS
+PROF-20280110-049,2028-01-10,Legal Advisor Retainer,Legal,450.00,monthly,Outstanding,BACS

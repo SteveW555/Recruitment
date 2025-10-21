@@ -1,0 +1,3 @@
+payment_id,tax_year,payment_date,taxable_profit,tax_rate,tax_due,payment_status,payment_method
+CTAX-2023-24,2023-24,2024-09-30,200000.00,19%,38000.00,Paid,HMRC Online
+CTAX-2024-25,2024-25,2025-09-30,221052.63,19%,42000.00,Projected,HMRC Online

@@ -1,0 +1,51 @@
+expense_id,expense_date,fee_type,amount,payment_status,bank
+BANK-20240101-000,2024-01-01,Bank Account Monthly Fee,25.00,Paid,Business Bank Account
+BANK-20240108-001,2024-01-08,Card Transaction Fees,85.00,Paid,Business Bank Account
+BANK-20240115-002,2024-01-15,International Payment Fee,15.00,Paid,Business Bank Account
+BANK-20240122-003,2024-01-22,Overdraft Interest,45.00,Paid,Business Bank Account
+BANK-20240129-004,2024-01-29,CHAPS Payment Fee,30.00,Paid,Business Bank Account
+BANK-20240205-005,2024-02-05,Bank Account Monthly Fee,25.00,Paid,Business Bank Account
+BANK-20240212-006,2024-02-12,Card Transaction Fees,85.00,Paid,Business Bank Account
+BANK-20240219-007,2024-02-19,International Payment Fee,15.00,Paid,Business Bank Account
+BANK-20240226-008,2024-02-26,Overdraft Interest,45.00,Paid,Business Bank Account
+BANK-20240304-009,2024-03-04,CHAPS Payment Fee,30.00,Paid,Business Bank Account
+BANK-20240311-010,2024-03-11,Bank Account Monthly Fee,25.00,Paid,Business Bank Account
+BANK-20240318-011,2024-03-18,Card Transaction Fees,85.00,Paid,Business Bank Account
+BANK-20240325-012,2024-03-25,International Payment Fee,15.00,Paid,Business Bank Account
+BANK-20240401-013,2024-04-01,Overdraft Interest,45.00,Paid,Business Bank Account
+BANK-20240408-014,2024-04-08,CHAPS Payment Fee,30.00,Paid,Business Bank Account
+BANK-20240415-015,2024-04-15,Bank Account Monthly Fee,25.00,Paid,Business Bank Account
+BANK-20240422-016,2024-04-22,Card Transaction Fees,85.00,Paid,Business Bank Account
+BANK-20240429-017,2024-04-29,International Payment Fee,15.00,Paid,Business Bank Account
+BANK-20240506-018,2024-05-06,Overdraft Interest,45.00,Paid,Business Bank Account
+BANK-20240513-019,2024-05-13,CHAPS Payment Fee,30.00,Paid,Business Bank Account
+BANK-20240520-020,2024-05-20,Bank Account Monthly Fee,25.00,Paid,Business Bank Account
+BANK-20240527-021,2024-05-27,Card Transaction Fees,85.00,Paid,Business Bank Account
+BANK-20240603-022,2024-06-03,International Payment Fee,15.00,Paid,Business Bank Account
+BANK-20240610-023,2024-06-10,Overdraft Interest,45.00,Paid,Business Bank Account
+BANK-20240617-024,2024-06-17,CHAPS Payment Fee,30.00,Paid,Business Bank Account
+BANK-20240624-025,2024-06-24,Bank Account Monthly Fee,25.00,Paid,Business Bank Account
+BANK-20240701-026,2024-07-01,Card Transaction Fees,85.00,Paid,Business Bank Account
+BANK-20240708-027,2024-07-08,International Payment Fee,15.00,Paid,Business Bank Account
+BANK-20240715-028,2024-07-15,Overdraft Interest,45.00,Paid,Business Bank Account
+BANK-20240722-029,2024-07-22,CHAPS Payment Fee,30.00,Paid,Business Bank Account
+BANK-20240729-030,2024-07-29,Bank Account Monthly Fee,25.00,Paid,Business Bank Account
+BANK-20240805-031,2024-08-05,Card Transaction Fees,85.00,Paid,Business Bank Account
+BANK-20240812-032,2024-08-12,International Payment Fee,15.00,Paid,Business Bank Account
+BANK-20240819-033,2024-08-19,Overdraft Interest,45.00,Paid,Business Bank Account
+BANK-20240826-034,2024-08-26,CHAPS Payment Fee,30.00,Paid,Business Bank Account
+BANK-20240902-035,2024-09-02,Bank Account Monthly Fee,25.00,Paid,Business Bank Account
+BANK-20240909-036,2024-09-09,Card Transaction Fees,85.00,Paid,Business Bank Account
+BANK-20240916-037,2024-09-16,International Payment Fee,15.00,Paid,Business Bank Account
+BANK-20240923-038,2024-09-23,Overdraft Interest,45.00,Paid,Business Bank Account
+BANK-20240930-039,2024-09-30,CHAPS Payment Fee,30.00,Paid,Business Bank Account
+BANK-20241007-040,2024-10-07,Bank Account Monthly Fee,25.00,Paid,Business Bank Account
+BANK-20241014-041,2024-10-14,Card Transaction Fees,85.00,Paid,Business Bank Account
+BANK-20241021-042,2024-10-21,International Payment Fee,15.00,Paid,Business Bank Account
+BANK-20241028-043,2024-10-28,Overdraft Interest,45.00,Paid,Business Bank Account
+BANK-20241104-044,2024-11-04,CHAPS Payment Fee,30.00,Paid,Business Bank Account
+BANK-20241111-045,2024-11-11,Bank Account Monthly Fee,25.00,Paid,Business Bank Account
+BANK-20241118-046,2024-11-18,Card Transaction Fees,85.00,Paid,Business Bank Account
+BANK-20241125-047,2024-11-25,International Payment Fee,15.00,Paid,Business Bank Account
+BANK-20241202-048,2024-12-02,Overdraft Interest,45.00,Paid,Business Bank Account
+BANK-20241209-049,2024-12-09,CHAPS Payment Fee,30.00,Paid,Business Bank Account
