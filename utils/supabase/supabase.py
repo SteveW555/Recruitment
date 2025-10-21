@@ -34,7 +34,7 @@ import asyncio
 from functools import wraps
 
 try:
-    from supabase import create_client, Client
+    from utils.supabase.supabase import create_client, Client
     from supabase.lib.client_options import ClientOptions
 except ImportError:
     raise ImportError(

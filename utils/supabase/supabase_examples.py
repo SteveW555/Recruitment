@@ -8,7 +8,7 @@ Author: ProActive People Recruitment System
 Date: 2025
 """
 
-from supabase import SupabaseManager, get_supabase_client
+from utils.supabase.supabase import SupabaseManager, get_supabase_client
 from datetime import datetime, timedelta
 import json
 

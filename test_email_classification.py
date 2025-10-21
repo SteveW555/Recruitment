@@ -6,7 +6,7 @@ Tests the email classifier with various email types.
 Run: python test_email_classification.py
 """
 
-from email_classifier import EmailClassifier
+from utils.email.email_classifier import EmailClassifier
 from datetime import datetime
 import json
 
