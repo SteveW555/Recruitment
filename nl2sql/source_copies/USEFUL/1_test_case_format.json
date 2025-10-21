@@ -1,0 +1,14 @@
+[
+  
+  {
+    "nl": "Show me the names of all registered organisations.",
+    "known_sql": "SELECT organisation_name FROM organisations;",
+    "llm_sql": " ",
+    "results": " "
+  }
+  
+
+
+]
+
+

@@ -1,0 +1,168 @@
+medium bowl names and descriptions, top 5
+SELECT item_name, item_description FROM items WHERE category = 'bowl' AND size = 'medium' ORDER BY item_name ASC LIMIT 5;
+SELECT i.item_name, i.item_description FROM items AS i WHERE i.size = 'medium' AND i.item_name LIKE '%bowl%' LIMIT 5;
+gpt-4.1
+4
+
+medium bowl names and descriptions, top 5
+SELECT item_name, item_description FROM items WHERE category = 'bowl' AND size = 'medium' ORDER BY item_name ASC LIMIT 5;
+SELECT i.item_name, i.item_description FROM items AS i WHERE i.size = 'medium' AND i.item_name LIKE '%bowl%' LIMIT 5;
+gpt-4.1
+4
+
+show me medium clean items, 10 only
+SELECT item_name, size FROM items WHERE category = 'clean' AND size = 'medium' ORDER BY item_name LIMIT 10;
+SELECT i.item_name, i.size FROM items AS i WHERE i.size = 'medium' AND (i.item_name LIKE '%clean%' OR i.item_description LIKE '%clean%') LIMIT 10;
+gpt-4.1
+4
+
+show me medium clean items, 10 only
+SELECT item_name, size FROM items WHERE category = 'clean' AND size = 'medium' ORDER BY item_name LIMIT 10;
+SELECT i.item_name, i.size FROM items AS i WHERE i.size = 'medium' AND (i.item_name LIKE '%clean%' OR i.item_description LIKE '%clean%') LIMIT 10;
+gpt-4.1
+4
+
+list big desks with details, sort by name
+SELECT item_name, item_description FROM items WHERE category = 'desks' AND size = 'large' ORDER BY item_name ASC;
+SELECT i.item_name, i.item_description, i.category, i.subcategory, i.keywords, i.size FROM items AS i WHERE i.category = 'desks' AND i.size = 'big' ORDER BY i.item_name;
+gpt-4.1
+4
+
+list big desks with details, sort by name
+SELECT item_name, item_description FROM items WHERE category = 'desks' AND size = 'large' ORDER BY item_name ASC;
+SELECT i.item_name, i.item_description, i.category, i.subcategory, i.keywords, i.size FROM items AS i WHERE i.category = 'desks' AND i.size = 'big' ORDER BY i.item_name;
+gpt-4.1
+4
+
+Medium hand towel details, top 10.
+SELECT item_name, item_description FROM items WHERE category = 'hand towel' AND size = 'medium' ORDER BY item_name LIMIT 10;
+SELECT i.item_name, i.item_description, i.size FROM items AS i WHERE i.item_name LIKE '%hand towel%' AND i.size = 'medium' LIMIT 10;
+gpt-4.1
+4
+
+Medium hand towel details, top 10.
+SELECT item_name, item_description FROM items WHERE category = 'hand towel' AND size = 'medium' ORDER BY item_name LIMIT 10;
+SELECT i.item_name, i.item_description, i.size FROM items AS i WHERE i.item_name LIKE '%hand towel%' AND i.size = 'medium' LIMIT 10;
+gpt-4.1
+4
+
+medium computer stuff names and desc, 5 results
+SELECT item_name, item_description FROM items WHERE category = 'computer_accessories' AND size = 'medium' ORDER BY item_name LIMIT 5;
+SELECT i.item_name, i.item_description FROM items AS i WHERE i.category = 'computers' AND i.size = 'medium' LIMIT 5;
+gpt-4.1
+4
+
+10 big soil items, id and name
+SELECT item_id, item_name, size FROM items WHERE category = 'soil' AND size = 'large' ORDER BY item_name ASC LIMIT 10;
+SELECT i.item_id, i.item_name FROM items AS i WHERE (i.item_name LIKE '%soil%' OR i.item_description LIKE '%soil%') AND i.size = 'big' LIMIT 10;
+gpt-4.1
+4
+
+get 5 medium shelves names and sizes
+SELECT item_name, size FROM items WHERE category = 'free standing shelves' AND size = 'medium' ORDER BY item_name ASC LIMIT 5;
+SELECT i.item_name, i.size FROM items AS i WHERE i.category = 'shelving' AND i.size = 'medium' LIMIT 5;
+gpt-4.1
+4
+
+average clean item names & descriptions alpha
+SELECT item_name, item_description FROM items WHERE category = 'clean' AND size = 'average' ORDER BY item_name ASC;
+SELECT AVG(LENGTH(i.item_name)) AS avg_item_name_length, AVG(LENGTH(i.item_description)) AS avg_item_description_length FROM items AS i WHERE i.item_name ~ '^[A-Za-z]+' AND (i.item_description IS NULL OR i.item_description ~ '^[A-Za-z]+');
+gpt-4.1
+4
+
+show me 5 medium soil items and their details
+SELECT item_name, item_description FROM items WHERE category = 'soil' AND size = 'medium' ORDER BY item_name LIMIT 5;
+SELECT * FROM items AS i WHERE i.size = 'medium' AND (i.item_name LIKE '%soil%' OR i.item_description LIKE '%soil%') LIMIT 5;
+gpt-4.1
+4
+
+compact or bluetooth phones names & descriptions limit 5
+SELECT item_name, item_description FROM items WHERE category = 'phones' AND (size = 'compact' OR keywords LIKE '%bluetooth%') ORDER BY item_name DESC LIMIT 5;
+SELECT i.item_name, i.item_description FROM items AS i WHERE (i.size = 'compact' OR i.item_name LIKE '%bluetooth%' OR i.item_description LIKE '%bluetooth%') AND i.category LIKE '%phones%' LIMIT 5;
+gpt-4.1
+4
+
+Find 5 medium surface cleaners by name.
+SELECT item_name, size FROM items WHERE category = 'surface cleaner' AND size = 'medium' ORDER BY item_name ASC LIMIT 5;
+SELECT i.item_name FROM items AS i WHERE (i.item_name LIKE '%surface cleaner%' OR i.item_description LIKE '%surface cleaner%') AND i.size = 'medium' LIMIT 5;
+gpt-4.1
+4
+
+List 10 medium posters with their IDs and names.
+SELECT item_id, item_name, item_description FROM items WHERE category = 'posters' AND size = 'medium' ORDER BY item_name LIMIT 10;
+SELECT i.item_id, i.item_name FROM items AS i WHERE i.item_name LIKE '%poster%' AND i.size = 'medium' LIMIT 10;
+gpt-4.1
+4
+
+first 10 big sandwich maker items
+SELECT item_id, item_name, size FROM items WHERE category = 'sandwich maker' AND size = 'big' ORDER BY item_name ASC LIMIT 10;
+SELECT i.item_name, i.size FROM items AS i WHERE (i.item_name LIKE '%sandwich maker%' OR i.item_description LIKE '%sandwich maker%') AND i.size = 'big' LIMIT 10;
+gpt-4.1
+4
+
+Show me 5 medium surface cleaners with descriptions.
+SELECT item_name, item_description FROM items WHERE category = 'surface cleaner' AND size = 'medium' ORDER BY item_name ASC LIMIT 5;
+SELECT i.item_name, i.item_description, i.size FROM items AS i WHERE (i.item_name LIKE '%surface cleaner%' OR i.item_description LIKE '%surface cleaner%') AND i.size = 'medium' AND i.item_description IS NOT NULL LIMIT 5;
+gpt-4.1
+4
+
+List large rug rails - display units by name and description.
+SELECT item_name, item_description FROM items WHERE size = 'large' AND category = 'rug rails - display units' ORDER BY item_name;
+SELECT i.item_name, i.item_description FROM items AS i WHERE (i.item_name LIKE '%rug rail%' OR i.item_name LIKE '%display unit%') AND i.size = 'large';
+gpt-4.1
+4
+
+Show 5 medium washing up liquids with details.
+SELECT item_name, item_description FROM items WHERE category = 'washing up liquid' AND size = 'medium' ORDER BY item_name LIMIT 5;
+SELECT * FROM items AS i WHERE (i.item_name LIKE '%washing up liquid%' OR i.item_description LIKE '%washing up liquid%') AND i.size = 'medium' LIMIT 5;
+gpt-4.1
+4
+
+10 big hats with id, name, size sorted
+SELECT item_id, item_name, size FROM items WHERE category = 'hats' AND size = 'big' ORDER BY item_name ASC LIMIT 10;
+SELECT i.item_id, i.item_name, i.size FROM items AS i WHERE i.item_name LIKE '%hat%' AND i.size = 'big' ORDER BY i.item_id LIMIT 10;
+gpt-4.1
+4
+
+Show 5 medium tablespoons with details.
+SELECT item_name, item_description FROM items WHERE category = 'tablespoons' AND size = 'medium' LIMIT 5;
+SELECT i.item_name, i.item_description, i.size, i.category, i.subcategory, i.keywords FROM items AS i WHERE i.category = 'tables' AND i.size = 'medium' LIMIT 5;
+gpt-4.1
+4
+
+Top 10 big rug rails - display units (id, name, size), sort by name
+SELECT item_id, item_name, size FROM items WHERE category = 'rug rails - display units' AND size = 'big' ORDER BY item_name ASC LIMIT 10;
+SELECT i.item_id, i.item_name, i.size FROM items AS i WHERE i.item_name LIKE '%rug rail%' AND i.size = 'big' ORDER BY i.item_name LIMIT 10;
+gpt-4.1
+4
+
+medium desks, names and sizes, top 15 alphabetically
+SELECT item_name, size FROM items WHERE category = 'desks' AND size = 'medium' ORDER BY item_name ASC LIMIT 15;
+select pi.item_name from project_items as pi where pi.item_name ilike '%medium%' and pi.item_name ilike '%desk%' order by pi.item_name asc limit 15;
+gpt-4.1
+4
+
+tiny Lighting items with name & description
+SELECT item_name, item_description FROM items WHERE size = 'tiny' AND category = 'Lighting';
+select pi.item_name, pi.quantity, pi.remaining from project_items as pi left join subcategories as s on pi.subcategory_id = s.subcategory_id where (pi.item_name ilike '%tiny%' or pi.item_name ilike '%tin%') and (pi.item_name ilike '%light%' or pi.item_name ilike '%lighting%' or s.subcategory_name ilike '%light%' or s.subcategory_name ilike '%lighting%');
+gpt-4.1
+4
+
+huge lighting names and sizes, sort by name
+SELECT item_name, size FROM items WHERE category = 'Lighting' AND size = 'huge' ORDER BY item_name ASC;
+select pi.item_name from project_items as pi where pi.item_name ilike '%huge%' and pi.item_name ilike '%light%' order by pi.item_name;
+gpt-4.1
+4
+
+Get 5 medium desks with names and descriptions, sorted by name.
+SELECT item_name, item_description FROM items WHERE category = 'desks' AND size = 'medium' ORDER BY item_name ASC LIMIT 5;
+select pi.item_name, pi.quantity from project_items as pi where pi.item_name ilike '%medium%' and pi.item_name ilike '%desk%' order by pi.item_name limit 5;
+gpt-4.1
+4
+
+tiny lighting items with ids and names
+SELECT item_id, item_name FROM items WHERE category = 'Lighting' AND size = 'tiny';
+select pi.item_id, pi.item_name from project_items as pi where pi.item_name ilike '%tiny%' and pi.item_name ilike '%light%';
+gpt-4.1
+4
+
