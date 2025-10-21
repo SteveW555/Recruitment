@@ -1,0 +1,11 @@
+expense_id,expense_date,policy_type,annual_premium,coverage_period_months,billing_frequency,payment_status,renewal_date,payment_method
+INS-202403-Profession,2024-03-24,Professional Indemnity Insurance,3500.00,12,Annual,Paid,2025-03-24,Direct Debit
+INS-202402-Employers-,2024-02-05,Employers Liability Insurance,1200.00,12,Annual,Paid,2025-02-05,Direct Debit
+INS-202401-Public-Lia,2024-01-07,Public Liability Insurance,850.00,12,Annual,Paid,2025-01-07,Direct Debit
+INS-202402-Office-Con,2024-02-09,Office Contents Insurance,450.00,12,Annual,Paid,2025-02-09,Direct Debit
+INS-202402-Cyber-Insu,2024-02-17,Cyber Insurance,1800.00,12,Annual,Paid,2025-02-17,Direct Debit
+INS-202502-Profession,2025-02-26,Professional Indemnity Insurance,3500.00,12,Annual,Projected,2026-02-26,Direct Debit
+INS-202503-Employers-,2025-03-08,Employers Liability Insurance,1200.00,12,Annual,Projected,2026-03-08,Direct Debit
+INS-202501-Public-Lia,2025-01-13,Public Liability Insurance,850.00,12,Annual,Projected,2026-01-13,Direct Debit
+INS-202502-Office-Con,2025-02-11,Office Contents Insurance,450.00,12,Annual,Projected,2026-02-11,Direct Debit
+INS-202501-Cyber-Insu,2025-01-12,Cyber Insurance,1800.00,12,Annual,Projected,2026-01-12,Direct Debit

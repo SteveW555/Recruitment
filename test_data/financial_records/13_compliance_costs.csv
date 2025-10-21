@@ -1,0 +1,51 @@
+expense_id,expense_date,compliance_type,amount,candidate_or_staff,payment_status,payment_method
+COMP-20240101-000,2024-01-01,DBS Check - Standard,50.00,Candidate,Paid,Credit Card
+COMP-20240108-001,2024-01-08,DBS Check - Enhanced,60.00,Candidate,Paid,Credit Card
+COMP-20240115-002,2024-01-15,GDPR Compliance Software,85.00,Company,Paid,Credit Card
+COMP-20240122-003,2024-01-22,Right to Work Verification Training,250.00,Company,Paid,Credit Card
+COMP-20240129-004,2024-01-29,REC Membership,120.00,Company,Paid,Credit Card
+COMP-20240205-005,2024-02-05,Standards in Recruitment Accreditation,800.00,Company,Paid,Credit Card
+COMP-20240212-006,2024-02-12,DBS Check - Standard,50.00,Candidate,Paid,Credit Card
+COMP-20240219-007,2024-02-19,DBS Check - Enhanced,60.00,Candidate,Paid,Credit Card
+COMP-20240226-008,2024-02-26,GDPR Compliance Software,85.00,Company,Paid,Credit Card
+COMP-20240304-009,2024-03-04,Right to Work Verification Training,250.00,Company,Paid,Credit Card
+COMP-20240311-010,2024-03-11,REC Membership,120.00,Company,Paid,Credit Card
+COMP-20240318-011,2024-03-18,Standards in Recruitment Accreditation,800.00,Company,Paid,Credit Card
+COMP-20240325-012,2024-03-25,DBS Check - Standard,50.00,Candidate,Paid,Credit Card
+COMP-20240401-013,2024-04-01,DBS Check - Enhanced,60.00,Candidate,Paid,Credit Card
+COMP-20240408-014,2024-04-08,GDPR Compliance Software,85.00,Company,Paid,Credit Card
+COMP-20240415-015,2024-04-15,Right to Work Verification Training,250.00,Company,Paid,Credit Card
+COMP-20240422-016,2024-04-22,REC Membership,120.00,Company,Paid,Credit Card
+COMP-20240429-017,2024-04-29,Standards in Recruitment Accreditation,800.00,Company,Paid,Credit Card
+COMP-20240506-018,2024-05-06,DBS Check - Standard,50.00,Candidate,Paid,Credit Card
+COMP-20240513-019,2024-05-13,DBS Check - Enhanced,60.00,Candidate,Paid,Credit Card
+COMP-20240520-020,2024-05-20,GDPR Compliance Software,85.00,Company,Paid,Credit Card
+COMP-20240527-021,2024-05-27,Right to Work Verification Training,250.00,Company,Paid,Credit Card
+COMP-20240603-022,2024-06-03,REC Membership,120.00,Company,Paid,Credit Card
+COMP-20240610-023,2024-06-10,Standards in Recruitment Accreditation,800.00,Company,Paid,Credit Card
+COMP-20240617-024,2024-06-17,DBS Check - Standard,50.00,Candidate,Paid,Credit Card
+COMP-20240624-025,2024-06-24,DBS Check - Enhanced,60.00,Candidate,Paid,Credit Card
+COMP-20240701-026,2024-07-01,GDPR Compliance Software,85.00,Company,Paid,Credit Card
+COMP-20240708-027,2024-07-08,Right to Work Verification Training,250.00,Company,Paid,Credit Card
+COMP-20240715-028,2024-07-15,REC Membership,120.00,Company,Paid,Credit Card
+COMP-20240722-029,2024-07-22,Standards in Recruitment Accreditation,800.00,Company,Paid,Credit Card
+COMP-20240729-030,2024-07-29,DBS Check - Standard,50.00,Candidate,Paid,Credit Card
+COMP-20240805-031,2024-08-05,DBS Check - Enhanced,60.00,Candidate,Paid,Credit Card
+COMP-20240812-032,2024-08-12,GDPR Compliance Software,85.00,Company,Paid,Credit Card
+COMP-20240819-033,2024-08-19,Right to Work Verification Training,250.00,Company,Paid,Credit Card
+COMP-20240826-034,2024-08-26,REC Membership,120.00,Company,Paid,Credit Card
+COMP-20240902-035,2024-09-02,Standards in Recruitment Accreditation,800.00,Company,Paid,Credit Card
+COMP-20240909-036,2024-09-09,DBS Check - Standard,50.00,Candidate,Paid,Credit Card
+COMP-20240916-037,2024-09-16,DBS Check - Enhanced,60.00,Candidate,Paid,Credit Card
+COMP-20240923-038,2024-09-23,GDPR Compliance Software,85.00,Company,Paid,Credit Card
+COMP-20240930-039,2024-09-30,Right to Work Verification Training,250.00,Company,Paid,Credit Card
+COMP-20241007-040,2024-10-07,REC Membership,120.00,Company,Paid,Credit Card
+COMP-20241014-041,2024-10-14,Standards in Recruitment Accreditation,800.00,Company,Paid,Credit Card
+COMP-20241021-042,2024-10-21,DBS Check - Standard,50.00,Candidate,Paid,Credit Card
+COMP-20241028-043,2024-10-28,DBS Check - Enhanced,60.00,Candidate,Paid,Credit Card
+COMP-20241104-044,2024-11-04,GDPR Compliance Software,85.00,Company,Paid,Credit Card
+COMP-20241111-045,2024-11-11,Right to Work Verification Training,250.00,Company,Paid,Credit Card
+COMP-20241118-046,2024-11-18,REC Membership,120.00,Company,Paid,Credit Card
+COMP-20241125-047,2024-11-25,Standards in Recruitment Accreditation,800.00,Company,Paid,Credit Card
+COMP-20241202-048,2024-12-02,DBS Check - Standard,50.00,Candidate,Outstanding,Credit Card
+COMP-20241209-049,2024-12-09,DBS Check - Enhanced,60.00,Candidate,Outstanding,Credit Card

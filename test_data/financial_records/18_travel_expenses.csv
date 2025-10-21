@@ -1,0 +1,51 @@
+expense_id,expense_date,expense_type,employee_id,amount,purpose,reimbursement_status,payment_method
+TRVL-20240101-000,2024-01-01,Client Visit - Mileage,EMP-005,22.50,Client Meeting,Reimbursed,Expense Claim
+TRVL-20240106-001,2024-01-06,Train Ticket - London,EMP-004,90.38,Business Travel,Reimbursed,Expense Claim
+TRVL-20240111-002,2024-01-11,Client Visit - Mileage,EMP-001,58.05,Client Meeting,Reimbursed,Expense Claim
+TRVL-20240116-003,2024-01-16,Hotel - Overnight Stay,EMP-001,121.62,Business Travel,Reimbursed,Expense Claim
+TRVL-20240121-004,2024-01-21,Client Visit - Mileage,EMP-003,65.25,Client Meeting,Reimbursed,Expense Claim
+TRVL-20240126-005,2024-01-26,Meals & Subsistence,EMP-002,35.60,Business Travel,Reimbursed,Expense Claim
+TRVL-20240131-006,2024-01-31,Taxi - Client Meeting,EMP-001,32.65,Client Meeting,Reimbursed,Expense Claim
+TRVL-20240205-007,2024-02-05,Parking,EMP-003,15.84,Business Travel,Reimbursed,Expense Claim
+TRVL-20240210-008,2024-02-10,Hotel - Overnight Stay,EMP-004,136.96,Business Travel,Reimbursed,Expense Claim
+TRVL-20240215-009,2024-02-15,Meals & Subsistence,EMP-001,42.13,Business Travel,Reimbursed,Expense Claim
+TRVL-20240220-010,2024-02-20,Taxi - Client Meeting,EMP-002,32.98,Client Meeting,Reimbursed,Expense Claim
+TRVL-20240225-011,2024-02-25,Meals & Subsistence,EMP-003,28.33,Business Travel,Reimbursed,Expense Claim
+TRVL-20240301-012,2024-03-01,Client Visit - Mileage,EMP-002,64.80,Client Meeting,Reimbursed,Expense Claim
+TRVL-20240306-013,2024-03-06,Taxi - Client Meeting,EMP-005,29.09,Client Meeting,Reimbursed,Expense Claim
+TRVL-20240311-014,2024-03-11,Train Ticket - London,EMP-003,77.48,Business Travel,Reimbursed,Expense Claim
+TRVL-20240316-015,2024-03-16,Taxi - Client Meeting,EMP-002,18.82,Client Meeting,Reimbursed,Expense Claim
+TRVL-20240321-016,2024-03-21,Train Ticket - London,EMP-001,58.38,Business Travel,Reimbursed,Expense Claim
+TRVL-20240326-017,2024-03-26,Meals & Subsistence,EMP-003,39.75,Business Travel,Reimbursed,Expense Claim
+TRVL-20240331-018,2024-03-31,Train Ticket - London,EMP-002,60.35,Business Travel,Reimbursed,Expense Claim
+TRVL-20240405-019,2024-04-05,Parking,EMP-002,16.23,Business Travel,Reimbursed,Expense Claim
+TRVL-20240410-020,2024-04-10,Hotel - Overnight Stay,EMP-003,128.78,Business Travel,Reimbursed,Expense Claim
+TRVL-20240415-021,2024-04-15,Meals & Subsistence,EMP-005,43.77,Business Travel,Reimbursed,Expense Claim
+TRVL-20240420-022,2024-04-20,Train Ticket - London,EMP-004,61.66,Business Travel,Reimbursed,Expense Claim
+TRVL-20240425-023,2024-04-25,Meals & Subsistence,EMP-004,32.02,Business Travel,Reimbursed,Expense Claim
+TRVL-20240430-024,2024-04-30,Hotel - Overnight Stay,EMP-003,108.81,Business Travel,Reimbursed,Expense Claim
+TRVL-20240505-025,2024-05-05,Meals & Subsistence,EMP-004,37.46,Business Travel,Reimbursed,Expense Claim
+TRVL-20240510-026,2024-05-10,Taxi - Client Meeting,EMP-004,25.81,Client Meeting,Reimbursed,Expense Claim
+TRVL-20240515-027,2024-05-15,Parking,EMP-003,10.28,Business Travel,Reimbursed,Expense Claim
+TRVL-20240520-028,2024-05-20,Meals & Subsistence,EMP-001,25.36,Business Travel,Reimbursed,Expense Claim
+TRVL-20240525-029,2024-05-25,Train Ticket - London,EMP-005,73.52,Business Travel,Reimbursed,Expense Claim
+TRVL-20240530-030,2024-05-30,Train Ticket - London,EMP-002,86.96,Business Travel,Reimbursed,Expense Claim
+TRVL-20240604-031,2024-06-04,Parking,EMP-001,23.02,Business Travel,Reimbursed,Expense Claim
+TRVL-20240609-032,2024-06-09,Parking,EMP-005,18.65,Business Travel,Reimbursed,Expense Claim
+TRVL-20240614-033,2024-06-14,Hotel - Overnight Stay,EMP-002,102.97,Business Travel,Reimbursed,Expense Claim
+TRVL-20240619-034,2024-06-19,Hotel - Overnight Stay,EMP-003,143.92,Business Travel,Reimbursed,Expense Claim
+TRVL-20240624-035,2024-06-24,Meals & Subsistence,EMP-002,39.53,Business Travel,Reimbursed,Expense Claim
+TRVL-20240629-036,2024-06-29,Meals & Subsistence,EMP-003,41.77,Business Travel,Reimbursed,Expense Claim
+TRVL-20240704-037,2024-07-04,Client Visit - Mileage,EMP-001,22.05,Client Meeting,Reimbursed,Expense Claim
+TRVL-20240709-038,2024-07-09,Client Visit - Mileage,EMP-004,16.65,Client Meeting,Reimbursed,Expense Claim
+TRVL-20240714-039,2024-07-14,Parking,EMP-003,6.46,Business Travel,Reimbursed,Expense Claim
+TRVL-20240719-040,2024-07-19,Hotel - Overnight Stay,EMP-003,135.86,Business Travel,Reimbursed,Expense Claim
+TRVL-20240724-041,2024-07-24,Client Visit - Mileage,EMP-001,34.20,Client Meeting,Reimbursed,Expense Claim
+TRVL-20240729-042,2024-07-29,Client Visit - Mileage,EMP-005,50.85,Client Meeting,Reimbursed,Expense Claim
+TRVL-20240803-043,2024-08-03,Meals & Subsistence,EMP-001,21.57,Business Travel,Reimbursed,Expense Claim
+TRVL-20240808-044,2024-08-08,Hotel - Overnight Stay,EMP-004,124.69,Business Travel,Reimbursed,Expense Claim
+TRVL-20240813-045,2024-08-13,Parking,EMP-005,7.87,Business Travel,Reimbursed,Expense Claim
+TRVL-20240818-046,2024-08-18,Train Ticket - London,EMP-003,46.29,Business Travel,Reimbursed,Expense Claim
+TRVL-20240823-047,2024-08-23,Client Visit - Mileage,EMP-005,35.10,Client Meeting,Reimbursed,Expense Claim
+TRVL-20240828-048,2024-08-28,Taxi - Client Meeting,EMP-005,18.11,Client Meeting,Reimbursed,Expense Claim
+TRVL-20240902-049,2024-09-02,Hotel - Overnight Stay,EMP-002,99.65,Business Travel,Reimbursed,Expense Claim
