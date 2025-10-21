@@ -5,7 +5,11 @@
       "Bash(dir:*)",
       "Bash(pip install:*)",
       "Bash(move groq.py groq_client.py)",
-      "Bash(ren:*)"
+      "Bash(ren:*)",
+      "Bash(git pull:*)",
+      "Bash(git push:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
