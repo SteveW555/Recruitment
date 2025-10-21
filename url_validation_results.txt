@@ -1,0 +1,136 @@
+URL VALIDATION RESULTS
+====================================================================================================
+
+#    Domain                                   Status       URL                                     
+----------------------------------------------------------------------------------------------------
+1    ismartrecruit.com                        OK           https://ismartrecruit.com               
+2    experian.co.uk                           OK           https://experian.co.uk                  
+3    vincere.io                               OK           https://vincere.io                      
+4    www.rec.uk.com                           OK           https://www.rec.uk.com                  
+5    contractor.news                          OK           https://contractor.news                 
+6    www.frpadvisory.com                      OK           https://www.frpadvisory.com             
+7    www.simplicityinbusiness.co.uk           OK           https://www.simplicityinbusiness.co.uk  
+8    www.staffingindustry.com                 HTTP 403     https://www.staffingindustry.com        
+9    www.startuploans.co.uk                   HTTP 403     https://www.startuploans.co.uk          
+10   www.nibusinessinfo.co.uk                 OK           https://www.nibusinessinfo.co.uk        
+11   osome.com                                OK           https://osome.com                       
+12   uk.businessesforsale.com                 HTTP 403     https://uk.businessesforsale.com        
+13   parim.co                                 OK           https://parim.co                        
+14   www.gov.uk                               OK           https://www.gov.uk                      
+15   iconoffices.co.uk                        OK           https://iconoffices.co.uk               
+16   standardsinrecruitment.com               OK           https://standardsinrecruitment.com      
+17   agencycentral.co.uk                      OK           https://agencycentral.co.uk             
+18   www.gla.gov.uk                           OK           https://www.gla.gov.uk                  
+19   startups.co.uk                           OK           https://startups.co.uk                  
+20   uk.practicallaw.thomsonreuters.com       HTTP 403     https://uk.practicallaw.thomsonreuters.com
+21   nidirect.gov.uk                          OK           https://nidirect.gov.uk                 
+22   contractoruk.com                         OK           https://contractoruk.com                
+23   lewissilkin.com                          OK           https://lewissilkin.com                 
+24   support.nasagroup.co.uk                  HTTP 404     https://support.nasagroup.co.uk         
+25   bluespoint.net                           HTTP 403     https://bluespoint.net                  
+26   gdpreu.org                               OK           https://gdpreu.org                      
+27   seemehired.com                           OK           https://seemehired.com                  
+28   growthrecruits.com                       OK           https://growthrecruits.com              
+29   privacycompliancehub.com                 OK           https://privacycompliancehub.com        
+30   resources.workable.com                   OK           https://resources.workable.com          
+31   rsmuk.com                                OK           https://rsmuk.com                       
+32   generate-fs.co.uk                        OK           https://generate-fs.co.uk               
+33   davidsonmorris.com                       OK           https://davidsonmorris.com              
+34   acas.org.uk                              OK           https://acas.org.uk                     
+35   cipd.org                                 OK           https://cipd.org                        
+36   assets.publishing.service.gov.uk         HTTP 404     https://assets.publishing.service.gov.uk
+37   www.legislation.gov.uk                   OK           https://www.legislation.gov.uk          
+38   centredexcellence.co.uk                  OK           https://centredexcellence.co.uk         
+39   thepeoplepod.co.uk                       OK           https://thepeoplepod.co.uk              
+40   visage.jobs                              OK           https://visage.jobs                     
+41   allstaff.co.uk                           OK           https://allstaff.co.uk                  
+42   jobadder.com                             OK           https://jobadder.com                    
+43   sigmarecruitment.co.uk                   OK           https://sigmarecruitment.co.uk          
+44   www.strgroup.co.uk                       OK           https://www.strgroup.co.uk              
+45   www.4cornerresources.com                 OK           https://www.4cornerresources.com        
+46   yousas.co.uk                             OK           https://yousas.co.uk                    
+47   pg-rec.com                               OK           https://pg-rec.com                      
+48   recruitment-contracthub.com              HTTP 403     https://recruitment-contracthub.com     
+49   recruitmententrepreneur.com              OK           https://recruitmententrepreneur.com     
+50   simplicityinbusiness.co.uk               OK           https://simplicityinbusiness.co.uk      
+51   sonovate.com                             OK           https://sonovate.com                    
+52   ipa.co.uk                                OK           https://ipa.co.uk                       
+53   execcapital.co.uk                        OK           https://execcapital.co.uk               
+54   luxuryrecruit.com                        OK           https://luxuryrecruit.com               
+55   executiverecruitment.co.uk               OK           https://executiverecruitment.co.uk      
+56   castuk.com                               OK           https://castuk.com                      
+57   michaelpage.co.uk                        OK           https://michaelpage.co.uk               
+58   careers-page.com                         OK           https://careers-page.com                
+59   movementgroup.uk                         OK           https://movementgroup.uk                
+60   primis-talent.com                        OK           https://primis-talent.com               
+61   bradleydavidassociates.co.uk             OK           https://bradleydavidassociates.co.uk    
+62   skillsengland.education.gov.uk           OK           https://skillsengland.education.gov.uk  
+63   totaljobs.com                            OK           https://totaljobs.com                   
+64   therecruitmentco.uk                      OK           https://therecruitmentco.uk             
+65   summitqualifications.co.uk               OK           https://summitqualifications.co.uk      
+66   prospects.ac.uk                          OK           https://prospects.ac.uk                 
+67   nationalcareers.service.gov.uk           OK           https://nationalcareers.service.gov.uk  
+68   aaronwallis.co.uk                        OK           https://aaronwallis.co.uk               
+69   totumpartners.com                        OK           https://totumpartners.com               
+70   bluearrow.co.uk                          OK           https://bluearrow.co.uk                 
+71   personio.com                             OK           https://personio.com                    
+72   inflectionhr.com                         OK           https://inflectionhr.com                
+73   aihr.com                                 OK           https://aihr.com                        
+74   ambition.co.uk                           OK           https://ambition.co.uk                  
+75   recruitingfactors.com                    OK           https://recruitingfactors.com           
+76   help.workable.com                        HTTP 403     https://help.workable.com               
+77   thekcgroup.co.uk                         OK           https://thekcgroup.co.uk                
+78   sparkhire.com                            OK           https://sparkhire.com                   
+79   jobma.com                                OK           https://jobma.com                       
+80   qxglobalgroup.com                        OK           https://qxglobalgroup.com               
+81   robertwalters.co.uk                      OK           https://robertwalters.co.uk             
+82   blog.wellboxes.co.uk                     OK           https://blog.wellboxes.co.uk            
+83   toggl.com                                OK           https://toggl.com                       
+84   info.recruitics.com                      OK           https://info.recruitics.com             
+85   synapri.com                              OK           https://synapri.com                     
+86   ukrecruiter.co.uk                        OK           https://ukrecruiter.co.uk               
+87   wearebuchanan.com                        OK           https://wearebuchanan.com               
+88   reddit.com                               OK           https://reddit.com                      
+89   bullhorn.com                             URL Error: [SSL: UNSAFE_LEGACY_RENEGOTIATION_DISABLED] unsafe https://bullhorn.com                    
+90   digitalmediastream.co.uk                 OK           https://digitalmediastream.co.uk        
+91   wave-rs.co.uk                            OK           https://wave-rs.co.uk                   
+92   adecco.com                               OK           https://adecco.com                      
+93   superfastrecruitment.co.uk               OK           https://superfastrecruitment.co.uk      
+94   bluesky-pr.com                           OK           https://bluesky-pr.com                  
+95   recruiterstartup.co.uk                   OK           https://recruiterstartup.co.uk          
+96   themarketingjunction.com                 OK           https://themarketingjunction.com        
+97   growtraffic.co.uk                        HTTP 403     https://growtraffic.co.uk               
+98   theaccessgroup.com                       OK           https://theaccessgroup.com              
+99   recruitcrm.io                            OK           https://recruitcrm.io                   
+100  gethirex.com                             OK           https://gethirex.com                    
+101  pitchnhire.com                           OK           https://pitchnhire.com                  
+102  peoplemanagingpeople.com                 OK           https://peoplemanagingpeople.com        
+103  forbes.com                               OK           https://forbes.com                      
+104  selectsoftwarereviews.com                OK           https://selectsoftwarereviews.com       
+105  hireful.com                              OK           https://hireful.com                     
+106  smallbusiness.co.uk                      OK           https://smallbusiness.co.uk             
+107  uk.pcmag.com                             OK           https://uk.pcmag.com                    
+108  xero.com                                 OK           https://xero.com                        
+109  kornferry.com                            OK           https://kornferry.com                   
+110  vizvaconsultancy.co.uk                   OK           https://vizvaconsultancy.co.uk          
+111  3r.co.uk                                 OK           https://3r.co.uk                        
+112  directivefinance.co.uk                   URL Error: timed out https://directivefinance.co.uk          
+113  indeedflex.co.uk                         OK           https://indeedflex.co.uk                
+114  agilepartnering.com                      OK           https://agilepartnering.com             
+115  caroo.co.uk                              OK           https://caroo.co.uk                     
+116  outstaffyourteam.com                     OK           https://outstaffyourteam.com            
+117  relancer.com                             OK           https://relancer.com                    
+118  visiblepixel.co.uk                       HTTP 403     https://visiblepixel.co.uk              
+119  tiger-recruitment.com                    OK           https://tiger-recruitment.com           
+120  roberthalf.com                           OK           https://roberthalf.com                  
+121  ariusrecruit.co.uk                       OK           https://ariusrecruit.co.uk              
+122  myn.co.uk                                OK           https://myn.co.uk                       
+123  market-recruitment.co.uk                 OK           https://market-recruitment.co.uk        
+124  emrrecruitment.co.uk                     OK           https://emrrecruitment.co.uk            
+125  limivex.com                              OK           https://limivex.com                     
+126  ciof.org.uk                              OK           https://ciof.org.uk                     
+127  local.gov.uk                             HTTP 403     https://local.gov.uk                    
+
+====================================================================================================
+SUMMARY: 113 OK | 14 ERRORS | 127 TOTAL
+====================================================================================================
