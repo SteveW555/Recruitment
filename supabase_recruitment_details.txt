@@ -1,0 +1,74 @@
+# Supabase Project Details - Recruitment Finance Test Data
+# Created: 2025-10-22
+# Purpose: Dedicated Supabase project for ProActive People recruitment system finance test data
+
+## Project Information
+Project Name: Recruitment
+Project ID: njjolzejmzqpridlgplb
+Organization: easygeouk Org
+Organization ID: sxspdyvmemntpqenhoed
+Region: eu-west-1 (Europe - Ireland)
+Status: ACTIVE_HEALTHY
+Created: 2025-10-22T13:03:54.252616Z
+Cost: $0/month (Free tier)
+
+## API Connection Details
+API URL: https://njjolzejmzqpridlgplb.supabase.co
+Project Reference: njjolzejmzqpridlgplb
+
+## API Keys
+Anon/Public Key (anon): eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5qam9semVqbXpxcHJpZGxncGxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMzgyMzQsImV4cCI6MjA3NjcxNDIzNH0.CPbhvJ50KH3TeanjpjFX76WezJm1jgtWk0KXDkfJO1E
+
+## Dashboard Access
+Supabase Dashboard: https://supabase.com/dashboard/project/njjolzejmzqpridlgplb
+
+## Environment Variables Format
+# Add these to your .env file:
+SUPABASE_URL=https://njjolzejmzqpridlgplb.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5qam9semVqbXpxcHJpZGxncGxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMzgyMzQsImV4cCI6MjA3NjcxNDIzNH0.CPbhvJ50KH3TeanjpjFX76WezJm1jgtWk0KXDkfJO1E
+SUPABASE_PROJECT_ID=njjolzejmzqpridlgplb
+
+## JavaScript/TypeScript Client Setup
+```javascript
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = 'https://njjolzejmzqpridlgplb.supabase.co'
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5qam9semVqbXpxcHJpZGxncGxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMzgyMzQsImV4cCI6MjA3NjcxNDIzNH0.CPbhvJ50KH3TeanjpjFX76WezJm1jgtWk0KXDkfJO1E'
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+```
+
+## Python Client Setup
+```python
+from supabase import create_client, Client
+
+url: str = "https://njjolzejmzqpridlgplb.supabase.co"
+key: str = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5qam9semVqbXpxcHJpZGxncGxiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExMzgyMzQsImV4cCI6MjA3NjcxNDIzNH0.CPbhvJ50KH3TeanjpjFX76WezJm1jgtWk0KXDkfJO1E"
+
+supabase: Client = create_client(url, key)
+```
+
+## Next Steps
+1. Access dashboard to configure authentication settings
+2. Create database tables for finance test data migration
+3. Run migrations from finance_test_data/ directory
+4. Set up Row Level Security (RLS) policies
+5. Configure storage buckets if needed for file uploads
+6. Generate TypeScript types for type-safe queries
+
+## Related Files
+- Migration Plan: d:\Recruitment\finance_test_data\SUPABASE_MIGRATION_PLAN.md
+- Test Data: d:\Recruitment\finance_test_data\
+- Frontend Config: To be updated with these credentials
+
+## Security Notes
+- The anon key is safe to use in client-side code
+- Never commit service_role key to version control
+- Enable RLS on all tables before adding production data
+- Consider enabling email auth for production use
+- Set up proper CORS policies in dashboard
+
+## Support
+Supabase Documentation: https://supabase.com/docs
+MCP Integration: Available via Claude Code
+API Reference: https://supabase.com/docs/reference/javascript/introduction

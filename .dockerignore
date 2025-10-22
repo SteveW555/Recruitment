@@ -1,0 +1,76 @@
+# Docker ignore file for AI Router
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.hypothesis/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Environment
+.env
+.env.local
+
+# Documentation (keep these out of image)
+*.md
+docs/
+specs/
+
+# Test files (optional - remove if you want to run tests in container)
+test_*.py
+tests/
+*_test.py
+
+# Data and logs
+*.log
+logs/
+data/
+finance_test_data/
+
+# Model cache (will be built fresh)
+.cache/
+
+# Temporary files
+tmp/
+temp/
+*.tmp

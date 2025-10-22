@@ -1,0 +1,26 @@
+# Railway.app Configuration for AI Router
+# https://docs.railway.app/deploy/config-as-code
+
+[build]
+  builder = "DOCKERFILE"
+  dockerfilePath = "Dockerfile.ai-router"
+
+[deploy]
+  # Start command (Railway will use CMD from Dockerfile)
+  startCommand = "python app.py"
+
+  # Health check endpoint
+  healthcheckPath = "/health"
+  healthcheckTimeout = 100
+
+  # Restart policy
+  restartPolicyType = "ON_FAILURE"
+  restartPolicyMaxRetries = 10
+
+# Environment-specific settings
+[environments.production]
+  # Production memory/CPU
+  # Railway will auto-assign based on your plan
+
+[environments.staging]
+  # Staging can use smaller resources

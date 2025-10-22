@@ -1,0 +1,548 @@
+openapi: 3.0.3
+info:
+  title: Chat Routing AI API
+  description: |
+    AI-powered query routing system that classifies user queries into six categories and routes them to specialized agent handlers.
+
+    **Categories**:
+    1. Information Retrieval - Simple multi-source data lookup
+    2. Problem Solving - Complex analysis and recommendations
+    3. Report Generation - Visualization and presentation creation
+    4. Automation - Workflow pipeline design
+    5. Industry Knowledge - UK recruitment domain expertise
+    6. General Chat - Casual conversation
+  version: 1.0.0
+  contact:
+    name: ProActive People
+    email: info@proactivepeople.com
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development server
+  - url: https://api.proactivepeople.com/v1
+    description: Production server
+
+paths:
+  /routing/classify:
+    post:
+      summary: Classify and route a query
+      description: |
+        Analyzes user query, classifies it into one of six categories, and routes to the appropriate agent.
+
+        **Process**:
+        1. Validates query (max 1000 words, truncates if needed)
+        2. Loads session context (if session_id provided)
+        3. Classifies query using sentence-transformers
+        4. If confidence >= 70%, routes to primary agent
+        5. If confidence < 70%, requests user clarification
+        6. Returns agent response or clarification prompt
+      operationId: classifyAndRoute
+      tags:
+        - Routing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassifyRequest'
+            examples:
+              information_retrieval:
+                summary: Information Retrieval Query
+                value:
+                  query: "What are the top 5 job boards for sales positions in Bristol?"
+                  user_id: "user_12345"
+                  session_id: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+              problem_solving:
+                summary: Problem Solving Query
+                value:
+                  query: "How can we reduce candidate dropout rate by 20% in 3 months?"
+                  user_id: "user_12345"
+                  session_id: null
+      responses:
+        '200':
+          description: Successfully classified and routed query
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoutingResponse'
+              examples:
+                routed_success:
+                  summary: Successful Routing
+                  value:
+                    status: "success"
+                    routing_decision:
+                      primary_category: "INFORMATION_RETRIEVAL"
+                      primary_confidence: 0.92
+                      secondary_category: "INDUSTRY_KNOWLEDGE"
+                      secondary_confidence: 0.35
+                      classification_latency_ms: 87
+                    agent_response:
+                      success: true
+                      content: "Based on my research, the top 5 job boards for sales positions in Bristol are: 1. Indeed, 2. Reed, 3. Totaljobs, 4. CV-Library, 5. Monster."
+                      metadata:
+                        sources: ["Indeed API", "Reed Database"]
+                        agent_latency_ms: 1450
+                    multi_intent_notice: "This also relates to Industry Knowledge. Would you like me to route there instead?"
+                low_confidence:
+                  summary: Clarification Needed
+                  value:
+                    status: "clarification_needed"
+                    routing_decision:
+                      primary_category: "REPORT_GENERATION"
+                      primary_confidence: 0.62
+                      secondary_category: "PROBLEM_SOLVING"
+                      secondary_confidence: 0.58
+                    clarification_prompt: "I'm not sure how to handle this. Are you looking for:"
+                    suggested_categories:
+                      - category: "REPORT_GENERATION"
+                        confidence: 0.62
+                        description: "Create a visual report or dashboard"
+                      - category: "PROBLEM_SOLVING"
+                        confidence: 0.58
+                        description: "Analyze a problem and get recommendations"
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                empty_query:
+                  value:
+                    error: "validation_error"
+                    message: "Query text cannot be empty"
+                    details:
+                      field: "query"
+                      constraint: "non_empty"
+        '401':
+          description: Unauthorized - Invalid or missing authentication
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Rate limit exceeded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                rate_limit:
+                  value:
+                    error: "rate_limit_exceeded"
+                    message: "Maximum 100 requests per minute exceeded"
+                    retry_after_seconds: 45
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                agent_failure:
+                  value:
+                    error: "agent_failure"
+                    message: "Agent failed after retry. Falling back to general chat."
+                    fallback_response: "I'm having trouble with that request. Let me help you in a different way..."
+
+  /routing/override:
+    post:
+      summary: Route query to specific category
+      description: |
+        Allows user to explicitly override classification and route to a specific agent category.
+        Useful when low-confidence clarification is declined or user knows exact category needed.
+      operationId: routeWithOverride
+      tags:
+        - Routing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OverrideRequest'
+      responses:
+        '200':
+          description: Successfully routed to specified category
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoutingResponse'
+        '400':
+          description: Invalid category specified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /sessions/{session_id}:
+    get:
+      summary: Get session context
+      description: Retrieve current session context including message history and routing history
+      operationId: getSession
+      tags:
+        - Sessions
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Session found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SessionContext'
+        '404':
+          description: Session not found or expired
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      summary: Terminate session
+      description: Explicitly end a session and clear context
+      operationId: terminateSession
+      tags:
+        - Sessions
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Session terminated successfully
+        '404':
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /health:
+    get:
+      summary: Health check
+      description: Check router service health and agent availability
+      operationId: healthCheck
+      tags:
+        - System
+      responses:
+        '200':
+          description: Service healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  agents:
+                    type: object
+                    properties:
+                      information_retrieval:
+                        type: string
+                        example: "available"
+                      problem_solving:
+                        type: string
+                        example: "available"
+                      report_generation:
+                        type: string
+                        example: "available"
+                      automation:
+                        type: string
+                        example: "available"
+                      industry_knowledge:
+                        type: string
+                        example: "available"
+                      general_chat:
+                        type: string
+                        example: "available"
+                  storage:
+                    type: object
+                    properties:
+                      redis:
+                        type: string
+                        example: "connected"
+                      postgresql:
+                        type: string
+                        example: "connected"
+
+components:
+  schemas:
+    ClassifyRequest:
+      type: object
+      required:
+        - query
+        - user_id
+      properties:
+        query:
+          type: string
+          description: User's question or request (max 1000 words)
+          minLength: 1
+          maxLength: 10000
+          example: "What are the top 5 job boards for sales positions?"
+        user_id:
+          type: string
+          description: Authenticated user identifier
+          maxLength: 255
+          example: "user_12345"
+        session_id:
+          type: string
+          format: uuid
+          description: Existing session ID for context continuity (optional, creates new if null)
+          nullable: true
+          example: "7c9e6679-7425-40de-944b-e07fc1f90ae7"
+
+    OverrideRequest:
+      type: object
+      required:
+        - query
+        - user_id
+        - forced_category
+      properties:
+        query:
+          type: string
+          minLength: 1
+          maxLength: 10000
+        user_id:
+          type: string
+          maxLength: 255
+        session_id:
+          type: string
+          format: uuid
+          nullable: true
+        forced_category:
+          type: string
+          enum:
+            - INFORMATION_RETRIEVAL
+            - PROBLEM_SOLVING
+            - REPORT_GENERATION
+            - AUTOMATION
+            - INDUSTRY_KNOWLEDGE
+            - GENERAL_CHAT
+          example: "AUTOMATION"
+
+    RoutingResponse:
+      type: object
+      required:
+        - status
+        - routing_decision
+      properties:
+        status:
+          type: string
+          enum: [success, clarification_needed, error]
+          description: Overall routing status
+        routing_decision:
+          $ref: '#/components/schemas/RoutingDecision'
+        agent_response:
+          $ref: '#/components/schemas/AgentResponse'
+          description: Present when status=success
+        clarification_prompt:
+          type: string
+          description: Present when status=clarification_needed
+          example: "I'm not sure how to handle this. Are you looking for:"
+        suggested_categories:
+          type: array
+          items:
+            type: object
+            properties:
+              category:
+                type: string
+              confidence:
+                type: number
+              description:
+                type: string
+          description: Present when status=clarification_needed
+        multi_intent_notice:
+          type: string
+          description: Notification when secondary category detected (even if routed to primary)
+          nullable: true
+          example: "This also relates to Industry Knowledge. Would you like me to route there instead?"
+
+    RoutingDecision:
+      type: object
+      required:
+        - primary_category
+        - primary_confidence
+        - classification_latency_ms
+      properties:
+        primary_category:
+          type: string
+          enum:
+            - INFORMATION_RETRIEVAL
+            - PROBLEM_SOLVING
+            - REPORT_GENERATION
+            - AUTOMATION
+            - INDUSTRY_KNOWLEDGE
+            - GENERAL_CHAT
+        primary_confidence:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          description: Confidence score for primary category (0.0 to 1.0)
+          example: 0.92
+        secondary_category:
+          type: string
+          enum:
+            - INFORMATION_RETRIEVAL
+            - PROBLEM_SOLVING
+            - REPORT_GENERATION
+            - AUTOMATION
+            - INDUSTRY_KNOWLEDGE
+            - GENERAL_CHAT
+          nullable: true
+          description: Second-highest confidence category for multi-intent detection
+        secondary_confidence:
+          type: number
+          format: float
+          minimum: 0.0
+          maximum: 1.0
+          nullable: true
+          example: 0.35
+        classification_latency_ms:
+          type: integer
+          description: Time taken to classify query (milliseconds)
+          example: 87
+        fallback_triggered:
+          type: boolean
+          description: Whether confidence < 70% triggered clarification flow
+          example: false
+        user_override:
+          type: boolean
+          description: Whether user explicitly requested this category
+          example: false
+
+    AgentResponse:
+      type: object
+      required:
+        - success
+        - content
+        - metadata
+      properties:
+        success:
+          type: boolean
+          description: Whether agent execution succeeded
+          example: true
+        content:
+          type: string
+          description: Agent's response text
+          example: "Based on my research, the top 5 job boards for sales positions in Bristol are..."
+        metadata:
+          type: object
+          description: Additional information from agent execution
+          properties:
+            sources:
+              type: array
+              items:
+                type: string
+              description: Sources cited by agent
+              example: ["Indeed API", "Reed Database"]
+            agent_latency_ms:
+              type: integer
+              description: Agent execution time (milliseconds)
+              example: 1450
+            tokens_used:
+              type: integer
+              description: LLM tokens consumed (for cost tracking)
+              example: 245
+            retry_count:
+              type: integer
+              description: Number of retries attempted
+              example: 0
+        error:
+          type: string
+          nullable: true
+          description: Error message if success=false
+          example: "Agent timeout exceeded"
+
+    SessionContext:
+      type: object
+      properties:
+        session_id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        last_activity_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+          description: Session expiry time (last_activity + 30 minutes)
+        message_history:
+          type: array
+          maxItems: 50
+          items:
+            type: object
+            properties:
+              role:
+                type: string
+                enum: [user, assistant]
+              content:
+                type: string
+              timestamp:
+                type: string
+                format: date-time
+              category:
+                type: string
+                nullable: true
+        routing_history:
+          type: array
+          maxItems: 50
+          items:
+            type: string
+            format: uuid
+            description: Routing decision IDs in chronological order
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error code
+          example: "validation_error"
+        message:
+          type: string
+          description: Human-readable error message
+          example: "Query text cannot be empty"
+        details:
+          type: object
+          description: Additional error context
+          nullable: true
+        retry_after_seconds:
+          type: integer
+          description: Seconds to wait before retrying (for rate limits)
+          nullable: true
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token from ProActive People authentication system
+
+security:
+  - BearerAuth: []
+
+tags:
+  - name: Routing
+    description: Query classification and routing operations
+  - name: Sessions
+    description: Session context management
+  - name: System
+    description: System health and monitoring

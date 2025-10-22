@@ -60,15 +60,29 @@ data/mongodb/
 .docker/
 docker-compose.override.yml
 
-# Machine Learning
-models/*.h5
-models/*.pkl
-models/*.joblib
+# Python
 *.pyc
 __pycache__/
 *.py[cod]
 *$py.class
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+ENV/
+.Python
+
+# Machine Learning
+models/*.h5
+models/*.pkl
+models/*.joblib
 .ipynb_checkpoints/
+
+# Sentence Transformers Cache
+.cache/sentence_transformers/
+sentence_transformers_cache/
 
 # Temporary files
 tmp/
