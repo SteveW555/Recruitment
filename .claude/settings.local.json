@@ -26,7 +26,13 @@
       "Bash(PORT=3000 npm run dev:*)",
       "Bash(taskkill //F //PID 6388)",
       "Bash(taskkill //F //PID 467724)",
-      "Bash(taskkill //F //PID 478568)"
+      "Bash(taskkill //F //PID 478568)",
+      "Read(//c/Users/steve/**)",
+      "Bash(cat:*)",
+      "Bash(claude mcp add --transport stdio brave-search --scope user --env BRAVE_API_KEY=BSAip_MB9Ct-4C3tB1H1nm_ropfJRJF -- cmd /c npx -y brave-search-mcp)",
+      "Bash(claude mcp add:*)",
+      "Bash(claude mcp:*)",
+      "Bash(npm run:*)"
     ],
     "deny": [],
     "ask": []
@@ -36,6 +42,7 @@
     "firecrawl",
     "github",
     "supabase",
-    "context7"
+    "context7",
+    "brave-search"
   ]
 }
