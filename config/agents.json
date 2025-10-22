@@ -80,7 +80,7 @@
     "name": "Report Generation",
     "priority": 3,
     "description": "Visualization and presentation creation",
-    "agent_class": "ReportGenerationAgent",
+    "agent_class": "utils.ai_router.agents.report_generation_agent:ReportGenerationAgent",
     "llm_provider": "groq",
     "llm_model": "llama-3-70b-8192",
     "timeout_seconds": 2,
@@ -96,7 +96,10 @@
       "Create a candidate pipeline analysis for this month",
       "Build a market analysis report for the tech sector in London",
       "Generate an executive summary of our placement metrics",
-      "Create a client presentation on our recruitment services"
+      "Create a client presentation on our recruitment services",
+      "Show our top 10 clients by revenue this quarter",
+      "Build a market analysis for the tech sector in Bristol",
+      "Generate placement trends and candidate pipeline report"
     ]
   },
   "AUTOMATION": {
