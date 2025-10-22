@@ -1,0 +1,37 @@
+# AI Router Dependencies
+# Created: 2025-10-22
+# Purpose: Chat Routing AI system requirements
+
+# Core NLP and ML
+sentence-transformers==2.2.2  # Fast semantic similarity classification
+transformers>=4.35.0  # Dependency for sentence-transformers
+
+# LLM Providers
+groq>=0.4.0  # Fast LLM inference (primary provider)
+anthropic>=0.25.0  # Claude 3.5 Sonnet for complex problem solving
+
+# Storage
+redis==5.0.0  # Session context management (30-min TTL)
+psycopg2-binary==2.9.9  # PostgreSQL routing logs
+
+# Logging and Monitoring
+structlog==24.1.0  # Structured logging for observability
+
+# Testing
+pytest==7.4.3  # Test framework
+pytest-asyncio==0.21.1  # Async test support
+pytest-cov==4.1.0  # Coverage reporting
+pytest-mock==3.12.0  # Mocking support
+
+# Async Support
+asyncio-timeout==4.0.3  # Async timeout utilities
+aiofiles==23.2.1  # Async file operations
+
+# Data Validation
+pydantic>=2.0.0  # Data validation and settings
+
+# HTTP Client (for agent tool integrations)
+httpx>=0.25.0  # Async HTTP client
+
+# Utilities
+python-dotenv==1.0.0  # Environment variable management

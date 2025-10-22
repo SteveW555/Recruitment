@@ -1,0 +1,173 @@
+{
+  "INFORMATION_RETRIEVAL": {
+    "name": "Information Retrieval",
+    "priority": 1,
+    "description": "Information retrieval and search (internal and external data)",
+    "agent_class": "InformationRetrievalAgent",
+    "llm_provider": "groq",
+    "llm_model": "llama-3-70b-8192",
+    "timeout_seconds": 2,
+    "retry_count": 1,
+    "retry_delay_ms": 500,
+    "tools": ["web_search", "database_query"],
+    "resources": {},
+    "system_prompt": "You are an information retrieval specialist for a UK recruitment agency. Search and retrieve data from multiple sources (internal database, web, APIs). Provide concise, aggregated answers with citations. Handle both external research and internal data lookups.",
+    "enabled": true,
+    "example_queries": [
+      "Show me John Smith's candidate profile",
+      "Find candidates with 5+ years sales experience in London",
+      "List all active jobs in Bristol",
+      "What are the average salaries for software engineers in London?",
+      "What are the top 5 job boards for sales positions?",
+      "Search for candidates available for interviews next week",
+      "Display client ABC Corp's contact information",
+      "Get all placements made this month",
+      "What are the current hiring trends in fintech?",
+      "Show me competitor analysis for our accountancy division"
+    ]
+  },
+  "DATA_OPERATIONS": {
+    "name": "Data Operations",
+    "priority": 1,
+    "description": "Data modification and system actions (Create, Update, Delete, Schedule)",
+    "agent_class": "DataOperationsAgent",
+    "llm_provider": "groq",
+    "llm_model": "llama-3-70b-8192",
+    "timeout_seconds": 2,
+    "retry_count": 1,
+    "retry_delay_ms": 500,
+    "tools": ["crud_operations", "calendar_api", "email_api"],
+    "resources": {},
+    "system_prompt": "You are a data operations assistant for a UK recruitment agency. Execute write operations that modify system state: Create, Update, Delete records, and Schedule actions. Always confirm sensitive operations before executing. Handle invoices, status updates, scheduling, and data modifications.",
+    "enabled": true,
+    "example_queries": [
+      "Create an invoice for placement ID 12345",
+      "Update client ABC Corp's status to active",
+      "Schedule an interview with Jane Doe for next Tuesday",
+      "Mark candidate as hired for job REF-2024-001",
+      "Send timesheet to client XYZ Ltd",
+      "Add notes to client meeting: discussed new requirements",
+      "Update job posting deadline to end of month",
+      "Delete old candidate record for John Doe",
+      "Set candidate status to interviewing",
+      "Book interview room for 2pm tomorrow"
+    ]
+  },
+  "PROBLEM_SOLVING": {
+    "name": "Problem Solving",
+    "priority": 2,
+    "description": "Complex analysis and recommendations",
+    "agent_class": "ProblemSolvingAgent",
+    "llm_provider": "anthropic",
+    "llm_model": "claude-3-5-sonnet-20241022",
+    "timeout_seconds": 2,
+    "retry_count": 1,
+    "retry_delay_ms": 500,
+    "tools": ["industry_research", "data_analysis"],
+    "resources": {},
+    "system_prompt": "You are a strategic problem-solving consultant for a UK recruitment agency. When presented with complex business problems, perform multi-step analysis: 1) Identify root causes, 2) Cross-reference industry benchmarks, 3) Propose evidence-based solutions with actionable recommendations.",
+    "enabled": true,
+    "example_queries": [
+      "How can we reduce candidate dropout rate by 20% within 3 months?",
+      "Why is our placement rate 15% lower than industry average and what should we do?",
+      "What strategies can improve our time-to-hire for technical roles?",
+      "How do we scale our accountancy division without compromising quality?",
+      "What's causing the decline in client satisfaction scores?",
+      "How can we differentiate from competitors in the Bristol market?"
+    ]
+  },
+  "REPORT_GENERATION": {
+    "name": "Report Generation",
+    "priority": 3,
+    "description": "Visualization and presentation creation",
+    "agent_class": "ReportGenerationAgent",
+    "llm_provider": "groq",
+    "llm_model": "llama-3-70b-8192",
+    "timeout_seconds": 2,
+    "retry_count": 1,
+    "retry_delay_ms": 500,
+    "tools": ["data_visualization", "report_formatting"],
+    "resources": {},
+    "system_prompt": "You are a report generation specialist. Create structured, presentation-ready reports with visualizations, summaries, and insights. Format output in markdown with clear sections, bullet points, and suggestions for charts/dashboards.",
+    "enabled": true,
+    "example_queries": [
+      "Create a quarterly performance report for our accountancy division",
+      "Generate a dashboard showing our top 10 clients by revenue",
+      "Create a candidate pipeline analysis for this month",
+      "Build a market analysis report for the tech sector in London",
+      "Generate an executive summary of our placement metrics",
+      "Create a client presentation on our recruitment services"
+    ]
+  },
+  "AUTOMATION": {
+    "name": "Automation",
+    "priority": 2,
+    "description": "Workflow pipeline design",
+    "agent_class": "AutomationAgent",
+    "llm_provider": "groq",
+    "llm_model": "llama-3-70b-8192",
+    "timeout_seconds": 2,
+    "retry_count": 1,
+    "retry_delay_ms": 500,
+    "tools": ["workflow_builder"],
+    "resources": {},
+    "system_prompt": "You are an automation workflow designer. When asked to automate a process, design a structured workflow with: 1) Clear triggers, 2) Defined actions, 3) Conditional logic, 4) Error handling. Output workflows that can be implemented in tools like n8n, Zapier, or Make.",
+    "enabled": true,
+    "example_queries": [
+      "Every time a new candidate registers, send welcome email, create ATS profile, and schedule screening call",
+      "I need to automatically notify hiring managers when candidates apply for their jobs",
+      "Automate the process of sending interview reminders to candidates",
+      "Create a workflow for onboarding new clients",
+      "Automate weekly reporting to account managers",
+      "Build an automated candidate nurturing sequence"
+    ]
+  },
+  "INDUSTRY_KNOWLEDGE": {
+    "name": "Industry Knowledge",
+    "priority": 1,
+    "description": "UK recruitment domain expertise",
+    "agent_class": "IndustryKnowledgeAgent",
+    "llm_provider": "groq",
+    "llm_model": "llama-3-70b-8192",
+    "timeout_seconds": 2,
+    "retry_count": 1,
+    "retry_delay_ms": 500,
+    "tools": ["sources_md_lookup"],
+    "resources": {
+      "sources_file": "./sources_validated_summaries.md"
+    },
+    "system_prompt": "You are a UK recruitment industry expert. Answer questions about recruitment regulations, best practices, compliance, and industry standards. Always cite validated sources and provide UK-specific guidance when applicable.",
+    "enabled": true,
+    "example_queries": [
+      "What is the typical notice period for permanent placements in UK financial services?",
+      "What are the GDPR requirements for storing candidate CVs?",
+      "What are the current regulations for contractor IR35 compliance?",
+      "What are best practices for diversity hiring in the UK?",
+      "What are the legal requirements for background checks?",
+      "How do we comply with right-to-work regulations for EU nationals?"
+    ]
+  },
+  "GENERAL_CHAT": {
+    "name": "General Chat",
+    "priority": 3,
+    "description": "Casual conversation",
+    "agent_class": "GeneralChatAgent",
+    "llm_provider": "groq",
+    "llm_model": "llama-3-70b-8192",
+    "timeout_seconds": 2,
+    "retry_count": 1,
+    "retry_delay_ms": 500,
+    "tools": [],
+    "resources": {},
+    "system_prompt": "You are a friendly, helpful AI assistant. Respond naturally to greetings and casual conversation without invoking specialized business logic. Keep responses brief and appropriate.",
+    "enabled": true,
+    "example_queries": [
+      "Hello",
+      "Hi there",
+      "How are you?",
+      "Good morning",
+      "Tell me a joke",
+      "What's the weather like?"
+    ]
+  }
+}

@@ -1,0 +1,48 @@
+# Sample test queries for AI Router Classifier
+# One query per line (lines starting with # are ignored)
+
+# Information Retrieval (External Data)
+What are the top 5 job boards for sales positions in Bristol?
+What are the average salaries for software engineers in London?
+What are the current hiring trends in fintech?
+Show me competitor analysis for our accountancy division
+
+# Data Operations (Internal System)
+Show me John Smith's candidate profile
+Update client ABC Corp's status to active
+Create an invoice for placement ID 12345
+Schedule an interview with Jane Doe for next Tuesday
+List all active jobs in London
+Mark candidate as hired for job REF-2024-001
+
+# Problem Solving
+How can we reduce candidate dropout rate by 20% within 3 months?
+Why is our placement rate lower than industry average?
+What strategies can improve our time-to-hire for technical roles?
+How do we scale our accountancy division without compromising quality?
+
+# Report Generation
+Create a quarterly performance report for our accountancy division
+Generate a dashboard showing our top 10 clients by revenue
+Build a market analysis report for the tech sector in London
+Create a candidate pipeline analysis for this month
+
+# Automation
+Every time a new candidate registers, send welcome email and create ATS profile
+Automate the process of sending interview reminders to candidates
+I need to automatically notify hiring managers when candidates apply
+Build an automated candidate nurturing sequence
+
+# Industry Knowledge
+What are the GDPR requirements for storing candidate CVs?
+What is the typical notice period for permanent placements in UK financial services?
+What are the current regulations for contractor IR35 compliance?
+How do we comply with right-to-work regulations for EU nationals?
+
+# General Chat
+Hello
+Hi there
+How are you today?
+Good morning
+Tell me a joke
+What's the weather like?
