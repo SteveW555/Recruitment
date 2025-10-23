@@ -12,12 +12,13 @@ specs/003-staff-specialisations/
 ├── spec.md (comprehensive feature specification)
 ├── checklists/
 │   └── requirements.md (quality validation checklist)
-└── staff_specialisations/ (role resource directories)
-    ├── person_1_managing_director/
-    ├── person_2_temp_consultant/
-    ├── person_3_resourcer_admin_tech/
-    ├── person_4_compliance_wellbeing/
-    └── person_5_finance_training/
+
+Staff Specialisation Resources/ (role resource directories)
+├── person_1_managing_director/
+├── person_2_temp_consultant/
+├── person_3_resourcer_admin_tech/
+├── person_4_compliance_wellbeing/
+└── person_5_finance_training/
 ```
 
 ## The 5 Staff Roles
@@ -49,7 +50,7 @@ specs/003-staff-specialisations/
 When an agent receives a query with a `staff_role` parameter:
 
 1. **Validation**: The agent validates the staff_role against the 5 defined roles
-2. **Localization**: The agent locates the corresponding directory in `staff_specialisations/`
+2. **Localization**: The agent locates the corresponding directory in `Staff Specialisation Resources/`
 3. **Loading**: The agent loads any available resources from that directory
 4. **Enhancement**: The agent incorporates role-specific context into its response
 5. **Graceful Degradation**: If the staff_role is invalid or resources are missing, the agent continues normally

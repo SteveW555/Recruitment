@@ -25,7 +25,7 @@ An agent receives a query with an optional `staff_role` parameter that reference
 
 ### User Story 2 - Agent Accesses Role-Specific Resources (Priority: P1)
 
-When an agent is assigned a valid staff_role, it can locate and load resources from the corresponding staff role subdirectory (e.g., `staff_specialisations/person_1_managing_director/`) to enhance its processing. Resources can include guidelines, templates, domain knowledge, or training materials specific to that role's responsibilities.
+When an agent is assigned a valid staff_role, it can locate and load resources from the corresponding staff role subdirectory (e.g., `Staff Specialisation Resources/person_1_managing_director/`) to enhance its processing. Resources can include guidelines, templates, domain knowledge, or training materials specific to that role's responsibilities.
 
 **Why this priority**: Core functionality - agents must be able to retrieve role-specific resources to provide specialized assistance. This directly enables role-specialized responses.
 
@@ -33,7 +33,7 @@ When an agent is assigned a valid staff_role, it can locate and load resources f
 
 **Acceptance Scenarios**:
 
-1. **Given** an agent has been assigned `staff_role="person_2_temp_consultant"`, **When** the agent searches for resources in that role directory, **Then** it successfully retrieves any resources placed in `staff_specialisations/person_2_temp_consultant/`
+1. **Given** an agent has been assigned `staff_role="person_2_temp_consultant"`, **When** the agent searches for resources in that role directory, **Then** it successfully retrieves any resources placed in `Staff Specialisation Resources/person_2_temp_consultant/`
 2. **Given** an agent is assigned a staff_role with an empty resource directory, **When** the agent attempts to access resources, **Then** it gracefully handles the empty state and continues operation
 3. **Given** an agent is assigned a staff_role and multiple resources exist, **When** the agent loads resources, **Then** all available resources are accessible and the agent can consult `resources-guide.md` (if present) to understand resource suitability and make intelligent prioritization decisions
 
@@ -68,12 +68,12 @@ When role-specific resources are available, the agent incorporates relevant info
 
 - **FR-001**: System MUST accept an optional `staff_role` parameter on agent queries (valid values: "person_1_managing_director", "person_2_temp_consultant", "person_3_resourcer_admin_tech", "person_4_compliance_wellbeing", "person_5_finance_training")
 - **FR-002**: System MUST validate staff_role values against the defined list of 5 roles
-- **FR-003**: System MUST locate the corresponding resource directory when a valid staff_role is provided (`staff_specialisations/{staff_role}/`)
+- **FR-003**: System MUST locate the corresponding resource directory when a valid staff_role is provided (`Staff Specialisation Resources/{staff_role}/`)
 - **FR-004**: System MUST gracefully handle invalid or missing staff_role parameters without failing the query
 - **FR-005**: Agents MUST be able to read and parse resources from the assigned staff role directory
 - **FR-006**: System MUST support empty staff role directories (directories with no resources yet)
 - **FR-007**: Agents MUST incorporate relevant role-specific resources into their responses when available
-- **FR-008**: System MUST maintain directory structure with 5 staff role subdirectories in `staff_specialisations/`
+- **FR-008**: System MUST maintain directory structure with 5 staff role subdirectories in `Staff Specialisation Resources/`
 - **FR-009**: Agents MUST prioritize role-specific information when available, while maintaining accuracy and relevance
 - **FR-010**: System MUST support optional `resources-guide.md` in each staff role directory; agents MUST consult this file (if present) to understand resource suitability and make intelligent prioritization decisions
 
@@ -104,7 +104,7 @@ When role-specific resources are available, the agent incorporates relevant info
 3. **Resource format is flexible**: Resources can be in any format (text, markdown, JSON) that agents can parse
 4. **No authentication required**: Staff role access doesn't require special permissions - any agent can access any role's resources
 5. **Resources are read-only during agent execution**: Agents read but don't modify role-specific resources
-6. **Directory structure is stable**: Once created, the `staff_specialisations/` directory structure persists between deployments
+6. **Directory structure is stable**: Once created, the `Staff Specialisation Resources/` directory structure persists between deployments
 7. **Single staff role per query**: Each agent query is specialized to a single staff role, not multiple roles
 
 ## Clarifications
@@ -125,7 +125,7 @@ When role-specific resources are available, the agent incorporates relevant info
 ## Scope Boundaries
 
 **In Scope**:
-- Creating and managing the `staff_specialisations/` directory structure
+- Creating and managing the `Staff Specialisation Resources/` directory structure
 - Accepting and validating `staff_role` parameter
 - Loading resources from role directories
 - Integrating role context into agent responses

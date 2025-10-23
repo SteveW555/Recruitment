@@ -11,7 +11,7 @@ Implement a staff specialisation system that extends the Chat Routing AI agents 
 
 **Language/Version**: Python 3.11+ (extends existing router infrastructure)
 **Primary Dependencies**: Existing AI router modules (utils/ai_router/), pathlib for file system access, json/yaml for resource parsing
-**Storage**: File system-based resource directories (`staff_specialisations/`) + optional in-memory resource cache for performance
+**Storage**: File system-based resource directories (`Staff Specialisation Resources/`) + optional in-memory resource cache for performance
 **Testing**: pytest with agent mocks, integration tests for resource loading, end-to-end tests for role-context responses
 **Target Platform**: Linux server (same as Chat Routing AI, existing ProActive People infrastructure)
 **Project Type**: Single (extension to backend library + CLI interface for testing)
@@ -71,7 +71,7 @@ specs/003-staff-specialisations/
 ```text
 utils/ai_router/                    # Existing routing system
 ├── ...existing modules...
-├── staff_specialisations/           # NEW: Staff specialisation module
+├── Staff Specialisation Resources/  # NEW: Staff specialisation resource module
 │   ├── __init__.py
 │   ├── specialisation_manager.py    # Main StaffSpecialisationManager class
 │   ├── resource_loader.py           # Resource discovery and loading
@@ -79,14 +79,13 @@ utils/ai_router/                    # Existing routing system
 │   ├── validators.py                # Staff role validation
 │   └── context_builder.py           # Build response context from resources
 
-specs/003-staff-specialisations/
-├── staff_specialisations/           # Resource directories (initially empty)
-│   ├── person_1_managing_director/
-│   │   └── resources-guide.md       # (will be added later)
-│   ├── person_2_temp_consultant/
-│   ├── person_3_resourcer_admin_tech/
-│   ├── person_4_compliance_wellbeing/
-│   └── person_5_finance_training/
+Staff Specialisation Resources/     # Resource directories (initially empty)
+├── person_1_managing_director/
+│   └── resources-guide.md           # (will be added later)
+├── person_2_temp_consultant/
+├── person_3_resourcer_admin_tech/
+├── person_4_compliance_wellbeing/
+└── person_5_finance_training/
 
 tests/ai_router/                    # Existing test structure
 ├── unit/
@@ -111,7 +110,7 @@ tests/ai_router/                    # Existing test structure
 - **Routing Decision**: Can track which staff role was used (for monitoring/logging)
 
 ### Resource Discovery
-- **File System**: Primary storage in `specs/003-staff-specialisations/staff_specialisations/{role}/`
+- **File System**: Primary storage in `Staff Specialisation Resources/{role}/`
 - **Resource Guide**: Optional `resources-guide.md` in each role directory for agent guidance
 - **Resource Formats**: Support multiple formats (markdown, text, JSON) through pluggable parsers
 
@@ -168,7 +167,7 @@ Task generation handled by `/speckit.tasks` command:
 ## Technology Decisions
 
 ### 1. Resource Storage Location
-**Decision**: File system (`specs/003-staff-specialisations/staff_specialisations/`)
+**Decision**: File system (`Staff Specialisation Resources/`)
 **Rationale**:
 - Aligns with git-based management (easy to version control)
 - Human-readable structure for future resource additions

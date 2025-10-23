@@ -25,11 +25,11 @@ class SpecialisationManager:
 
         Args:
             loader: ResourceLoader instance (created if not provided)
-            base_path: Base path to staff_specialisations directory
+            base_path: Base path to Staff Specialisation Resources directory
         """
         if loader is None:
             if base_path is None:
-                base_path = Path(__file__).parent.parent.parent.parent / "specs" / "003-staff-specialisations" / "staff_specialisations"
+                base_path = Path(__file__).parent.parent.parent.parent / "Staff Specialisation Resources"
             loader = ResourceLoader(base_path)
 
         self.loader = loader

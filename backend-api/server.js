@@ -26,18 +26,37 @@ const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY
 });
 
-// Load system prompt
-let SYSTEM_PROMPT = '';
+// Load system prompts for different agents from separate files
+let SYSTEM_PROMPTS = {};
+const PROMPT_DIR = join(__dirname, 'prompts/agent-system-prompts');
+const AGENT_TYPES = ['general-chat', 'information-retrieval', 'problem-solving', 'automation', 'report-generation', 'industry-knowledge'];
+
+// Load each agent's system prompt from its own file
+for (const agentType of AGENT_TYPES) {
+  try {
+    const promptPath = join(PROMPT_DIR, `${agentType}.txt`);
+    SYSTEM_PROMPTS[agentType] = readFileSync(promptPath, 'utf-8');
+    console.log(`✓ Loaded ${agentType} prompt`);
+  } catch (error) {
+    console.error(`✗ Failed to load ${agentType} prompt:`, error.message);
+  }
+}
+
+let DEFAULT_SYSTEM_PROMPT = SYSTEM_PROMPTS['general-chat'] || 'You are a helpful AI assistant.';
+
 try {
-  SYSTEM_PROMPT = readFileSync(
+  // Try to load the NL2SQL prompt for data queries
+  const nl2sqlPrompt = readFileSync(
     join(__dirname, '../prompts/candidates_nl2sql_system_prompt.txt'),
     'utf-8'
   );
-  console.log('✓ System prompt loaded successfully');
+  SYSTEM_PROMPTS['data-query'] = nl2sqlPrompt;
+  console.log('✓ NL2SQL system prompt loaded successfully');
 } catch (error) {
-  console.error('✗ Failed to load system prompt:', error.message);
-  process.exit(1);
+  console.log('ℹ NL2SQL prompt not found, using default');
 }
+
+console.log(`\n✓ System prompts loaded for ${Object.keys(SYSTEM_PROMPTS).length} agent types\n`);
 
 // Store conversation history per session (in-memory for now)
 const conversations = new Map();
@@ -55,7 +74,7 @@ app.get('/health', (req, res) => {
 // Chat endpoint
 app.post('/api/chat', async (req, res) => {
   try {
-    const { message, sessionId = 'default', useHistory = true } = req.body;
+    const { message, sessionId = 'default', useHistory = true, agent = 'auto' } = req.body;
 
     if (!message || !message.trim()) {
       return res.status(400).json({
@@ -65,87 +84,128 @@ app.post('/api/chat', async (req, res) => {
 
     console.log(`[${new Date().toISOString()}] Chat request:`, {
       sessionId,
+      agent,
       message: message.substring(0, 100),
       useHistory
     });
 
-    // Get or create conversation history
-    if (!conversations.has(sessionId)) {
-      conversations.set(sessionId, []);
-    }
-    const history = conversations.get(sessionId);
+    // Call Python AI Router
+    const startTime = Date.now();
+    const { spawn } = require('child_process');
+    const path = require('path');
 
-    // Build messages array for GROQ
-    const messages = [
-      {
-        role: 'system',
-        content: SYSTEM_PROMPT
-      }
+    const pythonPath = 'python'; // Use 'python3' on Linux/Mac if needed
+    const routerPath = path.join(__dirname, '..', 'utils', 'ai_router', 'cli.py');
+
+    // Convert agent type from frontend format to router format
+    const agentMap = {
+      'information-retrieval': 'INFORMATION_RETRIEVAL',
+      'report-generation': 'REPORT_GENERATION',
+      'problem-solving': 'PROBLEM_SOLVING',
+      'automation': 'AUTOMATION',
+      'industry-knowledge': 'INDUSTRY_KNOWLEDGE',
+      'general-chat': 'GENERAL_CHAT',
+      'data-operations': 'DATA_OPERATIONS',
+      'auto': 'auto'
+    };
+
+    const routerAgent = agentMap[agent] || 'auto';
+
+    const pythonArgs = [
+      routerPath,
+      message,
+      '--session-id', sessionId,
+      '--user-id', 'web-user',
+      '--json'
     ];
 
-    // Add conversation history if enabled
-    if (useHistory && history.length > 0) {
-      messages.push(...history);
+    // Only add agent filter if not 'auto'
+    if (routerAgent !== 'auto') {
+      pythonArgs.push('--agent', routerAgent);
     }
 
-    // Add current user message
-    messages.push({
-      role: 'user',
-      content: message
+    console.log(`[${new Date().toISOString()}] Calling Python AI Router:`, {
+      python: pythonPath,
+      script: routerPath,
+      agent: routerAgent
     });
 
-    // Call GROQ API
-    const startTime = Date.now();
-    const completion = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
-      messages: messages,
-      temperature: 0.3, // Low temperature for consistent SQL generation
-      max_tokens: 2000,
-      top_p: 0.9
+    const pythonProcess = spawn(pythonPath, pythonArgs);
+
+    let stdout = '';
+    let stderr = '';
+
+    pythonProcess.stdout.on('data', (data) => {
+      stdout += data.toString();
     });
 
-    const responseTime = Date.now() - startTime;
-    const assistantMessage = completion.choices[0].message.content;
+    pythonProcess.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
 
-    // Update conversation history
-    if (useHistory) {
-      history.push({
-        role: 'user',
-        content: message
-      });
-      history.push({
-        role: 'assistant',
-        content: assistantMessage
-      });
+    pythonProcess.on('close', (code) => {
+      const responseTime = Date.now() - startTime;
 
-      // Keep only last 10 exchanges (20 messages) to manage memory
-      if (history.length > 20) {
-        history.splice(0, history.length - 20);
+      if (code === 0) {
+        try {
+          // Parse JSON output from Python CLI
+          const result = JSON.parse(stdout);
+
+          console.log(`[${new Date().toISOString()}] Python AI Router response in ${responseTime}ms:`, {
+            success: result.success,
+            agent: result.agent,
+            confidence: result.confidence,
+            hasGraphAnalysis: result.metadata?.graph_analysis !== undefined
+          });
+
+          // Return response in format expected by frontend
+          res.json({
+            success: true,
+            message: result.content || '',
+            metadata: {
+              agent: result.agent || agent,
+              confidence: result.confidence || 0.8,
+              model: result.metadata?.llm_model || 'llama-3-70b-8192',
+              tokens: result.metadata?.tokens || {},
+              processingTime: result.latency_ms || responseTime,
+              sessionId,
+              historyLength: 0,
+              // ✨ Graph analysis from ReportGenerationAgent!
+              graph_analysis: result.metadata?.graph_analysis || undefined
+            }
+          });
+
+        } catch (parseError) {
+          console.error(`[${new Date().toISOString()}] Failed to parse Python output:`, parseError);
+          console.error('Python stdout:', stdout.substring(0, 500));
+
+          res.status(500).json({
+            success: false,
+            error: 'Failed to parse AI Router response'
+          });
+        }
+      } else {
+        console.error(`[${new Date().toISOString()}] Python AI Router error (code ${code}):`, stderr);
+
+        res.status(500).json({
+          success: false,
+          error: 'AI Router execution failed',
+          details: stderr.substring(0, 200)
+        });
       }
-    }
-
-    console.log(`[${new Date().toISOString()}] Response generated in ${responseTime}ms`);
-
-    // Return response
-    res.json({
-      success: true,
-      message: assistantMessage,
-      metadata: {
-        model: completion.model,
-        tokens: {
-          prompt: completion.usage.prompt_tokens,
-          completion: completion.usage.completion_tokens,
-          total: completion.usage.total_tokens
-        },
-        responseTime,
-        sessionId,
-        historyLength: history.length
-      }
     });
+
+    // Timeout after 30 seconds
+    setTimeout(() => {
+      pythonProcess.kill();
+      res.status(504).json({
+        success: false,
+        error: 'AI Router timeout'
+      });
+    }, 30000);
 
   } catch (error) {
-    console.error('Chat endpoint error:', error);
-
+    console.error(`[${new Date().toISOString()}] Error in /api/chat:`, error);
     res.status(500).json({
       success: false,
       error: 'Failed to process chat request',

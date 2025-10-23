@@ -26,7 +26,7 @@ class ResourceLoader:
         Initialize ResourceLoader.
 
         Args:
-            base_path: Base path to staff_specialisations directory
+            base_path: Base path to Staff Specialisation Resources directory
             cache_ttl_seconds: Cache time-to-live in seconds (default 1 hour)
         """
         self.base_path = Path(base_path)
@@ -48,7 +48,7 @@ class ResourceLoader:
 
         Example:
             ```python
-            resources = loader.discover_resources(Path("staff_specialisations/person_1"))
+            resources = loader.discover_resources(Path("Staff Specialisation Resources/person_1"))
             # Returns: {"guide": Path(...), "decision_framework": Path(...), ...}
             ```
         """
@@ -93,7 +93,7 @@ class ResourceLoader:
 
         Example:
             ```python
-            guide = loader.load_guide(Path("staff_specialisations/person_1"))
+            guide = loader.load_guide(Path("Staff Specialisation Resources/person_1"))
             if guide:
                 print(guide)  # # Resource Guide...
             ```

@@ -79,17 +79,43 @@
   "REPORT_GENERATION": {
     "name": "Report Generation",
     "priority": 3,
-    "description": "Visualization and presentation creation",
+    "description": "Visualization and presentation creation with intelligent graph analysis and SQL generation",
     "agent_class": "utils.ai_router.agents.report_generation_agent:ReportGenerationAgent",
     "llm_provider": "groq",
     "llm_model": "llama-3-70b-8192",
     "timeout_seconds": 2,
     "retry_count": 1,
     "retry_delay_ms": 500,
-    "tools": ["data_visualization", "report_formatting"],
+    "tools": ["data_visualization", "report_formatting", "graph_analysis", "sql_generation"],
     "resources": {},
-    "system_prompt": "You are a report generation specialist. Create structured, presentation-ready reports with visualizations, summaries, and insights. Format output in markdown with clear sections, bullet points, and suggestions for charts/dashboards.",
+    "system_prompt": "You are a report generation specialist with data visualization expertise. Create structured, presentation-ready reports with visualizations, summaries, and insights. Automatically analyze if queries would benefit from graphed data, suggest optimal chart types, and generate PostgreSQL queries to extract the data. Format output in markdown with clear sections, bullet points, chart recommendations, and executable SQL queries.",
     "enabled": true,
+    "features": {
+      "graph_analysis": true,
+      "sql_generation": true,
+      "chart_recommendation": true,
+      "interactive_charts": true
+    },
+    "database_tables": [
+      "candidates",
+      "jobs",
+      "clients",
+      "placements",
+      "applications",
+      "interviews"
+    ],
+    "supported_chart_types": [
+      "line",
+      "bar",
+      "pie",
+      "scatter",
+      "heatmap"
+    ],
+    "supported_libraries": [
+      "Plotly",
+      "Recharts",
+      "Chart.js"
+    ],
     "example_queries": [
       "Create a quarterly performance report for our accountancy division",
       "Generate a dashboard showing our top 10 clients by revenue",
@@ -99,7 +125,9 @@
       "Create a client presentation on our recruitment services",
       "Show our top 10 clients by revenue this quarter",
       "Build a market analysis for the tech sector in Bristol",
-      "Generate placement trends and candidate pipeline report"
+      "Generate placement trends and candidate pipeline report",
+      "Create a report showing placement trends over the last 12 months",
+      "Generate an advertising cost analysis with charts by job board"
     ]
   },
   "AUTOMATION": {

@@ -49,7 +49,7 @@ class StaffRole(str, Enum):
 
 **Relationships**:
 - Has-many: ResourceMetadata (each role has 0+ resources)
-- Links-to: Directory in `staff_specialisations/{role}/`
+- Links-to: Directory in `Staff Specialisation Resources/{role}/`
 
 **State Transitions**: None (static enum, values never change)
 
@@ -400,7 +400,7 @@ StaffRole (enum, 5 values)
   │     ↓
   │     └─→ Resource (parsed content)
   │
-  └─→ Directory in specs/003-staff-specialisations/staff_specialisations/{role}/
+  └─→ Directory in Staff Specialisation Resources/{role}/
 
 SpecialisationContext
   ├─→ staff_role: References one StaffRole value
@@ -453,7 +453,7 @@ ERROR (file access/parse error)
 ### Resource Lifecycle
 
 ```
-File Created (added to specs/003-staff-specialisations/{role}/)
+File Created (added to Staff Specialisation Resources/{role}/)
   ↓
 Discovered (resource loader scans directory)
   ↓
@@ -491,7 +491,7 @@ File Modified (file on disk changed)
 ### File-Based Storage Pattern
 
 ```
-specs/003-staff-specialisations/staff_specialisations/
+Staff Specialisation Resources/
 ├── person_1_managing_director/
 │   ├── resources-guide.md                (Optional, special)
 │   ├── decision_framework.md
@@ -523,7 +523,7 @@ for role in StaffRole:
     print(f"Role: {role.value}")  # person_1_managing_director, etc.
 
 # Directory mapping
-role_dir = f"specs/003-staff-specialisations/staff_specialisations/{staff_role}"
+role_dir = f"Staff Specialisation Resources/{staff_role}"
 ```
 
 ---

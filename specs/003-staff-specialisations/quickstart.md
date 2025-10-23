@@ -62,7 +62,7 @@ python --version  # Should be 3.11 or later
 Verify that the staff specialisations directories exist:
 
 ```bash
-ls -la specs/003-staff-specialisations/staff_specialisations/
+ls -la Staff\ Specialisation\ Resources/
 
 # Expected output:
 # drwxr-xr-x  person_1_managing_director/
@@ -102,7 +102,7 @@ tests/ai_router/
 ### Resource Directories
 
 ```
-specs/003-staff-specialisations/staff_specialisations/
+Staff Specialisation Resources/
 
 person_1_managing_director/
 ├── resources-guide.md              # Optional navigation guide
@@ -379,7 +379,7 @@ pytest -v tests/ai_router/unit/test_staff_specialisations/
 
 1. **Create resource file** in appropriate role directory:
 ```bash
-cd specs/003-staff-specialisations/staff_specialisations/person_1_managing_director/
+cd Staff\ Specialisation\ Resources/person_1_managing_director/
 echo "# My Resource" > my_resource.md
 ```
 
@@ -409,7 +409,7 @@ print(resources)  # Should include new file
 
 4. **Commit to git**:
 ```bash
-git add specs/003-staff-specialisations/staff_specialisations/
+git add Staff\ Specialisation\ Resources/
 git commit -m "docs: Add new resources for managing director role"
 ```
 
@@ -511,7 +511,7 @@ class AIRouter:
 
         # NEW: Initialize specialisation
         self.resource_loader = ResourceLoader(
-            base_path=Path("specs/003-staff-specialisations/staff_specialisations")
+            base_path=Path("Staff Specialisation Resources")
         )
         self.specialisation_manager = SpecialisationManager(
             self.resource_loader

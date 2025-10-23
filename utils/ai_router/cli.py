@@ -116,7 +116,8 @@ class RouterCLI:
         query: str,
         user_id: Optional[str] = None,
         session_id: Optional[str] = None,
-        verbose: bool = False
+        verbose: bool = False,
+        json_output: bool = False
     ) -> Dict[str, Any]:
         """
         Run a query through the router and display results.
@@ -126,6 +127,7 @@ class RouterCLI:
             user_id: User ID (defaults to 'cli-user')
             session_id: Session ID (defaults to random UUID)
             verbose: Whether to display full JSON response
+            json_output: Whether to output clean JSON only (for API integration)
 
         Returns:
             Routing result dictionary
@@ -133,10 +135,11 @@ class RouterCLI:
         user_id = user_id or "cli-user"
         session_id = session_id or str(uuid.uuid4())
 
-        print(f"[*] Routing query...")
-        print(f"    Query: {query[:100]}{'...' if len(query) > 100 else ''}")
-        print(f"    User: {user_id}")
-        print(f"    Session: {session_id}\n")
+        if not json_output:
+            print(f"[*] Routing query...")
+            print(f"    Query: {query[:100]}{'...' if len(query) > 100 else ''}")
+            print(f"    User: {user_id}")
+            print(f"    Session: {session_id}\n")
 
         result = await self.router.route(
             query_text=query,
@@ -146,7 +149,13 @@ class RouterCLI:
             timestamp=datetime.utcnow().isoformat()
         )
 
-        # Display results
+        # JSON output mode (for API integration)
+        if json_output:
+            output = self._format_json_output(result)
+            print(json.dumps(output, indent=2))
+            return result
+
+        # Display results (human-readable)
         self._display_result(result, verbose)
 
         return result
@@ -218,6 +227,28 @@ class RouterCLI:
             print("FULL JSON RESPONSE:")
             print(json.dumps(self._serialize_result(result), indent=2))
             print()
+
+    def _format_json_output(self, result: Dict) -> Dict:
+        """Format result for clean JSON output (API integration)."""
+        output = {
+            'success': result.get('success', False),
+            'latency_ms': result.get('latency_ms', 0)
+        }
+
+        # Add agent response
+        if result.get('agent_response'):
+            agent_response = result['agent_response']
+            output['content'] = agent_response.content
+            output['metadata'] = agent_response.metadata or {}
+            output['error'] = agent_response.error
+
+        # Add decision info
+        if result.get('decision'):
+            decision = result['decision']
+            output['agent'] = decision.primary_category.value
+            output['confidence'] = decision.primary_confidence
+
+        return output
 
     def _serialize_result(self, result: Dict) -> Dict:
         """Convert result to JSON-serializable format."""
@@ -380,6 +411,12 @@ async def main():
         help="Display router statistics and exit"
     )
 
+    parser.add_argument(
+        "--json",
+        action="store_true",
+        help="Output clean JSON only (for API integration)"
+    )
+
     args = parser.parse_args()
 
     # Initialize CLI
@@ -398,7 +435,8 @@ async def main():
             query=args.query,
             user_id=args.user_id,
             session_id=args.session_id,
-            verbose=args.verbose
+            verbose=args.verbose,
+            json_output=args.json
         )
     else:
         # Interactive mode

@@ -1,4 +1,14 @@
 {
+  "name": "elephant-recruitment",
+  "version": "1.0.0",
+  "description": "Full-stack recruitment automation system",
+  "scripts": {
+    "start": "concurrently \"cd backend-api && npm start\" \"cd frontend && npm start\"",
+    "dev": "concurrently \"cd backend-api && npm start\" \"cd frontend && npm start\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
   "dependencies": {
     "firecrawl-mcp": "^3.5.2"
   }
