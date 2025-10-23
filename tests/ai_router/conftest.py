@@ -162,4 +162,4 @@ def pytest_configure(config):
 
 
 # Pytest plugins
-pytest_plugins = ['pytest_asyncio']
+pytest_plugins = ['pytest_asyncio', 'tests.ai_router.fixtures.staff_specialisations_fixtures']

@@ -33,12 +33,16 @@ class AgentRequest:
         session_id (str): Session UUID for context continuity
         context (Optional[Dict]): Session context including previous messages and routing history
         metadata (Dict): Additional request metadata (timestamps, request_id, etc.)
+        staff_role (Optional[str]): Optional staff role for specialisation (e.g., "person_1_managing_director")
+        specialisation_context (Optional[Dict]): Loaded specialisation resources and context (if staff_role specified)
     """
     query: str
     user_id: str
     session_id: str
     context: Optional[Dict[str, Any]] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
+    staff_role: Optional[str] = None
+    specialisation_context: Optional[Dict[str, Any]] = None
 
     def __post_init__(self):
         """Validate request after initialization"""
@@ -68,6 +72,7 @@ class AgentResponse:
         content (str): Agent's response text (empty if success=False)
         metadata (Dict): Additional response metadata (sources, timing, tokens, etc.)
         error (Optional[str]): Error message if success=False
+        staff_role_context (Optional[str]): Staff role used for specialisation (if applicable)
 
     Contract Requirements:
         - If success=True, content must be non-empty
@@ -75,11 +80,13 @@ class AgentResponse:
         - metadata should include 'agent_latency_ms' for performance tracking
         - metadata should include 'sources' (List[str]) if agent cites external sources
         - metadata may include 'tokens_used' (int) for LLM cost tracking
+        - metadata may include 'staff_role_used', 'specialisation_status', 'resources_consulted' for specialisation tracking
     """
     success: bool
     content: str
     metadata: Dict[str, Any] = field(default_factory=dict)
     error: Optional[str] = None
+    staff_role_context: Optional[str] = None
 
     def __post_init__(self):
         """Validate response after initialization"""
