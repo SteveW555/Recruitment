@@ -736,6 +736,207 @@ Return JSON:
             return {"raw_response": response.content}
 
     # ========================================================================
+    # AGENT ROUTING METHODS (Independent Model for Experimentation)
+    # ========================================================================
+
+    def route_query_to_agent(
+        self,
+        query: str,
+        available_agents: List[Dict[str, Any]],
+        conversation_history: Optional[List[Dict[str, str]]] = None,
+        routing_model: Optional[str] = None,
+        temperature: float = 0.3
+    ) -> Dict[str, Any]:
+        """
+        Use LLM to intelligently route queries to the most appropriate agent.
+
+        This function is INDEPENDENT of other Groq operations and uses its own
+        model configuration, allowing experimentation with different models
+        for routing decisions without affecting agent execution.
+
+        Args:
+            query: User query to route
+            available_agents: List of agent definitions with descriptions
+                Example: [
+                    {
+                        "name": "INFORMATION_RETRIEVAL",
+                        "description": "Searches and retrieves data",
+                        "examples": ["Find candidates", "Show jobs"]
+                    },
+                    ...
+                ]
+            conversation_history: Optional conversation context (last 3-5 messages)
+            routing_model: Model to use for routing (default: llama-3.3-70b-versatile)
+                Options: "llama-3.3-70b-versatile", "mixtral-8x7b-32768", "gemma2-9b-it"
+            temperature: Temperature for routing decisions (default: 0.3 for consistency)
+            return_reasoning: Include reasoning in response
+
+        Returns:
+            Dict with routing decision:
+            {
+                "agent": "INFORMATION_RETRIEVAL",
+                "confidence": 0.85,
+                "reasoning": "Query asks to find candidates...",
+                "is_followup": True/False,
+                "model_used": "llama-3.3-70b-versatile"
+            }
+        """
+        # Default to fast, balanced model for routing
+        if routing_model is None:
+            routing_model = GroqModel.DEFAULT.value
+
+        # Build system prompt for routing
+        system_prompt = """You are an intelligent query router for ProActive People, a UK recruitment agency AI system.
+
+Your job is to analyze user queries and route them to the most appropriate specialized agent based on:
+
+**Routing Guidelines:**
+1. **INFORMATION_RETRIEVAL** - Searches, lookups, "find", "show", "get", "search" queries about candidates, jobs, clients
+2. **PROBLEM_SOLVING** - Complex analysis, troubleshooting, "why", "how to solve", strategic questions
+3. **REPORT_GENERATION** - Requests for reports, summaries, dashboards, analytics, "generate report"
+4. **AUTOMATION** - Workflow design, process automation, "automate", "workflow"
+5. **INDUSTRY_KNOWLEDGE** - UK recruitment law, GDPR, IR35, compliance, best practices
+6. **GENERAL_CHAT** - Greetings, casual conversation, off-topic, unclear intent
+
+**Context Awareness:**
+- If the query is very short (1-3 words) and there's conversation history, it's likely a follow-up
+- Examples: "show the first 5", "what about Manchester?", "tell me more"
+
+**Confidence Guidelines:**
+- 0.9-1.0: Obvious intent with clear keywords
+- 0.7-0.9: Strong match but some ambiguity
+- 0.5-0.7: Moderate match, could fit multiple agents
+- Below 0.5: Unclear intent, route to GENERAL_CHAT
+
+Return ONLY valid JSON with this structure (no markdown, no extra text):
+{
+  "agent": "AGENT_NAME",
+  "confidence": 0.85,
+  "reasoning": "Brief explanation of why this agent",
+  "is_followup": false
+}"""
+
+        # Build agent descriptions
+        agent_descriptions = []
+        for agent in available_agents:
+            desc = f"**{agent['name']}**: {agent.get('description', '')}"
+            if 'examples' in agent and agent['examples']:
+                examples = ', '.join(agent['examples'][:3])
+                desc += f"\n  Examples: {examples}"
+            agent_descriptions.append(desc)
+
+        agents_text = "\n\n".join(agent_descriptions)
+
+        # Build context section
+        context_text = ""
+        if conversation_history and len(conversation_history) > 0:
+            context_text = "\n\n**CONVERSATION CONTEXT (last few messages):**\n"
+            for msg in conversation_history[-5:]:  # Last 5 messages
+                role = msg.get('role', 'user')
+                content = msg.get('content', '')[:100]  # Truncate long messages
+                context_text += f"- {role}: {content}\n"
+
+        # Build user prompt
+        user_prompt = f"""Route this query to the best agent:
+
+**QUERY:** "{query}"
+{context_text}
+
+**AVAILABLE AGENTS:**
+{agents_text}
+
+Analyze the query and determine:
+1. Which agent is best suited?
+2. How confident are you? (0.0-1.0)
+3. Is this a follow-up to the previous conversation?
+4. Why is this agent the best choice?
+
+Return ONLY the JSON response."""
+
+        # Create independent config for routing
+        routing_config = CompletionConfig(
+            model=routing_model,
+            temperature=temperature,
+            max_tokens=300
+        )
+
+        try:
+            # Call LLM for routing decision
+            response = self.complete(user_prompt, system_prompt, routing_config)
+
+            # Parse JSON response
+            routing_decision = self.validate_json_response(response.content)
+
+            if routing_decision is None:
+                # Fallback if JSON parsing fails
+                logger.warning("Failed to parse routing response, using fallback")
+                return {
+                    "agent": "GENERAL_CHAT",
+                    "confidence": 0.5,
+                    "reasoning": "Could not determine best agent",
+                    "is_followup": False,
+                    "model_used": routing_model,
+                    "error": "JSON parsing failed"
+                }
+
+            # Add metadata
+            routing_decision["model_used"] = routing_model
+            routing_decision["tokens_used"] = response.usage.get('total_tokens', 0)
+
+            return routing_decision
+
+        except Exception as e:
+            logger.error(f"Routing error: {str(e)}")
+            return {
+                "agent": "GENERAL_CHAT",
+                "confidence": 0.0,
+                "reasoning": f"Routing failed: {str(e)}",
+                "is_followup": False,
+                "model_used": routing_model,
+                "error": str(e)
+            }
+
+    def compare_routing_models(
+        self,
+        query: str,
+        available_agents: List[Dict[str, Any]],
+        models_to_test: Optional[List[str]] = None
+    ) -> Dict[str, Dict[str, Any]]:
+        """
+        Compare how different models route the same query.
+        Useful for finding the best routing model for your use case.
+
+        Args:
+            query: Query to test
+            available_agents: List of agent definitions
+            models_to_test: Models to compare (default: 3 common models)
+
+        Returns:
+            Dict mapping model names to routing decisions
+        """
+        if models_to_test is None:
+            models_to_test = [
+                "llama-3.3-70b-versatile",  # Default, balanced
+                "mixtral-8x7b-32768",        # Good at reasoning
+                "gemma2-9b-it"               # Smaller, faster
+            ]
+
+        results = {}
+
+        for model in models_to_test:
+            try:
+                decision = self.route_query_to_agent(
+                    query=query,
+                    available_agents=available_agents,
+                    routing_model=model
+                )
+                results[model] = decision
+            except Exception as e:
+                results[model] = {"error": str(e)}
+
+        return results
+
+    # ========================================================================
     # UTILITY METHODS
     # ========================================================================
 

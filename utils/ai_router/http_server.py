@@ -26,9 +26,15 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../.
 
 from utils.ai_router.router import AIRouter
 from utils.ai_router.classifier import Classifier
+from utils.ai_router.groq_classifier import GroqClassifier
 from utils.ai_router.storage.session_store import SessionStore
 from utils.ai_router.storage.log_repository import LogRepository
 from utils.ai_router.agent_registry import AgentRegistry
+
+# Configuration: Choose classifier type
+# Set USE_GROQ_ROUTING=true to use Groq LLM for routing
+# Set USE_GROQ_ROUTING=false (or unset) to use semantic similarity
+USE_GROQ_ROUTING = os.environ.get("USE_GROQ_ROUTING", "true").lower() == "true"
 
 # Initialize FastAPI app
 app = FastAPI(title="AI Router Service", version="1.0.0")
@@ -74,12 +80,23 @@ async def startup_event():
     print("[*] Initializing router dependencies...")
 
     try:
-        # Initialize classifier (this takes ~13 seconds)
+        # Initialize classifier based on configuration
         print("[*] Loading classifier...")
-        classifier = Classifier(
-            model_name="all-MiniLM-L6-v2",
-            config_path="config/agents.json"
-        )
+        if USE_GROQ_ROUTING:
+            print("[*] Using Groq LLM-based routing (fast startup, no model download)")
+            classifier = GroqClassifier(
+                config_path="config/agents.json",
+                confidence_threshold=0.55,
+                routing_model="llama-3.3-70b-versatile",
+                temperature=0.3
+            )
+        else:
+            print("[*] Using semantic similarity routing (13s startup, sentence-transformers)")
+            classifier = Classifier(
+                model_name="all-MiniLM-L6-v2",
+                config_path="config/agents.json",
+                confidence_threshold=0.55  # Lowered from 0.65 to improve routing
+            )
         print("[OK] Classifier ready")
 
         # Initialize session store
@@ -127,7 +144,10 @@ async def startup_event():
         )
         print("[OK] Router ready")
         print("[*] Server ready on http://localhost:8888")
-        print("[*] Model loaded and cached - requests will be fast!")
+        if USE_GROQ_ROUTING:
+            print("[*] Using Groq LLM routing - fast startup, intelligent routing!")
+        else:
+            print("[*] Model loaded and cached - requests will be fast!")
 
     except Exception as e:
         print(f"[ERROR] Failed to initialize: {e}", file=sys.stderr)
