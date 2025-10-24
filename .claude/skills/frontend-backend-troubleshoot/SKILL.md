@@ -5,6 +5,27 @@ description: Expert troubleshooting for frontend-backend communication issues in
 
 # Frontend-Backend Communication Troubleshooting
 
+## Current System Architecture (2025)
+
+**Simplified Startup:** The system now uses backend-managed Python router lifecycle. Start everything with one command:
+
+```bash
+npm start  # From project root
+```
+
+This automatically:
+- Starts backend (Express on port 3002)
+- Backend spawns Python AI Router (port 8888) - invisible to developer
+- Starts frontend (Vite on port 3000)
+- All managed by concurrently
+- Clean shutdown with single Ctrl+C
+
+**Key Files:**
+- `backend-api/pythonRouterManager.js` - Manages Python lifecycle
+- `backend-api/server-fast.js` - Integrated router manager
+- `package.json` (root) - Simplified startup scripts
+- `logs/ai-router.log` - Python router diagnostics
+
 ## Purpose
 
 This skill provides expert guidance for diagnosing and permanently fixing communication issues between frontend and backend services in web applications. It embodies battle-tested troubleshooting methodologies, configuration patterns, and testing strategies proven to resolve common connectivity problems.
@@ -222,34 +243,40 @@ app.use(cors({
 - ⚠️ Requires updating for each frontend port
 - ⚠️ More complex security configuration
 
-### Pattern 3: Automated Startup Script
+### Pattern 3: Simplified Startup (Current Implementation)
 
-Create `start-dev.bat` (Windows) or `start-dev.sh` (Linux/Mac):
+The system now uses backend-managed Python router lifecycle for simplified startup.
 
-```batch
-@echo off
-echo Starting development servers...
-
-REM Clean up existing processes
-taskkill /F /IM node.exe 2>nul
-
-REM Start backend on configured port
-cd backend-api
-start "Backend" cmd /k "set BACKEND_PORT=3002 && npm start"
-cd ..
-
-REM Wait for backend to initialize
-timeout /t 5 /nobreak >nul
-
-REM Start frontend
-cd frontend
-start "Frontend" cmd /k "npm start"
-cd ..
-
-echo Servers starting...
-echo Backend:  http://localhost:3002
-echo Frontend: http://localhost:3000
+**Root package.json:**
+```json
+{
+  "scripts": {
+    "dev": "concurrently -k -n backend,frontend \"cd backend-api && npm start\" \"cd frontend && npm start\"",
+    "start": "npm run dev"
+  }
+}
 ```
+
+**Single Command Startup:**
+```bash
+# From project root
+npm start
+
+# This will:
+# 1. Start backend (which auto-starts Python router)
+# 2. Start frontend in parallel
+# 3. All managed by concurrently
+
+# Stop everything:
+Ctrl+C (once - kills all processes)
+```
+
+**Benefits:**
+- ✅ One command: `npm start`
+- ✅ Python router lifecycle managed automatically
+- ✅ Clean shutdown with single Ctrl+C
+- ✅ No manual server management
+- ✅ Logs captured in `logs/ai-router.log`
 
 ## Testing Strategy
 
@@ -307,14 +334,18 @@ curl http://localhost:FRONTEND_PORT/api/endpoint
 
 **Symptom**: Changes not taking effect
 
-**Solution**: Always restart both servers after configuration changes
+**Solution**: Always restart after configuration changes
+
 ```bash
-# Kill all node processes
+# Stop all services
+Ctrl+C  # In terminal running npm start
+
+# Restart everything
+npm start
+
+# Or, if processes are orphaned (rare):
 taskkill /F /IM node.exe  # Windows
 killall node              # Linux/Mac
-
-# Restart using automated script
-./start-dev.bat
 ```
 
 ### Pitfall 3: Mixed HTTP/HTTPS
@@ -354,7 +385,7 @@ fetch('/users/123')
 
 ## Architecture Patterns
 
-### Development Setup (Recommended)
+### Development Setup (Current - Simplified)
 
 ```
 User Browser (localhost:3000)
@@ -363,14 +394,26 @@ Vite Dev Server (Port 3000)
     ↓ [Proxy: /api/* → localhost:3002/api/*]
     ↓
 Express Backend (Port 3002)
-    ↓
-External APIs (GROQ, OpenAI, etc.)
+    ├── Manages Python AI Router (Port 8888) - INVISIBLE
+    └── Routes to: External APIs (GROQ, OpenAI, etc.)
+
+Python AI Router (Port 8888)
+    ├── Spawned/managed by backend
+    ├── Session storage (Redis or in-memory)
+    └── Agent classification + routing
 ```
 
 **Benefits:**
 - No CORS configuration needed
-- Easy localhost development
+- One command startup: `npm start`
+- Python router lifecycle managed automatically
+- Clean shutdown with Ctrl+C
 - Simple to switch to production URLs
+
+**Key Files:**
+- `backend-api/pythonRouterManager.js` - Manages Python lifecycle
+- `backend-api/server-fast.js` - Integrates router manager
+- `package.json` (root) - Concurrently runs backend + frontend
 
 ### Production Setup
 
@@ -430,21 +473,25 @@ Target response times for healthy system:
 
 ## Additional Resources
 
-See the `references/` directory for:
+### Core System Files (Current Implementation)
 
-- `troubleshooting-guide.md` - Extended troubleshooting scenarios
-- `configuration-templates/` - Ready-to-use config files
-- `test-script-template.py` - Comprehensive testing script
+- `backend-api/pythonRouterManager.js` - Python router lifecycle management
+- `backend-api/server-fast.js` - Backend with integrated router manager
+- `utils/ai_router/http_server.py` - Python HTTP server with session fallback
+- `utils/ai_router/storage/in_memory_session_store.py` - In-memory session storage
+- `package.json` (root) - Simplified startup with concurrently
+- `logs/ai-router.log` - Python router logs and diagnostics
 
-See the `scripts/` directory for:
+### Documentation
 
-- `diagnose.py` - Automated diagnostic tool
-- `fix-ports.sh` - Port cleanup utility
+- `IMPLEMENTATION_COMPLETE.md` - Backend-managed router implementation details
+- `FINAL_BEST_OF_PLAN.md` - Architecture decisions and rationale
 
-See the `assets/` directory for:
+### Testing
 
-- `vite.config.template.js` - Production-ready Vite config
-- `start-dev.template.bat` - Startup script template
+- Run comprehensive tests: `python testends.py` (if available)
+- Check logs: `logs/ai-router.log`
+- Health check: `curl http://localhost:3002/health`
 
 ## Real-World Troubleshooting Example
 
@@ -492,18 +539,22 @@ Failed to load resource: the server responded with a status of 404 (Not Found)
    - Frontend was running and trying to proxy
    - Proxy had nowhere to forward requests
 
-5. **Solution Applied**
+5. **Solution Applied (Current Simplified Method)**
    ```bash
-   cd backend-api
-   set BACKEND_PORT=3002
+   # From project root
    npm start
+
+   # This automatically:
+   # - Starts backend (which spawns Python router)
+   # - Starts frontend
+   # - All managed together
    ```
 
 6. **Verification**
    ```bash
    # Test health endpoint
    curl http://localhost:3002/health
-   # Result: {"status":"ok","service":"Elephant AI Backend","groq":true}
+   # Result: {"status":"ok","service":"Elephant AI Backend","groq":true,"aiRouter":"healthy"}
 
    # Test chat endpoint
    curl -X POST http://localhost:3002/api/chat \
@@ -512,7 +563,7 @@ Failed to load resource: the server responded with a status of 404 (Not Found)
    # Result: {"success":true,"message":"...","metadata":{...}}
    ```
 
-**Key Takeaway:** Always verify BOTH servers are actually running before diving into complex proxy or CORS debugging. Use `Test-NetConnection` (Windows) or `lsof` (Linux/Mac) to quickly check port status.
+**Key Takeaway:** With the current simplified architecture, always use `npm start` from root. The backend automatically manages the Python router, so you only need to start two services (backend + frontend), not three.
 
 ## Quick Reference
 

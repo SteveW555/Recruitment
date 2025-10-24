@@ -5,6 +5,7 @@ import Groq from 'groq-sdk';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { ensureRouterRunning, stopRouter, getStatus } from './pythonRouterManager.js';
 
 // Load environment variables
 dotenv.config({ path: '../.env' });
@@ -155,18 +156,65 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
-// Start server
-app.listen(PORT, () => {
+// Initialize and start server
+async function initializeServer() {
   console.log(`\n${'='.repeat(60)}`);
   console.log(`🚀 Backend API Server (FAST VERSION)`);
   console.log(`${'='.repeat(60)}`);
-  console.log(`✅ Server running on port ${PORT}`);
-  console.log(`✅ GROQ API Key: ${process.env.GROQ_API_KEY ? 'Configured' : 'Missing'}`);
-  console.log(`✅ AI Router URL: ${AI_ROUTER_URL}`);
-  console.log(`\n📋 IMPORTANT: Start Python server first!`);
-  console.log(`   Run: start-ai-router-server.bat`);
-  console.log(`\n🔗 Endpoints:`);
-  console.log(`   Health: http://localhost:${PORT}/health`);
-  console.log(`   Chat:   http://localhost:${PORT}/api/chat`);
-  console.log(`${'='.repeat(60)}\n`);
+
+  try {
+    // Start AI Router (or verify it's running)
+    console.log(`\n[*] Initializing AI Router...`);
+    const routerStarted = await ensureRouterRunning();
+
+    if (!routerStarted) {
+      console.error(`\n❌ Failed to start AI Router`);
+      console.error(`   Please check logs/ai-router.log for details`);
+      process.exit(1);
+    }
+
+    // Start Express server
+    app.listen(PORT, () => {
+      console.log(`\n${'='.repeat(60)}`);
+      console.log(`✅ Backend server running on port ${PORT}`);
+      console.log(`✅ GROQ API Key: ${process.env.GROQ_API_KEY ? 'Configured' : 'Missing'}`);
+      console.log(`✅ AI Router: Ready on ${AI_ROUTER_URL}`);
+      console.log(`\n🔗 Endpoints:`);
+      console.log(`   Health: http://localhost:${PORT}/health`);
+      console.log(`   Chat:   http://localhost:${PORT}/api/chat`);
+      console.log(`${'='.repeat(60)}\n`);
+    });
+
+  } catch (error) {
+    console.error(`\n❌ Failed to initialize server:`, error.message);
+    console.error(`   Check logs/ai-router.log for details`);
+    process.exit(1);
+  }
+}
+
+// Clean shutdown handlers
+process.on('SIGINT', () => {
+  console.log('\n\nShutting down gracefully...');
+  stopRouter();
+  process.exit(0);
 });
+
+process.on('SIGTERM', () => {
+  console.log('\n\nReceived SIGTERM, shutting down...');
+  stopRouter();
+  process.exit(0);
+});
+
+process.on('exit', () => {
+  stopRouter();
+});
+
+// Handle uncaught errors
+process.on('uncaughtException', (error) => {
+  console.error('\n❌ Uncaught exception:', error);
+  stopRouter();
+  process.exit(1);
+});
+
+// Start everything
+initializeServer();

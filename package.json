@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Full-stack recruitment automation system",
   "scripts": {
-    "start": "concurrently \"cd backend-api && npm start\" \"cd frontend && npm start\"",
-    "dev": "concurrently \"cd backend-api && npm start\" \"cd frontend && npm start\""
+    "dev": "concurrently -k -n backend,frontend \"cd backend-api && npm start\" \"cd frontend && npm start\"",
+    "start": "npm run dev"
   },
   "devDependencies": {
     "concurrently": "^8.2.2"
