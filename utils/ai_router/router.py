@@ -19,6 +19,12 @@ from .storage.session_store import SessionStore
 from .storage.log_repository import LogRepository
 from .agent_registry import AgentRegistry
 from .agents.base_agent import AgentRequest, AgentResponse
+from .staff_specialisations import (
+    SpecialisationManager,
+    get_staff_role_from_kwargs,
+    enhance_agent_request_with_specialisation,
+    enhance_agent_response_with_specialisation,
+)
 
 
 class AIRouter:
@@ -33,10 +39,18 @@ class AIRouter:
     5. Handle retries and fallback logic
     6. Log all decisions to PostgreSQL
     7. Implement graceful error handling
+    8. Support staff role specialisations (optional)
 
     Performance targets:
     - End-to-end latency: <3 seconds (95th percentile)
     - Agent timeout: 2 seconds with 1 retry
+    - Specialisation overhead: <100ms
+
+    Staff Specialisations:
+    - When staff_role is provided in kwargs, loads role-specific resources
+    - Passes specialisation context to agents via AgentRequest
+    - Agents can use resources to enhance responses
+    - Backward compatible (works without staff_role)
     """
 
     def __init__(
@@ -49,6 +63,7 @@ class AIRouter:
         agent_timeout: float = 2.0,
         max_retries: int = 1,
         retry_delay_ms: int = 500,
+        enable_specialisations: bool = True,
     ):
         """
         Initialize router with dependencies.
@@ -62,6 +77,7 @@ class AIRouter:
             agent_timeout: Agent execution timeout in seconds (default 2)
             max_retries: Maximum retries for agent execution (default 1)
             retry_delay_ms: Delay between retries in ms (default 500)
+            enable_specialisations: Enable staff role specialisations (default True)
         """
         self.classifier = classifier
         self.session_store = session_store
@@ -71,6 +87,10 @@ class AIRouter:
         self.agent_timeout = agent_timeout
         self.max_retries = max_retries
         self.retry_delay_ms = retry_delay_ms
+
+        # Initialize staff specialisation manager (if enabled)
+        self.enable_specialisations = enable_specialisations
+        self.specialisation_manager = SpecialisationManager() if enable_specialisations else None
 
     async def route(
         self,
@@ -110,14 +130,17 @@ class AIRouter:
         start_time = time.time()
 
         try:
-            # Step 1: Validate and create Query
+            # Step 1: Extract staff_role from kwargs (if provided)
+            staff_role = get_staff_role_from_kwargs(kwargs) if self.enable_specialisations else None
+
+            # Step 2: Validate and create Query
             query = Query(
                 text=query_text,
                 user_id=user_id,
                 session_id=session_id
             )
 
-            # Step 2: Load session context
+            # Step 3: Load session context
             if self.session_store:
                 session_context = self.session_store.load(user_id, session_id)
             else:
@@ -129,8 +152,14 @@ class AIRouter:
                     session_id=session_id
                 )
 
-            # Step 3: Classify query
-            decision = self.classifier.classify(query.text, query.id)
+            # Step 3: Classify query (with context awareness)
+            # Get previous agent from session context for follow-up detection
+            previous_agent = None
+            if session_context and len(session_context.routing_history) > 0:
+                # Get the most recent routing decision
+                previous_agent = session_context.routing_history[-1].get('category')
+
+            decision = self.classifier.classify(query.text, query.id, previous_agent)
 
             # Step 4: Check confidence and route
             if decision.primary_confidence < self.confidence_threshold:
@@ -166,10 +195,24 @@ class AIRouter:
 
                 # Execute general chat agent
                 agent_response = await self._execute_agent_with_retry(
-                    agent, query, session_context
+                    agent, query, session_context, staff_role
                 )
 
+                # Save conversation history for low-confidence fallback
+                session_context.add_message('user', query_text)
+                session_context.add_routing_decision(query.id)
+                if agent_response and agent_response.success and agent_response.content:
+                    session_context.add_message(
+                        'assistant',
+                        agent_response.content,
+                        category='general-chat'
+                    )
+                if self.session_store:
+                    self.session_store.save(session_context)
+
                 # Add warning to metadata (not to chat response)
+                # Note: Specialisation context is passed to agent via AgentRequest,
+                # and agents are responsible for using it and adding metadata
                 result = {
                     'success': agent_response.success,
                     'query': query,
@@ -215,13 +258,13 @@ class AIRouter:
 
             # Step 6: Execute agent with retry logic
             agent_response = await self._execute_agent_with_retry(
-                agent, query, session_context
+                agent, query, session_context, staff_role
             )
 
             # Step 7: Handle agent failure - fallback to general chat
             if not agent_response.success:
                 fallback_response = await self._fallback_to_general_chat(
-                    query, session_context, agent_response
+                    query, session_context, agent_response, staff_role
                 )
                 decision.fallback_triggered = True
 
@@ -246,6 +289,15 @@ class AIRouter:
             # Step 8: Save/update session context
             session_context.add_message('user', query_text)
             session_context.add_routing_decision(query.id)
+
+            # Save assistant's response to conversation history
+            if agent_response and agent_response.success and agent_response.content:
+                session_context.add_message(
+                    'assistant',
+                    agent_response.content,
+                    category=decision.primary_category.value if decision else None
+                )
+
             if self.session_store:
                 self.session_store.save(session_context)
 
@@ -280,7 +332,8 @@ class AIRouter:
         self,
         agent,
         query: Query,
-        session_context: SessionContext
+        session_context: SessionContext,
+        staff_role: Optional[str] = None
     ) -> AgentResponse:
         """
         Execute agent with retry logic.
@@ -292,6 +345,7 @@ class AIRouter:
             agent: Agent instance to execute
             query: Query being processed
             session_context: Session context for agent
+            staff_role: Optional staff role for specialisation
 
         Returns:
             AgentResponse (success or failure)
@@ -299,13 +353,24 @@ class AIRouter:
         for attempt in range(self.max_retries + 1):
             try:
                 # Create agent request
-                request = AgentRequest(
-                    query=query.text,
-                    user_id=query.user_id,
-                    session_id=query.session_id,
-                    context=session_context.to_dict(),
-                    metadata={'attempt': attempt + 1}
-                )
+                request_dict = {
+                    'query': query.text,
+                    'user_id': query.user_id,
+                    'session_id': query.session_id,
+                    'context': session_context.to_dict(),
+                    'metadata': {'attempt': attempt + 1}
+                }
+
+                # Enhance with staff specialisation context (if enabled and staff_role provided)
+                if self.enable_specialisations and staff_role:
+                    request_dict = enhance_agent_request_with_specialisation(
+                        request_dict,
+                        self.specialisation_manager,
+                        staff_role
+                    )
+
+                # Convert to AgentRequest object
+                request = AgentRequest(**request_dict)
 
                 # Execute agent with timeout
                 response = await asyncio.wait_for(
@@ -347,7 +412,8 @@ class AIRouter:
         self,
         query: Query,
         session_context: SessionContext,
-        failed_response: AgentResponse
+        failed_response: AgentResponse,
+        staff_role: Optional[str] = None
     ) -> AgentResponse:
         """
         Fallback to general chat agent if primary agent fails.
@@ -356,6 +422,7 @@ class AIRouter:
             query: Original query
             session_context: Session context
             failed_response: Response from failed agent (for error context)
+            staff_role: Optional staff role for specialisation
 
         Returns:
             AgentResponse from general chat agent
@@ -373,16 +440,27 @@ class AIRouter:
 
         try:
             # Create request with error context
-            request = AgentRequest(
-                query=query.text,
-                user_id=query.user_id,
-                session_id=query.session_id,
-                context=session_context.to_dict(),
-                metadata={
+            request_dict = {
+                'query': query.text,
+                'user_id': query.user_id,
+                'session_id': query.session_id,
+                'context': session_context.to_dict(),
+                'metadata': {
                     'fallback': True,
                     'original_error': failed_response.error
                 }
-            )
+            }
+
+            # Enhance with staff specialisation context (if enabled and staff_role provided)
+            if self.enable_specialisations and staff_role:
+                request_dict = enhance_agent_request_with_specialisation(
+                    request_dict,
+                    self.specialisation_manager,
+                    staff_role
+                )
+
+            # Convert to AgentRequest object
+            request = AgentRequest(**request_dict)
 
             # Execute fallback agent
             response = await asyncio.wait_for(

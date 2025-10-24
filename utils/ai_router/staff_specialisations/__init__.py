@@ -37,6 +37,11 @@ from .validators import (
     validate_resource_path,
     validate_resource_content,
 )
+from .router_integration import (
+    get_staff_role_from_kwargs,
+    enhance_agent_request_with_specialisation,
+    enhance_agent_response_with_specialisation,
+)
 
 __version__ = "0.1.0"
 __author__ = "ProActive People"
@@ -56,4 +61,7 @@ __all__ = [
     "validate_staff_role",
     "validate_resource_path",
     "validate_resource_content",
+    "get_staff_role_from_kwargs",
+    "enhance_agent_request_with_specialisation",
+    "enhance_agent_response_with_specialisation",
 ]
