@@ -84,12 +84,17 @@ async def startup_event():
 
         # Initialize session store
         print("[*] Connecting to Redis...")
-        session_store = SessionStore()
-        if not session_store.ping():
-            print("[WARN] Redis not available - sessions disabled")
+        try:
+            session_store = SessionStore()
+            if not session_store.ping():
+                print("[WARN] Redis not available - sessions disabled")
+                session_store = None
+            else:
+                print("[OK] Redis connected")
+        except Exception as e:
+            print(f"[WARN] Redis unavailable: {e}")
+            print("[INFO] Continuing without sessions (development mode)")
             session_store = None
-        else:
-            print("[OK] Redis connected")
 
         # Initialize log repository (optional)
         print("[*] Connecting to PostgreSQL...")

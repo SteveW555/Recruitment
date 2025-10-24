@@ -118,7 +118,11 @@ class AIRouter:
             )
 
             # Step 2: Load session context
-            session_context = self.session_store.load(user_id, session_id)
+            if self.session_store:
+                session_context = self.session_store.load(user_id, session_id)
+            else:
+                session_context = None
+
             if not session_context:
                 session_context = SessionContext(
                     user_id=user_id,
@@ -242,7 +246,8 @@ class AIRouter:
             # Step 8: Save/update session context
             session_context.add_message('user', query_text)
             session_context.add_routing_decision(query.id)
-            self.session_store.save(session_context)
+            if self.session_store:
+                self.session_store.save(session_context)
 
             # Step 9: Log decision (if logging enabled)
             if self.log_repository:

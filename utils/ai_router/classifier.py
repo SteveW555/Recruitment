@@ -13,6 +13,7 @@ from typing import List, Dict, Tuple, Optional
 from pathlib import Path
 
 import numpy as np
+import torch
 from sentence_transformers import SentenceTransformer, util
 
 from .models.category import Category
@@ -254,11 +255,3 @@ class Classifier:
             f"categories={categories_loaded}, "
             f"threshold={self.confidence_threshold})"
         )
-
-
-# Fix import issue for torch (sentence-transformers internally uses torch)
-try:
-    import torch
-except ImportError:
-    print("[WARNING] PyTorch not found. Install with: pip install torch", file=sys.stderr)
-    torch = None
