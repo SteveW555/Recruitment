@@ -44,11 +44,11 @@ class SessionContext:
 
     def __post_init__(self):
         """Validate and initialize session context."""
-        # Validate session_id is UUID format
-        try:
-            uuid.UUID(self.session_id)
-        except ValueError:
-            raise ValueError(f"Invalid session_id format: {self.session_id}. Must be valid UUID v4")
+        # Note: session_id can be any string format (UUID, custom identifier, etc.)
+        # Frontend may use formats like "elephant-session-1" or UUID v4
+
+        if not self.session_id or not str(self.session_id).strip():
+            raise ValueError("Session ID is required")
 
         if not self.user_id or not self.user_id.strip():
             raise ValueError("User ID is required")

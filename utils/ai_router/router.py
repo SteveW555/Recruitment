@@ -45,7 +45,7 @@ class AIRouter:
         session_store: SessionStore,
         log_repository: Optional[LogRepository],
         agent_registry: AgentRegistry,
-        confidence_threshold: float = 0.7,
+        confidence_threshold: float = 0.65,
         agent_timeout: float = 2.0,
         max_retries: int = 1,
         retry_delay_ms: int = 500,
@@ -58,7 +58,7 @@ class AIRouter:
             session_store: Redis session storage
             log_repository: PostgreSQL log repository (optional - None disables logging)
             agent_registry: Agent registry for loading agents
-            confidence_threshold: Minimum confidence for routing (default 0.7)
+            confidence_threshold: Minimum confidence for routing (default 0.65)
             agent_timeout: Agent execution timeout in seconds (default 2)
             max_retries: Maximum retries for agent execution (default 1)
             retry_delay_ms: Delay between retries in ms (default 500)
@@ -130,21 +130,58 @@ class AIRouter:
 
             # Step 4: Check confidence and route
             if decision.primary_confidence < self.confidence_threshold:
-                # Low confidence - trigger clarification
+                # Low confidence - route to general chat with warning
+                warning_message = f"⚠ Low confidence ({decision.primary_confidence:.1%}). Routing to general chat."
+
+                # Override decision to use general chat
+                decision.primary_category = Category.GENERAL_CHAT
+                decision.fallback_triggered = True
+
+                # Get general chat agent
+                agent = self.agent_registry.get_agent(Category.GENERAL_CHAT)
+
+                if not agent:
+                    # Fallback failed - return error
+                    error_msg = "General chat agent unavailable"
+                    result = {
+                        'success': False,
+                        'query': query,
+                        'decision': decision,
+                        'agent_response': None,
+                        'error': error_msg,
+                        'latency_ms': int((time.time() - start_time) * 1000)
+                    }
+
+                    if self.log_repository:
+                        self.log_repository.log_routing_decision(
+                            query, decision, False,
+                            error_message=error_msg
+                        )
+
+                    return result
+
+                # Execute general chat agent
+                agent_response = await self._execute_agent_with_retry(
+                    agent, query, session_context
+                )
+
+                # Add warning to metadata (not to chat response)
                 result = {
-                    'success': False,
+                    'success': agent_response.success,
                     'query': query,
                     'decision': decision,
-                    'agent_response': None,
-                    'error': f"Query confidence {decision.primary_confidence:.1%} below threshold {self.confidence_threshold:.0%}. Please clarify your request.",
-                    'latency_ms': int((time.time() - start_time) * 1000)
+                    'agent_response': agent_response,
+                    'error': None if agent_response.success else agent_response.error,
+                    'latency_ms': int((time.time() - start_time) * 1000),
+                    'low_confidence_warning': warning_message  # For console logging
                 }
 
-                # Log decision (if logging enabled)
+                # Log decision
                 if self.log_repository:
                     self.log_repository.log_routing_decision(
-                        query, decision, False,
-                        error_message=result['error']
+                        query, decision, agent_response.success,
+                        agent_name="GeneralChatAgent (low confidence)",
+                        error_message=None if agent_response.success else agent_response.error
                     )
 
                 return result
@@ -203,8 +240,8 @@ class AIRouter:
                 }
 
             # Step 8: Save/update session context
-            session_context.add_message(user_id, query_text)
-            session_context.add_routing_history(decision.primary_category.value, decision.primary_confidence)
+            session_context.add_message('user', query_text)
+            session_context.add_routing_decision(query.id)
             self.session_store.save(session_context)
 
             # Step 9: Log decision (if logging enabled)

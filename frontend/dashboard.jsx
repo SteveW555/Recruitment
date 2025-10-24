@@ -19,6 +19,7 @@ export default function Dashboard() {
   const [inputMessage, setInputMessage] = useState('');
   const [expandedCategory, setExpandedCategory] = useState(null);
   const [selectedRole, setSelectedRole] = useState('Recruiter');
+  const [isSending, setIsSending] = useState(false);
   const [consoleLogs, setConsoleLogs] = useState([
     { id: 1, level: 'info', message: 'System initialized', timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) },
     { id: 2, level: 'success', message: 'Connected to AI Router service', timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) }
@@ -156,8 +157,24 @@ export default function Dashboard() {
   };
 
   const handleSendMessage = async (messageOverride = null) => {
-    const messageToSend = messageOverride || inputMessage;
-    if (!messageToSend.trim()) return;
+    const callId = Math.random().toString(36).substring(7);
+    console.log(`[DEBUG ${callId}] handleSendMessage called with:`, messageOverride, 'isSending:', isSending);
+
+    // Prevent concurrent requests
+    if (isSending) {
+      console.log(`[DEBUG ${callId}] Already sending, ignoring duplicate call`);
+      return;
+    }
+
+    // If messageOverride is an event object, ignore it and use inputMessage
+    const messageToSend = (typeof messageOverride === 'string' ? messageOverride : null) || inputMessage;
+    if (!messageToSend || !messageToSend.trim()) {
+      console.log(`[DEBUG ${callId}] Empty message, returning`);
+      return;
+    }
+
+    console.log(`[DEBUG ${callId}] Setting isSending to true`);
+    setIsSending(true);
 
     const userMessage = messageToSend;
     const timestamp = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -205,6 +222,11 @@ export default function Dashboard() {
 
       if (data.success) {
         const metadata = data.metadata || {};
+
+        // Log low confidence warning if present
+        if (metadata.lowConfidenceWarning) {
+          addLog(metadata.lowConfidenceWarning, 'warn');
+        }
 
         // Log detailed routing information
         addLog(`Agent: ${metadata.agent || 'general-chat'} | Confidence: ${metadata.confidence ? (metadata.confidence * 100).toFixed(1) + '%' : 'N/A'}`, 'info');
@@ -254,6 +276,10 @@ export default function Dashboard() {
         text: 'Sorry, I encountered an error connecting to the server. Please try again.',
         timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false })
       }]);
+    } finally {
+      // Always reset sending state
+      console.log(`[DEBUG ${callId}] Resetting isSending to false`);
+      setIsSending(false);
     }
   };
 
@@ -377,7 +403,12 @@ export default function Dashboard() {
                                 <button
                                   key={idx}
                                   onClick={() => handleExampleClick(example)}
-                                  className="w-full text-left text-sm p-2 rounded-lg hover:bg-gray-100 transition-colors text-gray-700"
+                                  disabled={isSending}
+                                  className={`w-full text-left text-sm p-2 rounded-lg transition-colors ${
+                                    isSending
+                                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                      : 'hover:bg-gray-100 text-gray-700'
+                                  }`}
                                 >
                                   {example}
                                 </button>
@@ -425,12 +456,22 @@ export default function Dashboard() {
 
                   {/* Messages Area */}
                   <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                    {messages.map((message) => (
+                    {messages.map((message) => {
+                      // Check if message is an error (starts with Error:)
+                      const isError = message.type === 'ai' && message.text?.startsWith('Error:');
+
+                      return (
                       <div key={message.id} className={`flex flex-col ${message.type === 'user' ? 'items-start' : 'items-end'}`}>
                         <p className="text-xs font-semibold text-gray-600 mb-1 px-2">
                           {message.type === 'user' ? 'You' : 'AI Assistant'}
                         </p>
-                        <div className={`max-w-[70%] ${message.type === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-900'} rounded-2xl px-4 py-3`}>
+                        <div className={`max-w-[70%] rounded-2xl px-4 py-3 ${
+                          message.type === 'user'
+                            ? 'bg-blue-500 text-white'
+                            : isError
+                            ? 'bg-red-50 text-red-900 border border-red-200'
+                            : 'bg-gray-100 text-gray-900'
+                        }`}>
                           {message.type === 'user' ? (
                             <p className="text-xs">{message.text}</p>
                           ) : (
@@ -486,7 +527,8 @@ export default function Dashboard() {
                           {message.timestamp}
                         </p>
                       </div>
-                    ))}
+                      );
+                    })}
                     <div ref={messagesEndRef} />
                   </div>
 
@@ -506,7 +548,12 @@ export default function Dashboard() {
                       />
                       <button
                         onClick={handleSendMessage}
-                        className="p-2 bg-blue-500 hover:bg-blue-600 rounded-lg transition-colors"
+                        disabled={isSending}
+                        className={`p-2 rounded-lg transition-colors ${
+                          isSending
+                            ? 'bg-gray-400 cursor-not-allowed'
+                            : 'bg-blue-500 hover:bg-blue-600'
+                        }`}
                       >
                         <Send size={20} className="text-white" />
                       </button>

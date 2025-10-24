@@ -33,7 +33,7 @@ class Classifier:
         self,
         model_name: str = "all-MiniLM-L6-v2",
         config_path: str = "config/agents.json",
-        confidence_threshold: float = 0.7,
+        confidence_threshold: float = 0.65,
     ):
         """
         Initialize classifier with sentence-transformers model.
@@ -41,7 +41,7 @@ class Classifier:
         Args:
             model_name: Sentence-transformers model name (default: all-MiniLM-L6-v2)
             config_path: Path to agents.json configuration
-            confidence_threshold: Minimum confidence for routing (default: 0.7)
+            confidence_threshold: Minimum confidence for routing (default: 0.65)
         """
         self.model_name = model_name
         self.config_path = config_path
