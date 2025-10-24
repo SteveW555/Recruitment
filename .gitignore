@@ -18,6 +18,13 @@ secrets.yaml
 # MCP Configuration (contains API keys)
 .mcp.json
 
+# Claude Code settings (may contain API keys)
+.claude/settings.local.json
+
+# Local setup scripts (may contain API keys)
+start-ai-router-server.bat
+FAST_MODE_SETUP.md
+
 # Build outputs
 dist/
 build/
