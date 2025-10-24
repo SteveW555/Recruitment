@@ -12,6 +12,7 @@ Uses Groq API for quick responses.
 
 import asyncio
 import time
+import os
 from typing import Dict, Any
 import structlog
 from groq import Groq
@@ -73,18 +74,29 @@ class GeneralChatAgent(BaseAgent):
             # Check if this is a fallback scenario
             is_fallback = request.metadata.get('fallback', False)
 
-            # Generate response
-            response = await self._generate_response(request.query, is_fallback)
+            # Generate response with session context for conversation history
+            response, llm_error = await self._generate_response(
+                request.query,
+                is_fallback,
+                request.context
+            )
 
             latency_ms = int((time.time() - start_time) * 1000)
+
+            metadata = {
+                'agent_latency_ms': latency_ms,
+                'fallback': is_fallback
+            }
+
+            # Add LLM error info if API failed
+            if llm_error:
+                metadata['llm_error'] = llm_error
+                metadata['used_fallback_response'] = True
 
             return AgentResponse(
                 success=True,
                 content=response,
-                metadata={
-                    'agent_latency_ms': latency_ms,
-                    'fallback': is_fallback
-                }
+                metadata=metadata
             )
 
         except asyncio.TimeoutError:
@@ -107,16 +119,17 @@ class GeneralChatAgent(BaseAgent):
                 error=f"General chat error: {str(e)}"
             )
 
-    async def _generate_response(self, query: str, is_fallback: bool = False) -> str:
+    async def _generate_response(self, query: str, is_fallback: bool = False, context_dict = None) -> tuple:
         """
         Generate casual conversation response.
 
         Args:
             query: User query
             is_fallback: Whether this is a fallback response
+            context_dict: Context dictionary with conversation history
 
         Returns:
-            Response text
+            Tuple of (response_text, error_message_or_none)
         """
         if is_fallback:
             prompt = f"""The user asked a question that another specialist agent couldn't handle fully. Please provide a helpful, friendly response that:
@@ -143,44 +156,86 @@ Please respond naturally and conversationally. Keep your response brief and frie
             message = await asyncio.wait_for(
                 asyncio.to_thread(
                     self._call_groq_api,
-                    prompt
+                    prompt,
+                    context_dict
                 ),
                 timeout=self.timeout - 0.5
             )
 
-            return message
+            return (message, None)  # Success - no error
 
         except Exception as e:
-            logger.error("groq_api_error", error=str(e))
-            return self._generate_fallback_response(query, is_fallback)
+            error_msg = str(e)
+            logger.error("groq_api_error", error=error_msg)
+            fallback = self._generate_fallback_response(query, is_fallback)
+            return (fallback, error_msg)  # Return fallback + error
 
-    def _call_groq_api(self, prompt: str) -> str:
+    def _call_groq_api(self, prompt: str, context_dict = None) -> str:
         """
-        Call Groq API synchronously.
+        Call Groq API synchronously with conversation history.
 
         Args:
             prompt: Prompt for Groq
+            context_dict: Context dictionary with conversation history
 
         Returns:
             Response from Groq
         """
+        # Build messages array with history
+        messages = [
+            {
+                "role": "system",
+                "content": self.system_prompt
+            }
+        ]
+
+        # Add conversation history if available (last 10 messages)
+        if context_dict and isinstance(context_dict, dict):
+            message_history = context_dict.get('message_history', [])
+            # Get last 10 messages
+            recent_messages = message_history[-10:] if len(message_history) > 10 else message_history
+            for msg in recent_messages:
+                messages.append({
+                    "role": msg["role"],
+                    "content": msg["content"]
+                })
+
+        # Add current query
+        messages.append({
+            "role": "user",
+            "content": prompt
+        })
+
+        # Log summary of what's being sent to Groq (always)
+        history_count = len(messages) - 2  # Exclude system prompt and current query
+        logger.info(
+            "groq_api_call",
+            message_count=len(messages),
+            history_messages=history_count,
+            current_query_preview=prompt[:100] if len(prompt) > 100 else prompt
+        )
+
+        # Log detailed messages array if verbose mode enabled
+        if os.environ.get('LOG_LLM_MESSAGES', 'false').lower() == 'true':
+            logger.info("groq_messages_detailed", messages=messages)
+
         message = self.client.chat.completions.create(
-            messages=[
-                {
-                    "role": "system",
-                    "content": self.system_prompt
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
+            messages=messages,
             model=self.llm_model,
             max_tokens=300,
             temperature=0.7  # Slightly higher for friendlier conversation
         )
 
-        return message.choices[0].message.content
+        response_content = message.choices[0].message.content
+
+        # Log response summary
+        logger.info(
+            "groq_api_response",
+            response_length=len(response_content),
+            response_preview=response_content[:100] if len(response_content) > 100 else response_content
+        )
+
+        return response_content
 
     def _generate_fallback_response(self, query: str, is_fallback: bool) -> str:
         """

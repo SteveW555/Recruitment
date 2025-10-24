@@ -94,16 +94,18 @@ class Classifier:
 
         print(f"[OK] Loaded and encoded examples for {len(self.examples_by_category)} categories", file=sys.stderr)
 
-    def classify(self, query_text: str, query_id: str) -> RoutingDecision:
+    def classify(self, query_text: str, query_id: str, previous_agent: str = None) -> RoutingDecision:
         """
         Classify a query into a category with confidence scoring.
 
         Uses cosine similarity between query embedding and example embeddings
-        to determine the best matching category.
+        to determine the best matching category. Considers previous agent for
+        context-aware routing of follow-up queries.
 
         Args:
             query_text: User query text
             query_id: Query ID for the routing decision
+            previous_agent: Previous agent category (for context awareness)
 
         Returns:
             RoutingDecision with primary/secondary categories and confidence scores
@@ -137,6 +139,31 @@ class Classifier:
         primary_category, primary_confidence = sorted_categories[0]
         secondary_category, secondary_confidence = sorted_categories[1] if len(sorted_categories) > 1 else (None, None)
 
+        # Context-aware routing: If confidence is low and we have a previous agent,
+        # check if the query might be a follow-up
+        context_boost = False
+        if previous_agent and primary_confidence < self.confidence_threshold:
+            try:
+                # Convert previous agent string to Category
+                previous_category = Category(previous_agent)
+
+                # Get the previous agent's score
+                previous_score = category_scores.get(previous_category, 0.0)
+
+                # If previous agent is still in top 3 and query is short (likely a follow-up),
+                # boost its confidence and use it
+                top_3_categories = [cat for cat, _ in sorted_categories[:3]]
+                is_short_query = len(query_text.split()) <= 5
+
+                if previous_category in top_3_categories and is_short_query:
+                    # Use previous agent for context continuity
+                    primary_category = previous_category
+                    primary_confidence = min(0.75, previous_score + 0.20)  # Boost confidence
+                    context_boost = True
+            except (ValueError, KeyError):
+                # Invalid previous agent, ignore
+                pass
+
         # Only include secondary if confidence is above 50% threshold
         if secondary_confidence and secondary_confidence < 0.5:
             secondary_category = None
@@ -146,7 +173,7 @@ class Classifier:
         latency_ms = int((time.time() - start_time) * 1000)
 
         # Check if fallback should be triggered (confidence < threshold)
-        fallback_triggered = primary_confidence < self.confidence_threshold
+        fallback_triggered = primary_confidence < self.confidence_threshold and not context_boost
 
         # Generate reasoning
         reasoning = self._generate_reasoning(

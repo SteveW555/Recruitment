@@ -223,6 +223,12 @@ export default function Dashboard() {
       if (data.success) {
         const metadata = data.metadata || {};
 
+        // Log LLM error if it occurred (even though fallback succeeded)
+        if (metadata.llm_error) {
+          addLog(`⚠️ LLM API Error: ${metadata.llm_error}`, 'error');
+          addLog(`Using fallback response`, 'warn');
+        }
+
         // Log low confidence warning if present
         if (metadata.lowConfidenceWarning) {
           addLog(metadata.lowConfidenceWarning, 'warn');
