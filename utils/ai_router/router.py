@@ -43,7 +43,7 @@ class AIRouter:
         self,
         classifier: Classifier,
         session_store: SessionStore,
-        log_repository: LogRepository,
+        log_repository: Optional[LogRepository],
         agent_registry: AgentRegistry,
         confidence_threshold: float = 0.7,
         agent_timeout: float = 2.0,
@@ -56,7 +56,7 @@ class AIRouter:
         Args:
             classifier: Classifier for query classification
             session_store: Redis session storage
-            log_repository: PostgreSQL log repository
+            log_repository: PostgreSQL log repository (optional - None disables logging)
             agent_registry: Agent registry for loading agents
             confidence_threshold: Minimum confidence for routing (default 0.7)
             agent_timeout: Agent execution timeout in seconds (default 2)
@@ -114,8 +114,7 @@ class AIRouter:
             query = Query(
                 text=query_text,
                 user_id=user_id,
-                session_id=session_id,
-                metadata=kwargs
+                session_id=session_id
             )
 
             # Step 2: Load session context
@@ -141,11 +140,12 @@ class AIRouter:
                     'latency_ms': int((time.time() - start_time) * 1000)
                 }
 
-                # Log decision
-                self.log_repository.log_routing_decision(
-                    query, decision, False,
-                    error_message=result['error']
-                )
+                # Log decision (if logging enabled)
+                if self.log_repository:
+                    self.log_repository.log_routing_decision(
+                        query, decision, False,
+                        error_message=result['error']
+                    )
 
                 return result
 
@@ -163,11 +163,12 @@ class AIRouter:
                     'latency_ms': int((time.time() - start_time) * 1000)
                 }
 
-                # Log decision
-                self.log_repository.log_routing_decision(
-                    query, decision, False,
-                    error_message=error_msg
-                )
+                # Log decision (if logging enabled)
+                if self.log_repository:
+                    self.log_repository.log_routing_decision(
+                        query, decision, False,
+                        error_message=error_msg
+                    )
 
                 return result
 
@@ -206,17 +207,18 @@ class AIRouter:
             session_context.add_routing_history(decision.primary_category.value, decision.primary_confidence)
             self.session_store.save(session_context)
 
-            # Step 9: Log decision
-            agent_latency = None
-            if agent_response and agent_response.metadata:
-                agent_latency = agent_response.metadata.get('agent_latency_ms')
+            # Step 9: Log decision (if logging enabled)
+            if self.log_repository:
+                agent_latency = None
+                if agent_response and agent_response.metadata:
+                    agent_latency = agent_response.metadata.get('agent_latency_ms')
 
-            self.log_repository.log_routing_decision(
-                query, decision,
-                agent_success=agent_response.success if agent_response else False,
-                agent_latency_ms=agent_latency,
-                error_message=result.get('error')
-            )
+                self.log_repository.log_routing_decision(
+                    query, decision,
+                    agent_success=agent_response.success if agent_response else False,
+                    agent_latency_ms=agent_latency,
+                    error_message=result.get('error')
+                )
 
             return result
 
@@ -367,7 +369,7 @@ class AIRouter:
             'classifier': str(self.classifier),
             'agents_available': len(self.agent_registry.list_available_agents()),
             'session_store': self.session_store.get_stats(),
-            'log_repository': 'connected' if self.log_repository.test_connection() else 'disconnected'
+            'log_repository': 'connected' if (self.log_repository and self.log_repository.test_connection()) else 'not configured'
         }
 
     def __repr__(self) -> str:

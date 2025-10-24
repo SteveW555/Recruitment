@@ -5,6 +5,7 @@ import Groq from 'groq-sdk';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { spawn } from 'child_process';
 
 // Load environment variables
 dotenv.config({ path: '../.env' });
@@ -91,49 +92,39 @@ app.post('/api/chat', async (req, res) => {
 
     // Call Python AI Router
     const startTime = Date.now();
-    const { spawn } = require('child_process');
-    const path = require('path');
 
     const pythonPath = 'python'; // Use 'python3' on Linux/Mac if needed
-    const routerPath = path.join(__dirname, '..', 'utils', 'ai_router', 'cli.py');
+    const projectRoot = join(__dirname, '..');
 
-    // Convert agent type from frontend format to router format
-    const agentMap = {
-      'information-retrieval': 'INFORMATION_RETRIEVAL',
-      'report-generation': 'REPORT_GENERATION',
-      'problem-solving': 'PROBLEM_SOLVING',
-      'automation': 'AUTOMATION',
-      'industry-knowledge': 'INDUSTRY_KNOWLEDGE',
-      'general-chat': 'GENERAL_CHAT',
-      'data-operations': 'DATA_OPERATIONS',
-      'auto': 'auto'
-    };
-
-    const routerAgent = agentMap[agent] || 'auto';
-
+    // Run as a Python module instead of a script to support relative imports
+    // Note: The AI Router automatically classifies queries and routes to appropriate agents
     const pythonArgs = [
-      routerPath,
+      '-m', 'utils.ai_router.cli',  // Run as module
       message,
       '--session-id', sessionId,
       '--user-id', 'web-user',
       '--json'
     ];
 
-    // Only add agent filter if not 'auto'
-    if (routerAgent !== 'auto') {
-      pythonArgs.push('--agent', routerAgent);
-    }
-
     console.log(`[${new Date().toISOString()}] Calling Python AI Router:`, {
       python: pythonPath,
-      script: routerPath,
-      agent: routerAgent
+      module: 'utils.ai_router.cli',
+      query: message.substring(0, 50) + (message.length > 50 ? '...' : ''),
+      sessionId,
+      cwd: projectRoot
     });
 
-    const pythonProcess = spawn(pythonPath, pythonArgs);
+    const pythonProcess = spawn(pythonPath, pythonArgs, {
+      cwd: projectRoot,  // Set working directory to project root for module imports
+      env: {
+        ...process.env,  // Pass all environment variables including GROQ_API_KEY and ANTHROPIC_API_KEY
+        PYTHONIOENCODING: 'utf-8'  // Ensure proper encoding for Windows
+      }
+    });
 
     let stdout = '';
     let stderr = '';
+    let responseSent = false;
 
     pythonProcess.stdout.on('data', (data) => {
       stdout += data.toString();
@@ -144,6 +135,9 @@ app.post('/api/chat', async (req, res) => {
     });
 
     pythonProcess.on('close', (code) => {
+      if (responseSent) return;  // Prevent duplicate responses
+      responseSent = true;
+
       const responseTime = Date.now() - startTime;
 
       if (code === 0) {
@@ -151,12 +145,25 @@ app.post('/api/chat', async (req, res) => {
           // Parse JSON output from Python CLI
           const result = JSON.parse(stdout);
 
+          // Log Python stderr for debugging (initialization messages, warnings, etc.)
+          if (stderr) {
+            console.log(`[${new Date().toISOString()}] Python stderr:`, stderr.substring(0, 500));
+          }
+
           console.log(`[${new Date().toISOString()}] Python AI Router response in ${responseTime}ms:`, {
             success: result.success,
             agent: result.agent,
             confidence: result.confidence,
-            hasGraphAnalysis: result.metadata?.graph_analysis !== undefined
+            hasGraphAnalysis: result.metadata?.graph_analysis !== undefined,
+            error: result.error || null
           });
+
+          // If Python returned success: false, log the full result for debugging
+          if (!result.success) {
+            console.error(`[${new Date().toISOString()}] Python returned success: false`);
+            console.error('Full Python result:', JSON.stringify(result, null, 2));
+            console.error('Python stderr:', stderr);
+          }
 
           // Return response in format expected by frontend
           res.json({
@@ -196,7 +203,10 @@ app.post('/api/chat', async (req, res) => {
     });
 
     // Timeout after 30 seconds
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
+      if (responseSent) return;  // Don't send timeout if already responded
+      responseSent = true;
+
       pythonProcess.kill();
       res.status(504).json({
         success: false,

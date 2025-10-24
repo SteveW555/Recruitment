@@ -7,6 +7,7 @@ and provides runtime access to agents by category.
 
 import json
 import os
+import sys
 import importlib
 from typing import Dict, Optional, List, Any
 from pathlib import Path
@@ -54,7 +55,7 @@ class AgentRegistry:
         with open(self.config_path, "r") as f:
             self.config = json.load(f)
 
-        print(f"Loaded agent configuration from {self.config_path}")
+        print(f"Loaded agent configuration from {self.config_path}", file=sys.stderr)
 
     def instantiate_agents(self) -> Dict[str, str]:
         """
@@ -84,11 +85,11 @@ class AgentRegistry:
                 self._agents[category] = agent
                 self._configs[category] = agent_config
                 status[category_str] = "OK"
-                print(f"✓ Loaded agent for {category.value}")
+                print(f"[OK] Loaded agent for {category.value}", file=sys.stderr)
 
             except Exception as e:
                 status[category_str] = f"FAILED: {str(e)}"
-                print(f"✗ Failed to load {category_str}: {e}")
+                print(f"[FAIL] Failed to load {category_str}: {e}", file=sys.stderr)
                 continue
 
         return status

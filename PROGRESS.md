@@ -489,7 +489,7 @@ utils/
 5. **Project Organization**
    - Moved test data to `Fake Data/` directory structure
    - Organized client databases and candidate data
-   - Restructured documentation into `docs/` directory
+   - Restructured documentation into `docs_root/` directory (merged from root, docs/, docs_project/)
    - Moved Firecrawl utilities to `firecrawl/` directory
 
 6. **Mermaid Diagrams**

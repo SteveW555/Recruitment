@@ -11,7 +11,7 @@ import json
 import sys
 import uuid
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Dict, Any
 import structlog
 
 from .router import AIRouter
@@ -65,50 +65,55 @@ class RouterCLI:
 
     def _initialize_dependencies(self):
         """Initialize all router dependencies."""
-        print("[*] Initializing router dependencies...")
+        print("[*] Initializing router dependencies...", file=sys.stderr)
 
         try:
             # Initialize classifier
-            print("[*] Loading classifier...")
+            print("[*] Loading classifier...", file=sys.stderr)
             self.classifier = Classifier(
                 model_name=self.classifier_model,
                 config_path=self.config_path
             )
-            print("✓ Classifier ready")
+            print("[OK] Classifier ready", file=sys.stderr)
 
             # Initialize session store
-            print("[*] Connecting to Redis...")
+            print("[*] Connecting to Redis...", file=sys.stderr)
             self.session_store = SessionStore()
             if not self.session_store.ping():
                 raise ConnectionError("Redis not available")
-            print("✓ Redis connected")
+            print("[OK] Redis connected", file=sys.stderr)
 
-            # Initialize log repository
-            print("[*] Connecting to PostgreSQL...")
-            self.log_repository = LogRepository()
-            if not self.log_repository.test_connection():
-                raise ConnectionError("PostgreSQL not available")
-            print("✓ PostgreSQL connected")
+            # Initialize log repository (optional - for production logging)
+            print("[*] Connecting to PostgreSQL...", file=sys.stderr)
+            try:
+                self.log_repository = LogRepository()
+                if not self.log_repository.test_connection():
+                    raise ConnectionError("PostgreSQL not available")
+                print("[OK] PostgreSQL connected", file=sys.stderr)
+            except Exception as e:
+                print(f"[WARN] PostgreSQL unavailable: {e}", file=sys.stderr)
+                print("[INFO] Continuing without logging (development mode)", file=sys.stderr)
+                self.log_repository = None
 
             # Initialize agent registry
-            print("[*] Loading agents...")
+            print("[*] Loading agents...", file=sys.stderr)
             self.agent_registry = AgentRegistry(self.config_path)
             status = self.agent_registry.instantiate_agents()
             available = sum(1 for s in status.values() if s == "OK")
-            print(f"✓ {available} agent(s) loaded")
+            print(f"[OK] {available} agent(s) loaded", file=sys.stderr)
 
             # Initialize router
-            print("[*] Initializing router...")
+            print("[*] Initializing router...", file=sys.stderr)
             self.router = AIRouter(
                 classifier=self.classifier,
                 session_store=self.session_store,
                 log_repository=self.log_repository,
                 agent_registry=self.agent_registry
             )
-            print("✓ Router ready\n")
+            print("[OK] Router ready\n", file=sys.stderr)
 
         except Exception as e:
-            print(f"✗ Failed to initialize: {e}")
+            print(f"[ERROR] Failed to initialize: {e}", file=sys.stderr)
             sys.exit(1)
 
     async def run_query(
@@ -163,14 +168,14 @@ class RouterCLI:
     def _display_result(self, result: Dict, verbose: bool = False):
         """Display routing result in formatted output."""
         if not result.get('decision'):
-            print("✗ Routing failed\n")
+            print("[FAIL] Routing failed\n")
             print(f"Error: {result.get('error', 'Unknown error')}\n")
             return
 
         decision = result['decision']
-        print("═" * 60)
+        print("=" * 60)
         print("ROUTING DECISION")
-        print("═" * 60)
+        print("=" * 60)
 
         # Display classification results
         print(f"\nClassification:")
@@ -188,10 +193,10 @@ class RouterCLI:
         # Display agent response (if available)
         if result.get('agent_response'):
             agent_response = result['agent_response']
-            print("═" * 60)
+            print("=" * 60)
             print("AGENT RESPONSE")
-            print("═" * 60)
-            print(f"\nSuccess: {'✓' if agent_response.success else '✗'}")
+            print("=" * 60)
+            print(f"\nSuccess: {'[OK]' if agent_response.success else '[FAIL]'}")
 
             if agent_response.success:
                 print(f"\nContent:")
@@ -216,11 +221,11 @@ class RouterCLI:
 
         # Display fallback info
         if decision.fallback_triggered:
-            print(f"\n⚠ Fallback triggered - primary agent failed")
+            print(f"\n[WARN] Fallback triggered - primary agent failed")
 
         # Display latency
         print(f"\nTotal Latency: {result['latency_ms']}ms")
-        print("═" * 60 + "\n")
+        print("=" * 60 + "\n")
 
         # Verbose output (full JSON)
         if verbose:
@@ -235,12 +240,18 @@ class RouterCLI:
             'latency_ms': result.get('latency_ms', 0)
         }
 
+        # Add error from result if present (for failures before agent execution)
+        if result.get('error'):
+            output['error'] = result['error']
+
         # Add agent response
         if result.get('agent_response'):
             agent_response = result['agent_response']
             output['content'] = agent_response.content
             output['metadata'] = agent_response.metadata or {}
-            output['error'] = agent_response.error
+            # Agent-specific error overrides general error
+            if agent_response.error:
+                output['error'] = agent_response.error
 
         # Add decision info
         if result.get('decision'):
@@ -286,21 +297,21 @@ class RouterCLI:
     def display_stats(self):
         """Display router statistics."""
         stats = self.router.get_stats()
-        print("═" * 60)
+        print("=" * 60)
         print("ROUTER STATISTICS")
-        print("═" * 60)
+        print("=" * 60)
         print(f"Classifier: {stats['classifier']}")
         print(f"Agents Available: {stats['agents_available']}")
         print(f"Session Store: {stats['session_store']}")
         print(f"Log Repository: {stats['log_repository']}")
-        print("═" * 60 + "\n")
+        print("=" * 60 + "\n")
 
     def display_agent_list(self):
         """Display list of available agents."""
         available = self.agent_registry.list_available_agents()
-        print("═" * 60)
+        print("=" * 60)
         print("AVAILABLE AGENTS")
-        print("═" * 60)
+        print("=" * 60)
 
         for category in available:
             config = self.agent_registry.get_agent_config(category)
@@ -310,20 +321,20 @@ class RouterCLI:
             print(f"    Provider: {llm_provider}")
             print(f"    Model: {llm_model}")
 
-        print("═" * 60 + "\n")
+        print("=" * 60 + "\n")
 
     async def interactive_mode(self):
         """Run interactive query loop."""
-        print("═" * 60)
+        print("=" * 60)
         print("AI ROUTER CLI - Interactive Mode")
-        print("═" * 60)
+        print("=" * 60)
         print("Commands:")
         print("  query <text>   - Route a query")
         print("  stats         - Display router statistics")
         print("  agents        - List available agents")
         print("  clear         - Clear screen")
         print("  exit          - Exit CLI")
-        print("═" * 60 + "\n")
+        print("=" * 60 + "\n")
 
         while True:
             try:

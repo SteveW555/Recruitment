@@ -7,6 +7,7 @@ user inputs into one of six categories with confidence scoring.
 
 import json
 import os
+import sys
 import time
 from typing import List, Dict, Tuple, Optional
 from pathlib import Path
@@ -47,9 +48,9 @@ class Classifier:
         self.confidence_threshold = confidence_threshold
 
         # Load sentence-transformers model
-        print(f"Loading sentence-transformers model: {model_name}...")
+        print(f"Loading sentence-transformers model: {model_name}...", file=sys.stderr)
         self.model = SentenceTransformer(model_name)
-        print(f"[OK] Model loaded successfully")
+        print(f"[OK] Model loaded successfully", file=sys.stderr)
 
         # Load example queries from config
         self.examples_by_category: Dict[Category, List[str]] = {}
@@ -58,7 +59,7 @@ class Classifier:
 
     def _load_examples(self):
         """Load example queries from config/agents.json and encode them."""
-        print(f"Loading example queries from {self.config_path}...")
+        print(f"Loading example queries from {self.config_path}...", file=sys.stderr)
 
         if not os.path.exists(self.config_path):
             raise FileNotFoundError(
@@ -76,21 +77,21 @@ class Classifier:
                 example_queries = agent_config.get("example_queries", [])
 
                 if not example_queries:
-                    print(f"[WARNING] No example queries for {category.value}")
+                    print(f"[WARNING] No example queries for {category.value}", file=sys.stderr)
                     continue
 
                 self.examples_by_category[category] = example_queries
 
                 # Encode example queries
-                print(f"  Encoding {len(example_queries)} examples for {category.value}...")
+                print(f"  Encoding {len(example_queries)} examples for {category.value}...", file=sys.stderr)
                 encoded = self.model.encode(example_queries, convert_to_tensor=True)
                 self.encoded_examples[category] = encoded
 
             except ValueError as e:
-                print(f"[WARNING] Invalid category {category_str}: {e}")
+                print(f"[WARNING] Invalid category {category_str}: {e}", file=sys.stderr)
                 continue
 
-        print(f"[OK] Loaded and encoded examples for {len(self.examples_by_category)} categories")
+        print(f"[OK] Loaded and encoded examples for {len(self.examples_by_category)} categories", file=sys.stderr)
 
     def classify(self, query_text: str, query_id: str) -> RoutingDecision:
         """
@@ -259,5 +260,5 @@ class Classifier:
 try:
     import torch
 except ImportError:
-    print("[WARNING] PyTorch not found. Install with: pip install torch")
+    print("[WARNING] PyTorch not found. Install with: pip install torch", file=sys.stderr)
     torch = None

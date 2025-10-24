@@ -54,7 +54,7 @@ recruitment-automation-system/
 ├── frontend/             # Next.js web app
 ├── mobile/               # React Native app
 ├── data/                 # DB migrations/seeds
-├── docs/                 # Documentation
+├── docs_root/            # Complete documentation (merged from docs/ and docs_project/)
 └── tests/                # System-wide tests
 ```
 

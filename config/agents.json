@@ -30,7 +30,7 @@
     "name": "Data Operations",
     "priority": 1,
     "description": "Data modification and system actions (Create, Update, Delete, Schedule)",
-    "agent_class": "DataOperationsAgent",
+    "agent_class": "utils.ai_router.agents.data_operations_agent:DataOperationsAgent",
     "llm_provider": "groq",
     "llm_model": "llama-3-70b-8192",
     "timeout_seconds": 2,
