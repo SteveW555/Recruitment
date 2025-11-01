@@ -55,8 +55,44 @@ recruitment-automation-system/
 ├── mobile/               # React Native app
 ├── data/                 # DB migrations/seeds
 ├── docs_root/            # Complete documentation (merged from docs/ and docs_project/)
+├── prompts/              # LLM prompt templates (JSON format)
 └── tests/                # System-wide tests
 ```
+
+## Code Standards & Best Practices
+
+### Prompt Management
+
+**IMPORTANT**: All LLM prompts MUST be stored in the `prompts/` directory as JSON files, never hardcoded in source code.
+
+**Prompt File Format:**
+```json
+{
+  "version": "1.0",
+  "name": "Descriptive Name",
+  "description": "What this prompt does",
+  "model": "model-name",
+  "temperature": 0.3,
+  "max_tokens": 200,
+  "system_prompt": "The actual prompt text with {variable} placeholders",
+  "variables": {
+    "variable": "Description of what gets substituted"
+  },
+  "output_format": {
+    "type": "json|text",
+    "schema": {}
+  }
+}
+```
+
+**Benefits:**
+- Version control for prompts
+- Easy A/B testing and experimentation
+- Centralized prompt management
+- Separation of concerns (logic vs. prompts)
+- Documentation of prompt purpose and variables
+
+**Example:** `prompts/ai_router_classification.json` for query classification
 
 ## Development Commands
 ```bash
