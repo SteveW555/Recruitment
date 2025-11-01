@@ -200,7 +200,10 @@ class AIRouter:
 
                 # Save conversation history for low-confidence fallback
                 session_context.add_message('user', query_text)
-                session_context.add_routing_decision(query.id)
+                session_context.add_routing_decision(
+                    query.id,
+                    category=decision.primary_category.value
+                )
                 if agent_response and agent_response.success and agent_response.content:
                     session_context.add_message(
                         'assistant',
@@ -288,7 +291,10 @@ class AIRouter:
 
             # Step 8: Save/update session context
             session_context.add_message('user', query_text)
-            session_context.add_routing_decision(query.id)
+            session_context.add_routing_decision(
+                query.id,
+                category=decision.primary_category.value
+            )
 
             # Save assistant's response to conversation history
             if agent_response and agent_response.success and agent_response.content:

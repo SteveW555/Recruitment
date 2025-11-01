@@ -1,0 +1,42 @@
+# Example queries for testing AI Router classification
+# Lines starting with # are comments and will be ignored
+
+# INFORMATION_RETRIEVAL queries
+What are current salary ranges for senior Java developers in London?
+Find me all active job postings for accountants on Totaljobs
+What's the market demand for cloud architects in the UK?
+
+# DATA_OPERATIONS queries
+Add a new candidate to the database: John Smith, Java Developer
+Update the status of job #12345 to 'Closed'
+List all active placements for client 'Acme Corp'
+
+# PROBLEM_SOLVING queries
+Why did our placement rate drop 15% this quarter? Analyze and recommend solutions
+How can we reduce time-to-hire from 45 to 30 days?
+Analyze why tech candidates are dropping out at the interview stage
+
+# REPORT_GENERATION queries
+Generate a quarterly performance report with placement metrics and trend charts
+Create a dashboard showing this month's KPIs: placements, revenue, candidate pipeline
+Produce a report analyzing Q4 recruitment performance across all divisions
+
+# AUTOMATION queries
+Design a workflow to automatically post jobs to Indeed when they're approved in our system
+Create an n8n workflow for candidate onboarding with welcome emails and orientation scheduling
+Automate our interview scheduling to check calendar availability and send invites
+
+# INDUSTRY_KNOWLEDGE queries
+What are the GDPR requirements for storing candidate data in the UK?
+Explain IR35 off-payroll working regulations for contractor placements
+What are the right-to-work verification steps for EU nationals post-Brexit?
+
+# GENERAL_CHAT queries
+Hello!
+Good morning, how are you?
+Tell me a joke about recruitment
+
+# Ambiguous queries (should trigger fallback)
+help
+data
+show me stuff

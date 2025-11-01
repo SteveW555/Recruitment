@@ -104,14 +104,20 @@ class SessionContext:
         # Update activity timestamp
         self.update_activity()
 
-    def add_routing_decision(self, decision_id: str):
+    def add_routing_decision(self, decision_id: str, category: str = None):
         """
-        Add a routing decision ID to the history.
+        Add a routing decision to the history.
 
         Args:
             decision_id: UUID of the routing decision
+            category: Category that was routed to (optional, for context awareness)
         """
-        self.routing_history.append(decision_id)
+        # Store as dictionary with both ID and category for context awareness
+        decision_entry = {
+            'id': decision_id,
+            'category': category
+        }
+        self.routing_history.append(decision_entry)
 
         # Trim if exceeds max
         if len(self.routing_history) > self.MAX_ROUTING_HISTORY:

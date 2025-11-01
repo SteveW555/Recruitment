@@ -1,0 +1,12 @@
+# All Python Services - Unified Requirements
+# Install from project root: pip install -r requirements-all-services.txt
+# This installs dependencies for all Python-based microservices
+
+# ===== AI Router Service =====
+-r requirements-ai-router.txt
+
+# ===== Location Service =====
+-r requirements-location-service.txt
+
+# ===== Shared Dependencies (if any) =====
+python-dotenv==1.0.0

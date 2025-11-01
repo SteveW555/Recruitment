@@ -1,0 +1,384 @@
+import csv
+import pandas as pd
+from fastapi import APIRouter, HTTPException, UploadFile, File, Depends, Query
+import sqlalchemy
+from sqlalchemy.orm import Session
+from backend.db.models import Demographics, Postcodes
+from backend.db.database import get_db 
+from pydantic import BaseModel
+from typing import List
+
+import traceback
+import logging
+import re
+import io
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+import io
+
+# https://ideal-postcodes.co.uk/guides/uk-postcode-format
+
+router = APIRouter()
+
+# Define a Pydantic model for the request body
+class PostcodesBatchRequest(BaseModel):
+    postcodes: List[str]
+
+def get_postcodes_data_batch(postcodes: List[str], db: Session):
+    print(f"*** Starting get_postcodes_data_batch function for {len(postcodes)} postcodes ***")
+    try:
+        stmt = sqlalchemy.select(Postcodes).where(Postcodes.postcode.in_(postcodes))
+        results = db.execute(stmt).fetchall()
+
+        postcode_data = {}
+        for result in results:
+            postcode_obj = result[0]
+            postcode_data[postcode_obj.postcode] = {
+                'postcode': postcode_obj.postcode,
+                'lat': float(postcode_obj.lat),
+                'lng': float(postcode_obj.lng),
+                'town': postcode_obj.town,
+                'county': postcode_obj.county
+            }
+
+        logger.info(f"Postcode data found for {len(postcode_data)} out of {len(postcodes)} postcodes")
+        return postcode_data
+
+    except Exception as e:
+        logger.error(f"Error in get_postcodes_data_batch: {str(e)}", exc_info=True)
+        raise
+
+@router.post("/api/get_postcodes_data_batch")
+async def postcodes_batch_endpoint(postcodes_request: PostcodesBatchRequest, db: Session = Depends(get_db)):
+    print("postcodes_batch_endpoint()")
+    postcodes = postcodes_request.postcodes
+    print("postcodes[0]:", postcodes[0])
+    results = get_postcodes_data_batch(postcodes, db)
+    if results:
+        return results
+    else:
+        raise HTTPException(status_code=404, detail="No postcodes found")
+
+
+
+
+
+def get_postcode_data(postcode: str, db: Session):
+    print(f"*** Starting get_postcode_data function for postcode: {postcode} ***")
+    try:
+        stmt = sqlalchemy.select(Postcodes).where(Postcodes.postcode == postcode)
+        result = db.execute(stmt).first()
+
+        if result:
+            postcode_data = result[0]
+            logger.info(f"Postcode data found for: {postcode}")
+            return {
+                'postcode': postcode_data.postcode,
+                'lat': float(postcode_data.lat),  # Ensure it's a float for JSON serialization
+                'lng': float(postcode_data.lng),  # Ensure it's a float for JSON serialization
+                'town': postcode_data.town,
+                'county': postcode_data.county
+            }
+        else:
+            logger.warning(f"Postcode not found in database: {postcode}")
+            return None
+
+    except Exception as e:
+        logger.error(f"Error in get_postcode_data: {str(e)}", exc_info=True)
+        raise
+
+@router.get("/api/get_postcode_data_from_Postcodes_table/{postcode}")
+async def postcode_endpoint(postcode: str, db: Session = Depends(get_db)):
+    result = get_postcode_data(postcode, db)
+    if result:
+        return result
+    else:
+        raise HTTPException(status_code=404, detail="Postcode not found")
+
+
+#=================================================================================
+
+# looks for a postcode in any column and uses that as a new first column
+@router.post("/api/get_postcode_and_data_from_csv")
+async def get_postcode_and_data_from_csv(
+    file: UploadFile = File(...),
+    records: int = Query(default=100, ge=1, le=10000)  # Limit the number of records returned
+):
+    """
+    Endpoint to process the uploaded CSV file, add postcode column, and return the data.
+    Args:file (UploadFile): The uploaded CSV file. records (int): Number of records to return (default 100, max 10000).
+    Returns: JSON: The processed CSV data, including column names and rows.
+    """
+    print("get_postcode_and_data_from_csv()")
+
+    try:
+        content = await file.read()
+        # Process the file to add the postcode column
+        df = add_postcode_column_pandas(content)
+        
+        # Limit the number of records returned
+        data = df.head(min(records, 10000))
+
+        # Pretty print the first 8 columns of the first 5 rows
+        print("\nFirst 8 columns of the first 5 rows:")
+        pd.set_option('display.max_columns', 8)
+        pd.set_option('display.width', None)
+        print(df.iloc[:5, :8].to_string(index=False))
+        pd.reset_option('display.max_columns')
+
+        # Convert the data to a dictionary
+        result = data.to_dict(orient='records')
+
+        return {
+            "column_names": df.columns.tolist(),
+            "data": result,
+            "records_returned": len(result),
+            "total_records": len(df)  # Total number of records in the file
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# should also work when postcode has missing space
+def extract_uk_postcode_from_string_B(address):
+    pattern = r'\b[A-Z]{1,2}[0-9][A-Z0-9]? ?[0-9][ABD-HJLNP-UW-Z]{2}\b'
+    match = re.search(pattern, address, re.IGNORECASE)
+    return match.group().upper() if match else None
+
+def add_postcode_column_pandas(input_file, missing_value='UNKNOWN'):
+    """
+    Adds a postcode column to the input CSV data and handles NaNs and invalid values.
+    
+    Args:
+        input_file (bytes): The CSV file in bytes.
+        missing_value (str): Value to use if no postcode is found.
+    
+    Returns:
+        pandas.DataFrame: The processed DataFrame with a new 'postcode' column.
+    """
+    print("add_postcode_column_pandas")
+    
+    try:
+        # Load the CSV from the uploaded file
+        df = pd.read_csv(io.BytesIO(input_file))
+
+        # Log the DataFrame structure before changes
+        print("Initial DataFrame structure:")
+        print(df.info())  # Logs the column names, non-null counts, and data types
+        
+        # Create a full address string by concatenating all columns
+        df['full_address'] = df.astype(str).agg(' '.join, axis=1)
+        print("First full address:", df['full_address'].iloc[0])
+    
+        # Extract postcode using the improved function for missing space handling
+        df['postcode'] = df['full_address'].apply(lambda x: extract_uk_postcode_from_string_B(x) or missing_value)
+        print("First postcode:", df['postcode'].iloc[0])
+
+        # Move 'postcode' to the front
+        cols = ['postcode'] + [col for col in df.columns if col != 'postcode']
+        df = df[cols]
+        print("First postcode at front:", df['postcode'].iloc[0])
+
+        # Drop the temporary 'full_address' column
+        df.drop(columns=['full_address'], inplace=True)
+        print("Dropped Columns")
+
+        # Handle NaN or infinite values
+        df = handle_nan_and_bad_values(df)
+        print("Processed DataFrame after handling NaN and bad values:")
+        print(df.head())
+
+
+
+        return df
+
+    except Exception as e:
+        print(f"Error occurred in add_postcode_column_pandas: {str(e)}")
+        raise
+
+def handle_nan_and_bad_values(df):
+    """
+    Handle NaN and bad values in a DataFrame by replacing NaNs and handling specific column types.
+    
+    Args:
+        df (pandas.DataFrame): The DataFrame to be cleaned.
+    
+    Returns:
+        pandas.DataFrame: The cleaned DataFrame.
+    """
+    try:
+        # Identify numeric columns
+        numeric_cols = df.select_dtypes(include=['float', 'int']).columns.tolist()
+        text_cols = df.select_dtypes(include=['object']).columns.tolist()
+
+        # Handle NaN in numeric columns: Replace with 0 (or you can choose another default value)
+        df[numeric_cols] = df[numeric_cols].replace({float('inf'): None, float('-inf'): None}).fillna(0)
+
+        # Handle NaN in text columns: Replace with an empty string
+        df[text_cols] = df[text_cols].fillna('')
+
+        # Handle monetary values or time fields (if any) — this is an example for monetary columns
+        monetary_cols = [col for col in df.columns if 'Rate' in col or 'Cost' in col or 'Price' in col]
+        for col in monetary_cols:
+            if col in df.columns:
+                df[col] = df[col].replace({r'[£$,]': ''}, regex=True).astype(float, errors='ignore')
+
+        return df
+
+    except Exception as e:
+        print(f"Error occurred in handle_nan_and_bad_values: {str(e)}")
+        raise
+
+
+
+# Example usage:
+# add_postcode_column_pandas('input.csv', 'output_with_postcodes.csv')
+
+
+#=================================================================================
+
+
+# Search any db table with a 'postcode' column
+def search_postcodes(db: Session, postcode: str):
+    """
+    Search for postcodes in the database that match the given pattern.
+    Args:
+        db (Session): SQLAlchemy database session.
+        postcode (str): The postcode pattern to search for.
+    Returns:
+        list: A list of dictionaries, each containing the data for a matching postcode.
+    """
+    
+    try:
+        # Create a query object for the Postcodes model
+        query = db.query(Postcodes)
+        # Prepare the search pattern with wildcards
+        search = f"%{postcode}%"
+        # Filter the query to find postcodes that match the pattern (case-insensitive)
+        results = query.filter(Postcodes.postcode.ilike(search)).all()
+        # Use SQLAlchemy's inspect to get column information for the Postcodes model
+        inspector = sqlalchemy.inspect(Postcodes)
+        # Extract the column names (keys) from the inspector
+        columns = [column.key for column in inspector.columns]
+        # Create a list of dictionaries, each representing a row from the results
+        return [
+            # For each postcode result, create a dictionary
+            {
+                # The dictionary comprehension creates key-value pairs for each column
+                # column: The name of the column
+                # getattr(postcode, column): The value of that column for this postcode
+                column: getattr(postcode, column) for column in columns
+            }
+            for postcode in results
+        ]
+    except Exception as e:
+        logging.error(f"Error searching postcodes: {str(e)}")
+        logging.debug(traceback.format_exc())
+        # Re-raise the exception to be handled by the caller
+        raise
+
+#-------------------------------
+
+def extract_uk_postcode_from_string(address):
+    """
+    Extracts the postcode from a full adrress string.
+    """
+    pattern = r'\b[A-Z]{1,2}[0-9][A-Z0-9]? [0-9][ABD-HJLNP-UW-Z]{2}\b'
+    match = re.search(pattern, address, re.IGNORECASE)
+    return match.group().upper() if match else None
+
+
+
+def extract_postcode_sector(postcode):
+    """
+    Extracts the sector from a full UK postcode.
+    The sector is everything except the last two characters.
+    """
+    postcode = postcode.strip().upper()
+    if len(postcode) < 5:  # Minimum valid postcode length
+        return None
+    return postcode[:-2].strip()
+
+def extract_postcode_district(postcode):
+    """
+    Extracts the district from a full UK postcode.
+    The district is everything up to the first number.
+    """
+    postcode = postcode.strip().upper()
+    match = re.match(r'^([A-Z]{1,2}\d[A-Z]?|\d[A-Z]{1,2})', postcode)
+    return match.group(1) if match else None
+
+def extract_postcode_area(postcode):
+    """
+    Extracts the area from a full UK postcode.
+    The area is the leading alphabetic part of the postcode.
+    """
+    postcode = postcode.strip().upper()
+    match = re.match(r'^([A-Z]{1,2})', postcode)
+    return match.group(1) if match else None
+
+#----------------------------------------------------------------
+
+    # Get record from postcodes table with post code = CM20 2JQ
+    # pc = "CM20 2LQ"
+    # postcode_record = db.query(Postcodes).filter(Postcodes.postcode == pc).first()
+    # if postcode_record:
+    #     logger.info(f"Found postcode record: {postcode_record}")
+    #     print(f"Print postcode record: {postcode_record}")
+    # else:
+    #     logger.warning("No record found for postcode ", pc)
+
+# def search_postcodes(db: Session, postcode: str):
+#     try:
+#         query = db.query(Postcodes)
+#         search = f"%{postcode}%"
+#         results = query.filter(Postcodes.postcode.ilike(search)).all()
+        
+#         return [{
+#             "id": postcode.id,
+#             "postcode": postcode.postcode,
+#             "lat": postcode.lat,
+#             "lng": postcode.lng,
+#             "town": postcode.area,
+#             "county": postcode.sector
+#         } for postcode in results]
+#     except Exception as e:
+#         logging.error(f"Error searching postcodes: {str(e)}")
+#         logging.debug(traceback.format_exc())
+#         raise
+
+def add_postcode_column(input_file, output_file):
+    """
+    Reads a CSV file, adds a new 'postcode' column as the first column,
+    and extracts the postcode from other columns.
+
+    Args:
+        input_file (str): Path to the input CSV file.
+        output_file (str): Path to the output CSV file.
+    """
+    with open(input_file, 'r', newline='') as infile, open(output_file, 'w', newline='') as outfile:
+        reader = csv.reader(infile)
+        writer = csv.writer(outfile)
+
+        # Read the header
+        header = next(reader)
+        
+        # Add 'postcode' as the first column in the header
+        new_header = ['postcode'] + header
+        writer.writerow(new_header)
+
+        # Process each row
+        for row in reader:
+            # Join all fields into a single string to search for the postcode
+            full_address = ' '.join(row)
+            postcode = extract_uk_postcode_from_string(full_address)
+            
+            # Add the extracted postcode as the first column
+            new_row = [postcode] + row
+            writer.writerow(new_row)
+
+    print(f"Processed CSV file saved to {output_file}")
+
+# Example usage:
+# add_postcode_column('input.csv', 'output_with_postcodes.csv')
