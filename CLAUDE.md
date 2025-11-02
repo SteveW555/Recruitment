@@ -61,6 +61,25 @@ recruitment-automation-system/
 
 ## Code Standards & Best Practices
 
+### Working Documents and Session Artifacts
+
+**IMPORTANT**: Claude working documents (architecture analyses, decision documents, implementation plans, completion summaries, etc.) should NEVER be placed in the project root directory.
+
+**Placement Rules:**
+- All Claude working documents → `.claude/session-artifacts/`
+- Architecture decision records with long-term value → `docs_root/architecture-decisions/`
+- Session summaries → `.claude/sessions/`
+- Core project docs remain in root: `README.md`, `PROGRESS.md`, `CLAUDE.md`
+
+**Examples of Session Artifacts:**
+- `ARCHITECTURE_ANALYSIS.md`
+- `FINAL_BEST_OF_PLAN.md`
+- `IMPLEMENTATION_COMPLETE.md`
+- `FRONTEND_BACKEND_UPDATE_COMPLETE.txt`
+- Any `*_COMPLETE.txt` or `*_ANALYSIS.md` files
+
+**Why:** Keeps the root directory clean and focused on essential project documentation while preserving working documents for future reference.
+
 ### Prompt Management
 
 **IMPORTANT**: All LLM prompts MUST be stored in the `prompts/` directory as JSON files, never hardcoded in source code.

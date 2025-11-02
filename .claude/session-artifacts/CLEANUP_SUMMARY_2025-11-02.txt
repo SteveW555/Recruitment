@@ -1,0 +1,182 @@
+================================================================================
+                    ROOT DIRECTORY CLEANUP - 2025-11-02
+================================================================================
+
+## Summary
+
+Cleaned up root directory by organizing 20+ files that were cluttering the
+project root. All files preserved in appropriate locations.
+
+================================================================================
+                            FILES DELETED
+================================================================================
+
+✓ =4.35.0 (npm artifact error)
+
+================================================================================
+                    FILES MOVED TO .claude/session-artifacts/
+================================================================================
+
+### Working Documents (9 files)
+✓ ARCHITECTURE_ANALYSIS.md
+✓ DO_WE_NEED_HTTP_SERVER_ANALYSIS.md
+✓ FAST_MODE_SETUP.md
+✓ FINAL_ARCHITECTURE_DECISION.md
+✓ FINAL_BEST_OF_PLAN.md
+✓ IMPLEMENTATION_COMPLETE.md
+✓ LIFECYCLE_MANAGEMENT_APPROACH.md
+✓ REVISED_SIMPLIFICATION_PLAN.md
+✓ THE_REAL_REASON_FOR_HTTP_SERVER.md
+
+### Completion Summaries (2 files)
+✓ FRONTEND_BACKEND_UPDATE_COMPLETE.txt
+✓ SKILL_CREATION_COMPLETE.txt
+
+### Old Archives (3 files)
+✓ firecrawl.zip
+✓ infrastructure.zip
+✓ mobile.zip
+
+================================================================================
+           FILES MOVED TO .claude/session-artifacts/obsolete-scripts/
+================================================================================
+
+These batch files are no longer needed thanks to lifecycle management:
+
+✓ dev.bat
+✓ dev.sh
+✓ start-ai-router-server.bat
+✓ start-ai-router-server.bat.template
+✓ start-all.bat
+✓ start-dev.bat
+✓ status-check.bat
+✓ stop-all.bat
+
+Old startup method (OBSOLETE):
+  Terminal 1: start-ai-router-server.bat
+  Terminal 2: cd backend-api && npm start
+  Terminal 3: cd frontend && npm start
+
+Current method (ONE COMMAND):
+  npm start (everything managed automatically)
+
+================================================================================
+                    FILES MOVED TO tests/manual/
+================================================================================
+
+Manual test files moved to appropriate location:
+
+✓ groqtest.py
+✓ test_advertising_report.py
+✓ test_chart_generation.py
+✓ test_charts_simple.py
+✓ test_classifier.py
+✓ test_graph_analysis_manual.py
+✓ test_queries.txt
+✓ test_routing_fix.py
+✓ test-classification.js
+✓ testends.py
+✓ test-locate-query.js
+
+================================================================================
+                      FILES MOVED TO logs/
+================================================================================
+
+✓ finance_import.log
+
+================================================================================
+                    UPDATED CONFIGURATION FILES
+================================================================================
+
+### .gitignore
+Added: supabase_recruitment_details.txt (contains credentials)
+
+### CLAUDE.md
+Added new section: "Working Documents and Session Artifacts"
+- Instructions to place working docs in .claude/session-artifacts/
+- Prevents future root directory clutter
+
+================================================================================
+                      ROOT DIRECTORY - BEFORE vs AFTER
+================================================================================
+
+BEFORE: 45+ files (mixed purposes)
+AFTER: 20 files (clean, organized)
+
+REMAINING FILES (All legitimate):
+  ✓ Configuration: .dockerignore, .env*, .gitignore, .mcp.json
+  ✓ Documentation: CLAUDE.md, PROGRESS.md, README.md
+  ✓ Build: docker-compose.yml, Dockerfile.ai-router, Makefile
+  ✓ Dependencies: package*.json, requirements-*.txt (3 files)
+  ✓ Process: ecosystem.config.js
+  ✓ Deployment: railway.toml
+  ✓ Reference: install commands.txt
+  ✓ Credentials: supabase_recruitment_details.txt (now in .gitignore)
+
+================================================================================
+                      DOCUMENTATION ADDED
+================================================================================
+
+✓ .claude/session-artifacts/README.txt
+  - Explains purpose of session artifacts directory
+  - Lists what types of files belong there
+
+✓ .claude/session-artifacts/obsolete-scripts/README.txt
+  - Documents obsolete startup scripts
+  - Explains why they're no longer needed
+  - Shows current startup method
+
+✓ CLAUDE.md - New section
+  - Instructions for future file placement
+  - Prevents root directory clutter
+
+================================================================================
+                            BENEFITS
+================================================================================
+
+✓ Clean root directory (45+ → 20 files)
+✓ All files preserved for reference (nothing lost)
+✓ Organized structure (working docs, obsolete scripts, tests)
+✓ Sensitive data protected (.gitignore updated)
+✓ Clear documentation explaining changes
+✓ Future-proof (CLAUDE.md updated with placement rules)
+
+================================================================================
+                        FILES PRESERVED
+================================================================================
+
+Total files moved (not deleted): 23 files
+Total files deleted: 1 file (=4.35.0 npm artifact)
+
+All working documents, scripts, and test files are preserved in appropriate
+locations for future reference.
+
+================================================================================
+                        NEXT STEPS (Optional)
+================================================================================
+
+Consider these additional cleanup tasks:
+
+1. Review test files in tests/manual/
+   - Some may be candidates for automated test suite
+   - Others may be obsolete and can be deleted
+
+2. Review zip archives
+   - firecrawl.zip, infrastructure.zip, mobile.zip
+   - Determine if they're still needed or can be deleted
+
+3. Organize docs_root/ directory
+   - Potentially consolidate similar documentation
+   - Create better index/navigation
+
+================================================================================
+                            COMPLETION
+================================================================================
+
+Root directory cleanup: COMPLETE ✓
+
+The project root is now clean, organized, and maintainable.
+All future Claude working documents will automatically go to
+.claude/session-artifacts/ per updated CLAUDE.md instructions.
+
+================================================================================

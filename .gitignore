@@ -15,6 +15,9 @@ pnpm-debug.log*
 .env.*.local
 secrets.yaml
 
+# Credentials and sensitive data
+supabase_recruitment_details.txt
+
 # MCP Configuration (contains API keys)
 .mcp.json
 
