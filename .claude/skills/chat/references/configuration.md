@@ -263,7 +263,7 @@ This JSON file defines all 7 agents, their LLM models, tools, timeouts, and exam
 
 ## Backend LLM Configuration
 
-Located in `/backend-api/server.js`
+Located in `/backend-api/server-fast.js`
 
 ### Groq Configuration
 ```javascript
@@ -439,7 +439,7 @@ RETENTION_DAYS = 30             # Delete logs older than 30 days
 
 ### Change Temperature Settings
 
-1. Open `/backend-api/server.js`
+1. Open `/backend-api/server-fast.js`
 2. Find the agent's configuration
 3. Change `temperature` value:
    - Lower (0.3) = more factual/structured

@@ -24,7 +24,7 @@ python utils/ai_router/cli.py "report advertising costs" --json
 ```
 
 ### 2. Express Backend Integration ✅
-**File:** `backend-api/server.js` (lines 75-215)
+**File:** `backend-api/server-fast.js` (lines 75-215)
 
 **Complete rewrite of `/api/chat` endpoint:**
 - ❌ **Removed:** Direct Groq API calls
@@ -76,7 +76,7 @@ Express → Frontend
 | File | Lines Changed | Description |
 |------|---------------|-------------|
 | `utils/ai_router/cli.py` | +50 | Added JSON output mode |
-| `backend-api/server.js` | ~140 (replaced) | Full Python Router integration |
+| `backend-api/server-fast.js` | ~140 (replaced) | Full Python Router integration |
 | `frontend/dashboard.jsx` | +45 | Graph analysis UI component |
 
 **Total:** 3 files, ~235 lines changed
@@ -344,7 +344,7 @@ When ready for production:
 2. **Process Management:**
    ```bash
    # Use PM2 for backend
-   pm2 start backend-api/server.js --name elephant-api
+   pm2 start backend-api/server-fast.js --name elephant-api
    ```
 
 3. **Monitoring:**

@@ -232,7 +232,7 @@ grid grid-cols-4 gap-6
 
 ## Backend API Implementation
 
-**File:** `/backend-api/server.js`
+**File:** `/backend-api/server-fast.js`
 **Size:** 239 lines, 8KB
 **Framework:** Express.js with Node.js
 **Dependencies:** express, cors, dotenv, groq-sdk, fs, fileURLToPath

@@ -137,8 +137,8 @@ Any question about how the chat system works, how to configure it, how to extend
 
 This skill integrates with:
 - **Frontend:** React components in `/frontend/dashboard.jsx`
-- **Backend:** Express API in `/backend-api/server.js` and system prompts
-- **AI Router:** Python components in `/utils/ai_router/`
+- **Backend:** Express API in `/backend-api/server-fast.js` with Python router lifecycle management
+- **AI Router:** Python components in `/utils/ai_router/` (router.py, groq_classifier.py)
 - **Configuration:** `/config/agents.json` and environment variables
 - **APIs:** Groq and Anthropic LLM APIs
 
@@ -240,6 +240,7 @@ This skill is based on the current codebase as of creation date. To keep it curr
 For questions about the chat system, ask Claude to use this skill. For codebase questions, reference the actual source files:
 
 - `/frontend/dashboard.jsx` - Frontend implementation
-- `/backend-api/server.js` - Backend API
+- `/backend-api/server-fast.js` - Backend API with Python router management
+- `/backend-api/pythonRouterManager.js` - Python AI Router lifecycle
 - `/utils/ai_router/` - AI Router Python code
 - `/config/agents.json` - Agent configurations

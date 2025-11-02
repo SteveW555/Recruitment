@@ -99,7 +99,7 @@ Uses regex patterns for immediate feedback:
 
 ## Layer 2: Backend API
 
-**Location:** `/backend-api/server.js`  
+**Location:** `/backend-api/server-fast.js`  
 **Port:** 3001 or 3002
 
 ### Main Endpoint: POST /api/chat
@@ -423,7 +423,7 @@ Always log       → PostgreSQL metrics
 - `/frontend/dashboard.jsx` - Main chat UI component
 
 **Backend:**
-- `/backend-api/server.js` - Express API server
+- `/backend-api/server-fast.js` - Express API server
 - `/backend-api/prompts/agent-system-prompts/` - System prompts per agent
 
 **AI Router Core:**

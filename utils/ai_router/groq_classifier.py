@@ -14,6 +14,10 @@ from typing import List, Dict, Optional
 from .models.category import Category
 from .models.routing_decision import RoutingDecision
 from utils.groq.groq_client import GroqClient
+from logging_new import Logger
+
+# Initialize logger for AI Router
+logger = Logger("ai-router")
 
 
 class GroqClassifier:
@@ -65,6 +69,7 @@ class GroqClassifier:
 
     def _load_agent_definitions(self):
         """Load agent definitions from config/agents.json."""
+        logger.info(f"_load_agent_definitions() called - Loading from {self.config_path}")
         print(f"[*] Loading agent definitions from {self.config_path}...", file=sys.stderr)
 
         if not os.path.exists(self.config_path):
@@ -90,6 +95,7 @@ class GroqClassifier:
                 print(f"[WARNING] Invalid category {category_str}: {e}", file=sys.stderr)
                 continue
 
+        logger.info(f"_load_agent_definitions() completed - Loaded {len(self.available_agents)} agents")
         print(f"[OK] Loaded {len(self.available_agents)} agent definitions", file=sys.stderr)
 
     def _load_prompt_template(self):
@@ -179,6 +185,12 @@ Your task is to analyze user queries and classify them into ONE of the following
             RoutingDecision with category, confidence, and reasoning
         """
         import time
+        import sys
+
+        # DIAGNOSTIC: Use both print and logger to see which works
+        print(f"[GroqClassifier] ******classify() ENTERED for query_id: {query_id}******", file=sys.stderr)
+        sys.stderr.flush()
+        logger.info(f"******classify() called for query_id: {query_id}******")
 
         # Start latency tracking
         start_time = time.time()
@@ -245,6 +257,11 @@ Your task is to analyze user queries and classify them into ONE of the following
             # Attach system prompt for debugging/logging (not part of RoutingDecision model)
             decision.system_prompt = system_prompt  # Add as attribute for transparency
             print(f"[DEBUG GroqClassifier] Attached system_prompt to decision (length: {len(system_prompt)} chars)", file=sys.stderr)
+
+            # DIAGNOSTIC: Confirm classify() is completing successfully
+            print(f"[GroqClassifier] ******classify() RETURNING for query_id: {query_id}******", file=sys.stderr)
+            logger.info(f"******classify() returning for query_id: {query_id}******")
+            sys.stderr.flush()
 
             return decision
 

@@ -37,7 +37,8 @@ The system routes queries to specialized agents based on semantic classification
 - `/frontend/dashboard.jsx` - Chat UI component
 
 **Backend API:**
-- `/backend-api/server.js` - Express API server with `/api/chat` endpoint
+- `/backend-api/server-fast.js` - Express API server with `/api/chat` endpoint
+- `/backend-api/pythonRouterManager.js` - Python AI Router lifecycle management
 - `/backend-api/prompts/agent-system-prompts/[agent-type].txt` - System prompts
 
 **AI Router (Intelligence Layer):**

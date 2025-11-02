@@ -71,7 +71,7 @@ on the requested resource.
 **Diagnostic Steps**:
 ```bash
 # Check if CORS middleware is enabled
-cat backend/server.js | grep cors
+cat backend-api/server-fast.js | grep cors
 
 # Check request origin
 # Browser DevTools → Network → Request Headers → Origin
@@ -90,7 +90,7 @@ proxy: {
 
 **Alternative Solution (CORS Middleware)**:
 ```javascript
-// backend/server.js
+// backend-api/server-fast.js
 import cors from 'cors';
 
 app.use(cors({
@@ -150,14 +150,14 @@ cat .env
 # Frontend uses: VITE_BACKEND_PORT (must start with VITE_)
 
 # Check dotenv is loaded (backend)
-cat backend/server.js | grep dotenv
+cat backend-api/server-fast.js | grep dotenv
 
 # Check if servers were restarted after .env changes
 ```
 
 **Solution**:
 ```javascript
-// backend/server.js
+// backend-api/server-fast.js
 import dotenv from 'dotenv';
 dotenv.config({ path: '../.env' });  // Load from root
 const PORT = process.env.BACKEND_PORT || 3001;
@@ -359,7 +359,7 @@ proxy: {
 ### Monitor Backend Requests
 
 ```javascript
-// backend/server.js
+// backend-api/server-fast.js
 app.use((req, res, next) => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
   console.log('  Headers:', req.headers);

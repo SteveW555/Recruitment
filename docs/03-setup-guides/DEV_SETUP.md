@@ -127,11 +127,15 @@ server: {
 ```
 recruitment/
 ├── backend-api/          # Node.js Express API
-│   ├── server.js         # Main server file
+│   ├── server-fast.js    # Main server file (with Python router)
+│   ├── pythonRouterManager.js  # Python AI Router lifecycle
 │   └── package.json      # Backend scripts
 ├── frontend/             # React + Vite SPA
 │   ├── dashboard.jsx     # Main component
 │   └── package.json      # Frontend scripts
+├── utils/ai_router/      # Python AI Router
+│   ├── router.py         # Main router
+│   └── groq_classifier.py  # LLM-based classification
 ├── scripts/
 │   └── start-dev.js      # Cross-platform startup
 ├── dev.bat              # Windows batch script

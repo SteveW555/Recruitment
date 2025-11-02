@@ -223,6 +223,17 @@ export default function Dashboard() {
       // Browser console logging for debugging
       console.log('[Frontend] Response received from backend:', data);
       console.log('[Frontend] Metadata keys:', Object.keys(data.metadata || {}));
+
+      // Log Python Router stderr messages to browser console
+      if (data.metadata?.python_stderr) {
+        console.log('[Frontend] Python Router stderr:', data.metadata.python_stderr);
+      }
+
+      // Log router debug messages to browser console
+      if (data.metadata?.router_debug) {
+        console.log('[Frontend] Router Debug:', data.metadata.router_debug);
+      }
+
       if (data.metadata?.sql_query) {
         console.log('[Frontend] SQL query present:', data.metadata.sql_query.substring(0, 100) + '...');
       }
@@ -248,6 +259,21 @@ export default function Dashboard() {
         // Log low confidence warning if present
         if (metadata.lowConfidenceWarning) {
           addLog(metadata.lowConfidenceWarning, 'warn');
+        }
+
+        // Log Python stderr messages (router debugging info)
+        if (metadata.python_stderr) {
+          const stderrLines = metadata.python_stderr.trim().split('\n');
+          stderrLines.forEach(line => {
+            if (line.trim()) {
+              addLog(`[Python Router] ${line}`, 'info');
+            }
+          });
+        }
+
+        // Log router debug messages from HTTP server
+        if (metadata.router_debug) {
+          addLog(metadata.router_debug, 'info');
         }
 
         // Log system prompt (first 5 lines only - full classification prompt sent to GroqClassifier)

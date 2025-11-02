@@ -39,7 +39,8 @@ curl http://localhost:3002/health
 | `.env` | Root environment config (ports, API keys) |
 | `frontend/.env` | Vite-specific environment variables |
 | `frontend/vite.config.js` | Vite proxy configuration |
-| `backend-api/server.js` | Express server configuration |
+| `backend-api/server-fast.js` | Express server configuration |
+| `backend-api/pythonRouterManager.js` | Python AI Router lifecycle management |
 
 ## Port Configuration
 

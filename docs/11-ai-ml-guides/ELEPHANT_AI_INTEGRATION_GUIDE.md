@@ -302,7 +302,7 @@ User types: "Find Python developers"
 
 2. **Backend API**:
    - `backend-api/package.json` (Node.js version - has CORS issues)
-   - `backend-api/server.js` (Node.js version - 403 errors from GROQ)
+   - `backend-api/server-fast.js` (Node.js version - 403 errors from GROQ)
    - `backend-api/server_python.py` ✅ **Working version**
    - `backend-api/README.md`
    - `backend-api/.gitignore`

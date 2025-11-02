@@ -2,11 +2,10 @@
   "name": "elephant-backend-api",
   "version": "1.0.0",
   "description": "Backend API for Elephant AI Assistant with GROQ integration",
-  "main": "server.js",
+  "main": "server-fast.js",
   "type": "module",
   "scripts": {
     "start": "node server-fast.js",
-    "start:slow": "node server.js",
     "dev": "node --watch server-fast.js"
   },
   "dependencies": {

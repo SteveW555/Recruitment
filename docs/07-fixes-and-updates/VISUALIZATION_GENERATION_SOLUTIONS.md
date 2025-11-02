@@ -618,7 +618,7 @@ export const ChartDisplay = ({ type, data, config }) => {
 ### Enhanced API Response with Chart Data
 
 ```javascript
-// backend-api/server.js - Enhanced response format
+// backend-api/server-fast.js - Enhanced response format
 POST /api/chat
 
 Response:

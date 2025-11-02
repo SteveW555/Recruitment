@@ -6,9 +6,13 @@ import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { ensureRouterRunning, stopRouter, getStatus } from './pythonRouterManager.js';
+import { Logger } from '../logging_new.js';
 
 // Load environment variables
 dotenv.config({ path: '../.env' });
+
+// Initialize logger
+const logger = new Logger('backend-api');
 
 // Get directory paths
 const __filename = fileURLToPath(import.meta.url);
@@ -54,7 +58,10 @@ app.get('/health', async (req, res) => {
 
 // Chat endpoint - Fast version using persistent Python server
 app.post('/api/chat', async (req, res) => {
+  logger.info(`*******/api/chat endpoint called*******`);
+
   try {
+    logger.info(`*** Trying...`);
     const { message, sessionId = 'default', useHistory = true, agent = 'auto' } = req.body;
 
     if (!message || !message.trim()) {
@@ -70,8 +77,19 @@ app.post('/api/chat', async (req, res) => {
       useHistory
     });
 
+    logger.info(`*** Chat request received`, {
+      sessionId,
+      agent,
+      messageLength: message.length,
+      useHistory
+    });
+
+    //=====================================================
     // Call persistent Python AI Router HTTP Server (FAST!)
+    //=====================================================
+
     const startTime = Date.now();
+    logger.info(`*** Calling AI Router at ${AI_ROUTER_URL}/route`);
 
     try {
       const response = await fetch(`${AI_ROUTER_URL}/route`, {
@@ -102,9 +120,19 @@ app.post('/api/chat', async (req, res) => {
         error: result.error || null
       });
 
+      logger.info(`*** AI Router response received in ${responseTime}ms`, {
+        agent: result.agent,
+        confidence: result.confidence,
+        success: result.success
+      });
+
       // Log low confidence warning if present
       if (result.low_confidence_warning) {
         console.warn(`[${new Date().toISOString()}] ${result.low_confidence_warning}`);
+        logger.warn(`*** Low confidence warning from AI Router`, {
+          warning: result.low_confidence_warning,
+          sessionId
+        });
       }
 
       // Check if AI Router returned an error
@@ -159,6 +187,10 @@ app.post('/api/chat', async (req, res) => {
 
     } catch (fetchError) {
       console.error(`[${new Date().toISOString()}] Failed to call AI Router:`, fetchError.message);
+      logger.error(`*** Failed to call AI Router`, {
+        error: fetchError.message,
+        url: AI_ROUTER_URL
+      });
 
       res.status(503).json({
         success: false,
@@ -169,6 +201,11 @@ app.post('/api/chat', async (req, res) => {
 
   } catch (error) {
     console.error('Error in /api/chat:', error);
+    logger.error(`*** Error in /api/chat endpoint`, {
+      error: error.message,
+      stack: error.stack?.substring(0, 200)
+    });
+
     res.status(500).json({
       success: false,
       error: error.message || 'Internal server error'
@@ -203,6 +240,9 @@ async function initializeServer() {
       console.log(`   Health: http://localhost:${PORT}/health`);
       console.log(`   Chat:   http://localhost:${PORT}/api/chat`);
       console.log(`${'='.repeat(60)}\n`);
+
+      // Log to unified logging system
+      logger.info(`Backend API server started on port ${PORT} (fast version)`);
     });
 
   } catch (error) {

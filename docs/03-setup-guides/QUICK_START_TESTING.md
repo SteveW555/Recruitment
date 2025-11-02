@@ -123,12 +123,8 @@ compare revenue by division for Q4 2024
 
 **Fix:**
 1. Check Python is in PATH: `python --version`
-2. Or edit `backend-api/server.js` line 97:
-   ```javascript
-   const pythonPath = 'C:\\Python312\\python.exe'; // Windows
-   // or
-   const pythonPath = 'python3'; // Linux/Mac
-   ```
+2. Python is managed automatically by pythonRouterManager.js
+3. If issues persist, check logs/ai-router.log for Python startup errors
 
 ### ❌ "AI Router execution failed"
 

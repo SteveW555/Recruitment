@@ -87,7 +87,7 @@ The response should now display with proper formatting instead of raw markdown s
 > * **Added Date:** 2024-09-16
 
 ## Note on Backend
-The backend (backend-api/server.js) does NOT need changes. It correctly returns markdown-formatted text. The issue was purely on the frontend rendering side.
+The backend (backend-api/server-fast.js) does NOT need changes. It correctly returns markdown-formatted text. The issue was purely on the frontend rendering side.
 
 ## Alternative Approaches Considered
 

@@ -127,7 +127,7 @@ The skill references these critical files:
 - `.env` - Port configuration
 - `frontend/.env` - Vite environment variables
 - `frontend/vite.config.js` - Proxy configuration
-- `backend/server.js` - Port and CORS setup
+- `backend-api/server-fast.js` - Port and CORS setup
 
 ## Related Skills
 

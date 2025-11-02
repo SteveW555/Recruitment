@@ -68,7 +68,7 @@ fetch('/api/chat', { ... })
 
 The proxy automatically routes `/api/*` → `http://localhost:3002/api/*`
 
-### 4. **Backend Server** ([backend-api/server.js](backend-api/server.js#L18))
+### 4. **Backend Server** ([backend-api/server-fast.js](backend-api/server-fast.js#L18))
 
 ```javascript
 const PORT = process.env.BACKEND_PORT || 3001;

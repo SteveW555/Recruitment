@@ -11,6 +11,11 @@ import time
 from typing import Optional, Dict, Any
 from datetime import datetime
 
+from logging_new import Logger
+
+# Initialize logger for AI Router
+logger = Logger("ai-router")
+
 from .models.query import Query
 from .models.routing_decision import RoutingDecision
 from .models.session_context import SessionContext
@@ -100,6 +105,8 @@ class AIRouter:
         session_id: str,
         **kwargs
     ) -> Dict[str, Any]:
+        logger.info(f"router.py routing {user_id}, session {session_id}")
+
         """
         Route a query to the appropriate agent.
 
@@ -115,7 +122,7 @@ class AIRouter:
             query_text: User's query (will be truncated to 1000 words)
             user_id: Authenticated user ID
             session_id: Session UUID for context continuity
-            **kwargs: Additional metadata (timestamps, request_id, etc.)
+            **kwargs: Additional metadata (timestamps, request_id, etc.)F
 
         Returns:
             Dictionary with routing result:
@@ -129,6 +136,9 @@ class AIRouter:
             }
         """
         start_time = time.time()
+
+        print(f"[Router] Routing Called:  query for user {user_id}, session {session_id}", file=sys.stderr)
+        sys.stderr.flush()  # Force immediate output
 
         try:
             # Step 1: Extract staff_role from kwargs (if provided)
@@ -160,7 +170,17 @@ class AIRouter:
                 # Get the most recent routing decision
                 previous_agent = session_context.routing_history[-1].get('category')
 
+            # DIAGNOSTIC: Log before classify() call
+            print(f"[Router] ABOUT TO CALL classifier.classify() for query_id: {query.id}", file=sys.stderr)
+            logger.info(f"About to call classifier.classify() for query_id: {query.id}")
+            sys.stderr.flush()
+
             decision = self.classifier.classify(query.text, query.id, previous_agent)
+
+            # DIAGNOSTIC: Log after classify() call
+            print(f"[Router] classifier.classify() RETURNED for query_id: {query.id}", file=sys.stderr)
+            logger.info(f"classifier.classify() returned for query_id: {query.id}")
+            sys.stderr.flush()
 
             # Step 4: Check confidence and route
             print(f"[Router] Checking confidence: {decision.primary_confidence} against threshold {self.confidence_threshold}", file=sys.stderr)
@@ -359,6 +379,9 @@ class AIRouter:
         Returns:
             AgentResponse (success or failure)
         """
+
+        print(f"[Router] Executing agent {agent} for query {query.id}", file=sys.stderr)
+
         for attempt in range(self.max_retries + 1):
             try:
                 # Create agent request

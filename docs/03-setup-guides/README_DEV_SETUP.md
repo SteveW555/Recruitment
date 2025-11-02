@@ -65,10 +65,11 @@ VITE_API_URL=http://localhost:3002
 - No hardcoded URLs
 - Proxy handles routing automatically
 
-#### `backend-api/server.js`
+#### `backend-api/server-fast.js`
 - Reads `BACKEND_PORT` from environment
 - Defaults to 3001 if not set
 - CORS enabled for all origins
+- Manages Python AI Router lifecycle via pythonRouterManager.js
 
 ## Troubleshooting
 
@@ -111,7 +112,7 @@ npm start
 
 ### Adding New API Endpoints
 
-1. **Backend** (`backend-api/server.js`):
+1. **Backend** (`backend-api/server-fast.js`):
 ```javascript
 app.post('/api/your-endpoint', async (req, res) => {
   // Your logic here

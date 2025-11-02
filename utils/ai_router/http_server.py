@@ -172,6 +172,10 @@ async def route_query(request: RouteRequest):
         raise HTTPException(status_code=503, detail="Router not initialized")
 
     try:
+        # Log the routing call
+        print(f"[HTTP Server] Routing query for user {request.user_id}, session {request.session_id}", file=sys.stderr)
+        sys.stderr.flush()
+
         # Route the query (fast - model already loaded!)
         result = await router.route(
             query_text=request.query,
@@ -192,6 +196,19 @@ async def route_query(request: RouteRequest):
                 if 'result_count' in agent_response.metadata:
                     print(f"[HTTP Server] Result count in metadata: {agent_response.metadata['result_count']}", file=sys.stderr)
 
+            # Add router debug info to metadata
+            metadata = agent_response.metadata if agent_response else {}
+            if metadata is None:
+                metadata = {}
+
+            # Add router debug messages (combines HTTP server + router.py messages)
+            debug_messages = [
+                f"[HTTP Server] Routing query for user {request.user_id}, session {request.session_id}",
+                f"[Router] Routing Called: query for user {request.user_id}, session {request.session_id}",
+                f"[Router] Agent={decision.primary_category.value if decision else 'unknown'}, Confidence={decision.primary_confidence if decision else 0:.1%}"
+            ]
+            metadata['router_debug'] = '\n'.join(debug_messages)
+
             return RouteResponse(
                 success=True,
                 content=agent_response.content if agent_response else None,
@@ -202,7 +219,7 @@ async def route_query(request: RouteRequest):
                 classification_latency_ms=decision.classification_latency_ms if decision else None,
                 fallback_triggered=decision.fallback_triggered if decision else None,
                 latency_ms=result['latency_ms'],
-                metadata=agent_response.metadata if agent_response else None,
+                metadata=metadata,
                 low_confidence_warning=result.get('low_confidence_warning')
             )
         else:

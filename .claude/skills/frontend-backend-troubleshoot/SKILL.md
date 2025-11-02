@@ -106,7 +106,7 @@ curl http://localhost:FRONTEND_PORT
 ```bash
 # Backend port configuration
 cat backend/package.json          # Check scripts
-cat backend/server.js             # Check PORT variable
+cat backend-api/server-fast.js             # Check PORT variable
 cat .env                          # Check BACKEND_PORT
 
 # Frontend proxy configuration
@@ -210,7 +210,7 @@ fetch('/api/chat', { ... })
 **Step 4: Update Backend Port Reading**
 
 ```javascript
-// backend/server.js
+// backend-api/server-fast.js
 const PORT = process.env.BACKEND_PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Backend running on port ${PORT}`);
@@ -229,7 +229,7 @@ app.listen(PORT, () => {
 Use only when proxy configuration is not possible.
 
 ```javascript
-// backend/server.js
+// backend-api/server-fast.js
 import cors from 'cors';
 
 app.use(cors({
@@ -598,7 +598,7 @@ kill -9 [PID]
 1. `.env` - Port configuration
 2. `frontend/vite.config.js` - Proxy settings
 3. `frontend/.env` - Vite env vars
-4. `backend/server.js` - Port reading
+4. `backend-api/server-fast.js` - Port reading
 5. Frontend API calls - Relative vs absolute paths
 
 ### Red Flags

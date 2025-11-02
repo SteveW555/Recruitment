@@ -19,7 +19,7 @@ The response you received suggests one of these scenarios:
 
 ### Scenario 1: Using Old Backend API (Most Likely)
 
-**File:** `backend-api/server.js`
+**File:** `backend-api/server-fast.js`
 
 This file implements a simpler chat endpoint that:
 - Uses Groq API directly
@@ -40,22 +40,22 @@ The Python AI Router (`utils/ai_router/router.py`) may not be integrated with th
 
 ### Path A: Update Backend API to Use AI Router (Recommended)
 
-Modify `backend-api/server.js` to call the Python AI Router instead of calling Groq directly:
+Modify `backend-api/server-fast.js` to call the Python AI Router instead of calling Groq directly:
 
 **Current flow:**
 ```
-Frontend → backend-api/server.js → Groq API → Response
+Frontend → backend-api/server-fast.js → Groq API → Response
 ```
 
 **Enhanced flow:**
 ```
-Frontend → backend-api/server.js → Python AI Router → ReportGenerationAgent → Response with graph analysis
+Frontend → backend-api/server-fast.js → Python AI Router → ReportGenerationAgent → Response with graph analysis
 ```
 
 **Implementation:**
 
 ```javascript
-// backend-api/server.js
+// backend-api/server-fast.js
 
 const { spawn } = require('child_process');
 
@@ -95,7 +95,7 @@ app.post('/api/chat', async (req, res) => {
 If you want to keep the current architecture, add graph analysis directly to the Express backend:
 
 ```javascript
-// backend-api/server.js
+// backend-api/server-fast.js
 
 async function analyzeGraphSuitability(query) {
   const analysisPrompt = `Analyze this query for graph suitability:
@@ -243,7 +243,7 @@ To verify the feature is working:
 
 ## Files to Check
 
-1. **Backend API:** `backend-api/server.js` (line ~75-179)
+1. **Backend API:** `backend-api/server-fast.js` (line ~75-179)
    - Does it call Python AI Router?
    - Or does it call Groq directly?
 
@@ -259,7 +259,7 @@ To verify the feature is working:
 
 1. **Determine current architecture:**
    ```bash
-   grep -n "groqClient" backend-api/server.js
+   grep -n "groqClient" backend-api/server-fast.js
    ```
    If found, you're using Path B (direct Groq calls)
 
@@ -276,7 +276,7 @@ To verify the feature is working:
 
 **The graph analysis feature IS implemented and working** in the Python codebase (`utils/ai_router/agents/report_generation_agent.py`).
 
-**The issue is:** The backend API (`backend-api/server.js`) is likely NOT using the enhanced Python agent, so queries go directly to Groq without graph analysis.
+**The issue is:** The backend API (`backend-api/server-fast.js`) is likely NOT using the enhanced Python agent, so queries go directly to Groq without graph analysis.
 
 **The solution is:** Either integrate the Python AI Router with the backend API (Path A) or replicate the graph analysis logic in the Express backend (Path B).
 
