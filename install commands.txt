@@ -1,7 +1,5 @@
 npm i -g @anthropic-ai/claude-code
 
-
-
 npm install -g @openai/codex
 
 uvx --from git+https://github.com/github/spec-kit.git specify init --here

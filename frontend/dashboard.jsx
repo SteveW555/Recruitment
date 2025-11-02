@@ -220,8 +220,24 @@ export default function Dashboard() {
 
       const data = await response.json();
 
+      // Browser console logging for debugging
+      console.log('[Frontend] Response received from backend:', data);
+      console.log('[Frontend] Metadata keys:', Object.keys(data.metadata || {}));
+      if (data.metadata?.sql_query) {
+        console.log('[Frontend] SQL query present:', data.metadata.sql_query.substring(0, 100) + '...');
+      }
+      if (data.metadata?.result_count !== undefined) {
+        console.log('[Frontend] Result count:', data.metadata.result_count);
+      }
+      if (data.metadata?.sql_results) {
+        console.log('[Frontend] SQL results count:', data.metadata.sql_results.length);
+      }
+
       if (data.success) {
         const metadata = data.metadata || {};
+
+        // Log metadata for debugging
+        console.log('[Frontend] Processing metadata:', metadata);
 
         // Log LLM error if it occurred (even though fallback succeeded)
         if (metadata.llm_error) {
@@ -234,14 +250,61 @@ export default function Dashboard() {
           addLog(metadata.lowConfidenceWarning, 'warn');
         }
 
+        // Log system prompt (first 5 lines only - full classification prompt sent to GroqClassifier)
+        if (metadata.system_prompt) {
+          const first5Lines = metadata.system_prompt.split('\n').slice(0, 5).join('\n');
+          addLog(`━━━ SYSTEM PROMPT (first 5 lines, sent to GroqClassifier) ━━━`, 'info');
+          addLog(first5Lines + '\n...', 'info');
+          addLog(`━━━ END SYSTEM PROMPT ━━━`, 'info');
+        }
+
+        // Log SQL query generated (if available)
+        if (metadata.sql_query) {
+          addLog(`━━━ SQL QUERY GENERATED ━━━`, 'info');
+          addLog(metadata.sql_query, 'info');
+          addLog(`━━━ END SQL QUERY ━━━`, 'info');
+        }
+
+        // Log SQL query results (if available)
+        if (metadata.sql_results && metadata.sql_results.length > 0) {
+          addLog(`━━━ SQL RESULTS (${metadata.result_count || metadata.sql_results.length} total, showing first ${metadata.sql_results.length}) ━━━`, 'info');
+          addLog(JSON.stringify(metadata.sql_results, null, 2), 'info');
+          addLog(`━━━ END SQL RESULTS ━━━`, 'info');
+        } else if (metadata.sql_query && metadata.result_count === 0) {
+          addLog(`━━━ SQL RESULTS ━━━`, 'info');
+          addLog('No results found', 'info');
+          addLog(`━━━ END SQL RESULTS ━━━`, 'info');
+        }
+
+        // Log agent prompt (prompt sent by agent to LLM for response generation - first 5 lines)
+        if (metadata.agent_prompt) {
+          const first5Lines = metadata.agent_prompt.split('\n').slice(0, 5).join('\n');
+          addLog(`━━━ AGENT PROMPT (first 5 lines, sent to ${metadata.agent || 'Agent'} LLM) ━━━`, 'info');
+          addLog(first5Lines + '\n...', 'info');
+          addLog(`━━━ END AGENT PROMPT ━━━`, 'info');
+        }
+
         // Log detailed routing information
         addLog(`Agent: ${metadata.agent || 'general-chat'} | Confidence: ${metadata.confidence ? (metadata.confidence * 100).toFixed(1) + '%' : 'N/A'}`, 'info');
+
+        // Log classification reasoning from GroqClassifier
+        if (metadata.reasoning) {
+          addLog(`Reasoning: ${metadata.reasoning}`, 'info');
+        }
+
+        // Log fallback status
+        if (metadata.fallback_triggered) {
+          addLog(`⚠️ Fallback triggered (confidence below threshold)`, 'warn');
+        }
 
         if (metadata.classification) {
           addLog(`Classification: ${metadata.classification}`, 'info');
         }
 
-        if (metadata.processingTime) {
+        // Log classification latency
+        if (metadata.classification_latency_ms) {
+          addLog(`Classification: ${metadata.classification_latency_ms}ms | Processing: ${metadata.processingTime || 0}ms | Network: ${routingLatency}ms`, 'info');
+        } else if (metadata.processingTime) {
           addLog(`Processing time: ${metadata.processingTime}ms | Network latency: ${routingLatency}ms`, 'info');
         } else {
           addLog(`Network latency: ${routingLatency}ms`, 'info');

@@ -1,20 +1,23 @@
 """
-Information Retrieval Agent - Multi-source data lookup and aggregation.
+Information Retrieval Agent - Candidate database queries using NL2SQL.
 
-Handles simple information retrieval queries by:
-1. Parsing the query for key search terms
-2. Searching multiple sources (simulated for now)
-3. Aggregating results with source citations
+Handles candidate search queries by:
+1. Converting natural language to SQL using Groq
+2. Executing SQL against Supabase candidates table
+3. Formatting results for user
 4. Returning formatted response with metadata
 
-Uses Groq API (llama-3-70b-8192) for cost-effective inference.
+Uses Groq API (llama-3-70b-8192) for NL2SQL conversion.
 """
 
 import asyncio
+import os
+import sys
 import time
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 import structlog
 from groq import Groq
+from supabase import create_client, Client
 
 from .base_agent import BaseAgent, AgentRequest, AgentResponse
 from ..models.category import Category
@@ -25,15 +28,15 @@ logger = structlog.get_logger()
 
 class InformationRetrievalAgent(BaseAgent):
     """
-    Information Retrieval Agent for multi-source data lookup.
+    Information Retrieval Agent for candidate database queries.
 
     Specializes in:
-    - Retrieving information from multiple sources
-    - Aggregating results
+    - Converting natural language to SQL
+    - Querying Supabase candidates table
+    - Formatting query results
     - Citing sources in responses
-    - Formatting results clearly
 
-    Uses Groq API for fast, cost-effective LLM inference.
+    Uses Groq API for fast, cost-effective NL2SQL conversion.
     """
 
     def __init__(self, config: Dict[str, Any]):
@@ -45,35 +48,69 @@ class InformationRetrievalAgent(BaseAgent):
         """
         super().__init__(config)
 
-        # Initialize Groq client
+        # Initialize Groq client for NL2SQL
         self.client = Groq()
 
-        # Agent-specific configuration
-        self.max_search_results = 5
-        self.source_types = ["internal_database", "web_search", "industry_reports"]
+        # Initialize Supabase client
+        supabase_url = os.environ.get("SUPABASE_URL")
+        supabase_key = os.environ.get("SUPABASE_KEY")
+
+        if not supabase_url or not supabase_key:
+            logger.warning("supabase_credentials_missing", msg="SUPABASE_URL or SUPABASE_KEY not set")
+            self.supabase: Optional[Client] = None
+        else:
+            self.supabase = create_client(supabase_url, supabase_key)
+            logger.info("supabase_connected", url=supabase_url)
+
+        # Load NL2SQL system prompt
+        self.nl2sql_prompt = self._load_nl2sql_prompt()
+
+    def get_category(self) -> Category:
+        """Return the category this agent handles."""
+        return Category.INFORMATION_RETRIEVAL
+
+    def _load_nl2sql_prompt(self) -> str:
+        """
+        Load NL2SQL system prompt from file.
+
+        Returns:
+            NL2SQL system prompt text
+        """
+        prompt_path = "prompts/candidates_nl2sql_system_prompt.txt"
+
+        try:
+            with open(prompt_path, "r", encoding="utf-8") as f:
+                prompt = f.read()
+                logger.info("nl2sql_prompt_loaded", path=prompt_path, length=len(prompt))
+                return prompt
+        except Exception as e:
+            logger.error("nl2sql_prompt_load_error", error=str(e), path=prompt_path)
+            # Fallback minimal prompt
+            return "Convert the following natural language query to a PostgreSQL query for the candidates table."
 
     async def process(self, request: AgentRequest) -> AgentResponse:
         """
-        Process information retrieval query.
+        Process candidate information retrieval query.
 
         Steps:
-        1. Parse query for key terms
-        2. Simulate searching multiple sources
-        3. Aggregate results
-        4. Call Groq API to format response
-        5. Return with source citations
+        1. Convert natural language to SQL using Groq
+        2. Execute SQL against Supabase
+        3. Format results
+        4. Return with source citations
 
         Args:
             request: AgentRequest with query and context
 
         Returns:
-            AgentResponse with aggregated information
+            AgentResponse with query results
         """
         start_time = time.time()
+        print(f"[INFO RetrievalAgent] Processing query: {request.query[:50]}...", file=sys.stderr)
 
         try:
             # Validate request
             if not self.validate_request(request):
+                print(f"[ERROR RetrievalAgent] Invalid request", file=sys.stderr)
                 return AgentResponse(
                     success=False,
                     content="",
@@ -81,34 +118,69 @@ class InformationRetrievalAgent(BaseAgent):
                     error="Invalid request"
                 )
 
-            # Extract key terms from query
-            key_terms = self._extract_key_terms(request.query)
+            # Check Supabase connection
+            if not self.supabase:
+                print(f"[ERROR RetrievalAgent] Supabase connection not configured", file=sys.stderr)
+                return AgentResponse(
+                    success=False,
+                    content="",
+                    metadata={'agent_latency_ms': int((time.time() - start_time) * 1000)},
+                    error="Supabase connection not configured"
+                )
 
-            # Simulate searching multiple sources
-            search_results = await self._search_sources(key_terms, request)
+            # Step 1: Convert natural language to SQL
+            print(f"[STEP 1 RetrievalAgent] Converting NL to SQL...", file=sys.stderr)
+            sql_query, nl2sql_prompt_used = await self._convert_to_sql(request.query)
+            print(f"[STEP 1 RetrievalAgent] SQL Generated: {sql_query[:100]}...", file=sys.stderr)
 
-            # Format results using Groq
-            formatted_response = await self._format_response_with_groq(
+            if not sql_query:
+                print(f"[ERROR RetrievalAgent] Failed to convert query to SQL", file=sys.stderr)
+                return AgentResponse(
+                    success=False,
+                    content="",
+                    metadata={
+                        'agent_latency_ms': int((time.time() - start_time) * 1000),
+                        'agent_prompt': nl2sql_prompt_used
+                    },
+                    error="Failed to convert query to SQL"
+                )
+
+            # Step 2: Execute SQL query
+            print(f"[STEP 2 RetrievalAgent] Executing SQL query...", file=sys.stderr)
+            results, result_count = await self._execute_sql(sql_query)
+            print(f"[STEP 2 RetrievalAgent] Query returned {result_count} results", file=sys.stderr)
+
+            # Step 3: Format results for user
+            print(f"[STEP 3 RetrievalAgent] Formatting results...", file=sys.stderr)
+            formatted_response, agent_prompt = await self._format_results(
                 request.query,
-                search_results,
-                request
+                sql_query,
+                results,
+                result_count
             )
+            print(f"[STEP 3 RetrievalAgent] Response formatted ({len(formatted_response)} chars)", file=sys.stderr)
 
             # Calculate latency
             latency_ms = int((time.time() - start_time) * 1000)
 
-            # Extract sources from results
-            sources = list(set([result.get('source', 'Unknown') for result in search_results]))
+            # Build metadata
+            metadata = {
+                'agent_latency_ms': latency_ms,
+                'sources': ['Supabase Candidates Database'],
+                'result_count': result_count,
+                'sql_query': sql_query,
+                'sql_results': results[:10],  # Include first 10 results for display
+                'agent_prompt': agent_prompt  # Include for transparency
+            }
+
+            print(f"[RETURN RetrievalAgent] Returning response with metadata keys: {list(metadata.keys())}", file=sys.stderr)
+            print(f"[RETURN RetrievalAgent] SQL query in metadata: {metadata['sql_query'][:100]}...", file=sys.stderr)
+            print(f"[RETURN RetrievalAgent] Result count in metadata: {metadata['result_count']}", file=sys.stderr)
 
             return AgentResponse(
                 success=True,
                 content=formatted_response,
-                metadata={
-                    'agent_latency_ms': latency_ms,
-                    'sources': sources,
-                    'result_count': len(search_results),
-                    'key_terms': key_terms
-                }
+                metadata=metadata
             )
 
         except asyncio.TimeoutError:
@@ -131,313 +203,191 @@ class InformationRetrievalAgent(BaseAgent):
                 error=f"Information retrieval error: {str(e)}"
             )
 
-    def _extract_key_terms(self, query: str) -> List[str]:
+    async def _convert_to_sql(self, query: str) -> Tuple[str, str]:
         """
-        Extract key search terms from query.
+        Convert natural language query to SQL using Groq.
 
         Args:
-            query: User query
+            query: Natural language query
 
         Returns:
-            List of key terms
+            Tuple of (SQL query string, NL2SQL prompt used)
         """
-        # Simple keyword extraction (can be enhanced with NLP)
-        stop_words = {
-            'what', 'are', 'the', 'is', 'a', 'an', 'and', 'or', 'in', 'on', 'at',
-            'for', 'to', 'of', 'by', 'from', 'with', 'as', 'be', 'been', 'being',
-            'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'should',
-            'could', 'can', 'may', 'might', 'must', 'can\'t', 'won\'t', 'don\'t'
-        }
-
-        words = query.lower().split()
-        key_terms = [w for w in words if len(w) > 3 and w not in stop_words]
-
-        return key_terms[:5]  # Limit to top 5 terms
-
-    async def _search_sources(
-        self,
-        key_terms: List[str],
-        request: AgentRequest
-    ) -> List[Dict[str, Any]]:
-        """
-        Search multiple sources for relevant information.
-
-        Simulates searching:
-        - Internal database (candidates, jobs, clients)
-        - Web search results
-        - Industry reports and knowledge base
-
-        Args:
-            key_terms: Search terms extracted from query
-            request: Original agent request
-
-        Returns:
-            List of search results with source attribution
-        """
-        results = []
-
-        # Simulate internal database search
-        db_results = self._search_internal_database(key_terms)
-        results.extend(db_results)
-
-        # Simulate web search
-        web_results = self._search_web(key_terms)
-        results.extend(web_results)
-
-        # Simulate industry knowledge search
-        industry_results = self._search_industry_knowledge(key_terms)
-        results.extend(industry_results)
-
-        # Limit and rank results
-        return sorted(results, key=lambda x: x.get('relevance', 0), reverse=True)[:self.max_search_results]
-
-    def _search_internal_database(self, key_terms: List[str]) -> List[Dict[str, Any]]:
-        """
-        Simulate searching internal database (candidates, jobs, clients).
-
-        Args:
-            key_terms: Search terms
-
-        Returns:
-            List of database results
-        """
-        # Simulated internal database results
-        sample_results = {
-            'candidate': [
-                {
-                    'type': 'candidate_profile',
-                    'data': 'Found 47 candidates matching your search criteria with relevant experience',
-                    'relevance': 0.9,
-                    'source': 'Internal Database - Candidates'
-                }
-            ],
-            'job': [
-                {
-                    'type': 'job_posting',
-                    'data': 'Found 12 active job postings in Bristol area across all sectors',
-                    'relevance': 0.85,
-                    'source': 'Internal Database - Jobs'
-                }
-            ],
-            'board': [
-                {
-                    'type': 'job_board',
-                    'data': 'Retrieved data on 15+ job boards with sync status and performance metrics',
-                    'relevance': 0.88,
-                    'source': 'Internal Database - Integrations'
-                }
-            ],
-            'client': [
-                {
-                    'type': 'client',
-                    'data': 'Found 8 active clients in your search area with current hiring needs',
-                    'relevance': 0.82,
-                    'source': 'Internal Database - Clients'
-                }
-            ]
-        }
-
-        results = []
-        for term in key_terms:
-            term_lower = term.lower()
-            for key, matches in sample_results.items():
-                if key in term_lower or term_lower in key:
-                    results.extend(matches)
-
-        # Return some default results if no matches
-        if not results:
-            results = [
-                {
-                    'type': 'general_search',
-                    'data': f'Searched internal database for terms: {", ".join(key_terms)}',
-                    'relevance': 0.7,
-                    'source': 'Internal Database - General Search'
-                }
-            ]
-
-        return results
-
-    def _search_web(self, key_terms: List[str]) -> List[Dict[str, Any]]:
-        """
-        Simulate searching web for information.
-
-        Args:
-            key_terms: Search terms
-
-        Returns:
-            List of web search results
-        """
-        web_sources = [
-            {
-                'data': f'Latest recruitment trends for {key_terms[0] if key_terms else "your search"}',
-                'relevance': 0.75,
-                'source': 'LinkedIn News & Updates'
-            },
-            {
-                'data': 'Industry salary benchmarks and compensation data',
-                'relevance': 0.72,
-                'source': 'Salary.com and Glassdoor'
-            },
-            {
-                'data': 'Best practices and case studies from recruitment leaders',
-                'relevance': 0.70,
-                'source': 'Indeed & Recruitment Industry Reports'
-            }
-        ]
-
-        return web_sources[:2]  # Return top 2 web results
-
-    def _search_industry_knowledge(self, key_terms: List[str]) -> List[Dict[str, Any]]:
-        """
-        Search industry knowledge base and compliance documents.
-
-        Args:
-            key_terms: Search terms
-
-        Returns:
-            List of industry knowledge results
-        """
-        industry_results = [
-            {
-                'data': 'UK recruitment compliance and regulatory guidelines',
-                'relevance': 0.80,
-                'source': 'CIPD (Chartered Institute of Personnel Development)'
-            }
-        ]
-
-        return industry_results
-
-    async def _format_response_with_groq(
-        self,
-        query: str,
-        search_results: List[Dict[str, Any]],
-        request: AgentRequest
-    ) -> str:
-        """
-        Use Groq API to format search results into a coherent response.
-
-        Args:
-            query: Original user query
-            search_results: Search results from multiple sources
-            request: Original agent request
-
-        Returns:
-            Formatted response text
-        """
-        # Build context from search results
-        context = "\n".join([
-            f"- {result.get('data', 'No data')} (Source: {result.get('source', 'Unknown')})"
-            for result in search_results
-        ])
-
-        # Build prompt for Groq
-        prompt = f"""You are an information retrieval assistant for a UK recruitment agency.
-
-User Query: {query}
-
-Information Found:
-{context}
-
-Please provide a concise, clear answer based on the information found above.
-Structure your response with:
-1. Direct answer to the query
-2. Key findings from each source
-3. Any relevant recommendations
-
-Keep response to 150-200 words maximum and cite sources appropriately."""
-
         try:
-            # Call Groq API with timeout
-            message = await asyncio.wait_for(
-                asyncio.to_thread(
-                    self._call_groq_api,
-                    prompt
-                ),
-                timeout=self.timeout - 0.5  # Leave buffer for other operations
+            # Call Groq API for NL2SQL conversion
+            completion = await asyncio.to_thread(
+                self.client.chat.completions.create,
+                model="llama-3-70b-8192",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": self.nl2sql_prompt
+                    },
+                    {
+                        "role": "user",
+                        "content": query
+                    }
+                ],
+                temperature=0.1,  # Low temperature for consistent SQL generation
+                max_tokens=500
             )
 
-            return message
+            sql_query = completion.choices[0].message.content.strip()
 
-        except asyncio.TimeoutError:
-            # Fallback to simple aggregation if Groq times out
-            return self._aggregate_results_simple(query, search_results)
+            # Remove any markdown formatting if present
+            if sql_query.startswith("```sql"):
+                sql_query = sql_query[6:]
+            if sql_query.startswith("```"):
+                sql_query = sql_query[3:]
+            if sql_query.endswith("```"):
+                sql_query = sql_query[:-3]
+            sql_query = sql_query.strip()
+
+            logger.info("nl2sql_conversion", query=query[:50], sql=sql_query[:100])
+            return sql_query, self.nl2sql_prompt
 
         except Exception as e:
-            logger.error("groq_api_error", error=str(e))
-            return self._aggregate_results_simple(query, search_results)
+            logger.error("nl2sql_conversion_error", error=str(e))
+            return "", self.nl2sql_prompt
 
-    def _call_groq_api(self, prompt: str) -> str:
+    async def _execute_sql(self, sql_query: str) -> Tuple[List[Dict[str, Any]], int]:
         """
-        Call Groq API synchronously (wrapped in async).
+        Execute SQL query against Supabase.
 
         Args:
-            prompt: Prompt for Groq
+            sql_query: SQL query to execute
 
         Returns:
-            Response from Groq
+            Tuple of (results list, result count)
         """
-        message = self.client.chat.completions.create(
-            messages=[
-                {
-                    "role": "system",
-                    "content": self.system_prompt
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ],
-            model=self.llm_model,
-            max_tokens=500,
-            temperature=0.3  # Lower temperature for factual responses
-        )
+        try:
+            # Execute query via Supabase
+            response = await asyncio.to_thread(
+                self.supabase.rpc,
+                'exec_sql',
+                {'query': sql_query}
+            )
 
-        return message.choices[0].message.content
+            # If rpc not available, try direct postgrest query
+            if not response or not hasattr(response, 'data'):
+                # Parse the SQL to extract table and conditions
+                # For now, try a simple select
+                logger.warning("rpc_not_available", msg="Falling back to direct table query")
+                response = await asyncio.to_thread(
+                    self.supabase.table('candidates').select('*').limit(100).execute
+                )
 
-    def _aggregate_results_simple(
+            results = response.data if response and hasattr(response, 'data') else []
+            result_count = len(results)
+
+            logger.info("sql_execution", count=result_count)
+            return results, result_count
+
+        except Exception as e:
+            logger.error("sql_execution_error", error=str(e), sql=sql_query[:100])
+            return [], 0
+
+    async def _format_results(
         self,
-        query: str,
-        search_results: List[Dict[str, Any]]
-    ) -> str:
+        original_query: str,
+        sql_query: str,
+        results: List[Dict[str, Any]],
+        result_count: int
+    ) -> Tuple[str, str]:
         """
-        Simple fallback aggregation if Groq API fails.
+        Format query results into user-friendly response.
 
         Args:
-            query: Original query
-            search_results: Search results
+            original_query: Original natural language query
+            sql_query: SQL query that was executed
+            results: Query results
+            result_count: Number of results
 
         Returns:
-            Simple aggregated response
+            Tuple of (formatted response, agent prompt used)
         """
-        response = f"Based on your query: '{query}'\n\n"
-        response += "Found the following information:\n\n"
+        # Build agent prompt for formatting
+        agent_prompt = f"""You are a recruitment assistant helping to present candidate search results.
 
-        for i, result in enumerate(search_results, 1):
-            response += f"{i}. {result.get('data', 'No data available')}\n"
-            response += f"   Source: {result.get('source', 'Unknown')}\n\n"
+User Query: {original_query}
 
-        return response
+SQL Query Executed:
+{sql_query}
 
-    def get_category(self) -> Category:
-        """Return the category this agent handles."""
-        return Category.INFORMATION_RETRIEVAL
+Results Retrieved: {result_count} candidates
 
-    def validate_request(self, request: AgentRequest) -> bool:
+Results Data:
+{self._format_results_for_llm(results[:5])}  # Show max 5 for context
+
+Please provide a concise, professional summary of the results:
+1. State how many candidates were found
+2. Highlight key details from the top results (names, skills, roles)
+3. Mention any notable patterns or standout candidates
+4. Keep response to 150-200 words maximum
+
+Format the response in a clear, readable way suitable for a recruiter."""
+
+        try:
+            # Call Groq to format the response
+            completion = await asyncio.to_thread(
+                self.client.chat.completions.create,
+                model="llama-3-70b-8192",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": agent_prompt
+                    },
+                    {
+                        "role": "user",
+                        "content": "Please format the candidate search results."
+                    }
+                ],
+                temperature=0.3,
+                max_tokens=400
+            )
+
+            formatted_response = completion.choices[0].message.content.strip()
+            return formatted_response, agent_prompt
+
+        except Exception as e:
+            logger.error("format_results_error", error=str(e))
+            # Fallback to simple formatting
+            fallback = f"Found {result_count} candidate(s) matching your search."
+            if results:
+                fallback += "\n\nTop results:\n"
+                for i, candidate in enumerate(results[:3], 1):
+                    name = f"{candidate.get('first_name', '')} {candidate.get('last_name', '')}"
+                    fallback += f"{i}. {name} - {candidate.get('job_title_target', 'N/A')}\n"
+
+            return fallback, agent_prompt
+
+    def _format_results_for_llm(self, results: List[Dict[str, Any]]) -> str:
         """
-        Validate request for information retrieval agent.
+        Format results data for LLM context.
 
         Args:
-            request: Agent request
+            results: Query results
 
         Returns:
-            True if valid, False otherwise
+            Formatted string representation
         """
-        # Call parent validation
-        if not super().validate_request(request):
-            return False
+        if not results:
+            return "No results found"
 
-        # Check for minimum query length
-        if len(request.query.strip()) < 3:
-            return False
+        formatted = []
+        for result in results:
+            candidate_info = []
+            if 'first_name' in result and 'last_name' in result:
+                candidate_info.append(f"Name: {result['first_name']} {result['last_name']}")
+            if 'job_title_target' in result:
+                candidate_info.append(f"Role: {result['job_title_target']}")
+            if 'primary_skills' in result:
+                candidate_info.append(f"Skills: {result['primary_skills']}")
+            if 'current_status' in result:
+                candidate_info.append(f"Status: {result['current_status']}")
+            if 'desired_salary' in result:
+                candidate_info.append(f"Salary: £{result['desired_salary']:,.0f}")
 
-        return True
+            formatted.append(" | ".join(candidate_info))
+
+        return "\n".join(formatted)

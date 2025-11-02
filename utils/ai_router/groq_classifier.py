@@ -242,6 +242,10 @@ Your task is to analyze user queries and classify them into ONE of the following
                 fallback_triggered=fallback_triggered,
             )
 
+            # Attach system prompt for debugging/logging (not part of RoutingDecision model)
+            decision.system_prompt = system_prompt  # Add as attribute for transparency
+            print(f"[DEBUG GroqClassifier] Attached system_prompt to decision (length: {len(system_prompt)} chars)", file=sys.stderr)
+
             return decision
 
         except Exception as e:
@@ -251,7 +255,7 @@ Your task is to analyze user queries and classify them into ONE of the following
             # Fallback to general chat on error
             print(f"[ERROR] Groq classification failed: {e}", file=sys.stderr)
 
-            return RoutingDecision(
+            decision = RoutingDecision(
                 query_id=query_id,
                 primary_category=Category.GENERAL_CHAT,
                 primary_confidence=0.5,
@@ -259,6 +263,11 @@ Your task is to analyze user queries and classify them into ONE of the following
                 classification_latency_ms=latency_ms,
                 fallback_triggered=True,
             )
+
+            # Attach system prompt even for errors (for debugging)
+            decision.system_prompt = system_prompt if 'system_prompt' in locals() else "Error: System prompt not built"
+
+            return decision
 
     def get_category_examples(self, category: Category) -> List[str]:
         """

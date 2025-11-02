@@ -46,38 +46,44 @@ const classificationPatterns = {
 
 ---
 
-## Layer 2: AI Router Semantic Classification
+## Layer 2: AI Router LLM Classification (GroqClassifier)
 
-**Location:** `/utils/ai_router/classifier.py`
+**Location:** `/utils/ai_router/groq_classifier.py`
 
-**Purpose:** Intelligent ML-based classification for accurate routing decisions
+**Purpose:** Intelligent LLM-based intent analysis for accurate routing decisions
+
+> **For comprehensive details on GroqClassifier, see the `router` skill.**
 
 ### How It Works
 
 ```
-Step 1: Load Sentence Transformer Model
-├─ Model: all-MiniLM-L6-v2
-├─ Dimensions: 384-dimensional embeddings
-└─ Pre-loaded at startup
+Step 1: Initialize GroqClassifier
+├─ Model: llama-3.3-70b-versatile (Groq LLM)
+├─ Confidence threshold: 0.65 (configurable)
+├─ Temperature: 0.3 (factual, deterministic)
+└─ Prompt template: prompts/ai_router_classification.json
 
-Step 2: Pre-encode Example Queries
-├─ Load example queries from config/agents.json
-├─ Encode each to 384-dimensional vector
-├─ Group vectors by category
-└─ Store in memory for fast comparison
+Step 2: Load Agent Definitions
+├─ Load from config/agents.json
+├─ Extract category descriptions and examples
+├─ Build classification prompt with all categories
+└─ Store in memory for fast prompt construction
 
 Step 3: For Each New Query
-├─ Encode query text to 384-dimensional vector
-├─ Calculate cosine similarity to all examples:
-│  ├─ Similarity = dot_product(query_vec, example_vec) / (||query_vec|| * ||example_vec||)
-│  └─ Result: 0.0 to 1.0 (1.0 = identical)
-├─ Take max similarity per category as category score
-│  └─ [GENERAL_CHAT: 0.45, INFORMATION_RETRIEVAL: 0.87, PROBLEM_SOLVING: 0.52, ...]
-└─ Sort categories by confidence descending
+├─ Build system prompt with category descriptions
+├─ Add user query as message
+├─ Call Groq LLM API:
+│  ├─ Model: llama-3.3-70b-versatile
+│  ├─ Temperature: 0.3
+│  ├─ Max tokens: 200
+│  └─ Expected: JSON response
+├─ Parse JSON response:
+│  └─ {"category": "INFORMATION_RETRIEVAL", "confidence": 0.92, "reasoning": "..."}
+└─ Validate category and confidence
 
 Step 4: Output RoutingDecision
-├─ Primary category: highest confidence
-├─ Primary confidence: 0.87 (87%)
+├─ Primary category: from LLM response
+├─ Primary confidence: 0.92 (92%)
 ├─ Secondary category: 2nd highest IF > 0.5
 │  └─ Otherwise: None
 ├─ Secondary confidence: 0.52 (52%) if included

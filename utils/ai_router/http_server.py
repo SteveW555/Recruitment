@@ -65,6 +65,10 @@ class RouteResponse(BaseModel):
     content: Optional[str] = None
     agent: Optional[str] = None
     confidence: Optional[float] = None
+    reasoning: Optional[str] = None  # Classification reasoning from GroqClassifier
+    system_prompt: Optional[str] = None  # Full system prompt sent to GroqClassifier
+    classification_latency_ms: Optional[int] = None
+    fallback_triggered: Optional[bool] = None
     latency_ms: int
     error: Optional[str] = None
     metadata: Optional[dict] = None
@@ -135,19 +139,22 @@ async def startup_event():
         print(f"[OK] {available} agent(s) loaded", file=sys.stderr)
 
         # Initialize router
-        print("[*] Initializing router...")
+        print("[*] Initializing router...", file=sys.stderr)
+        confidence_threshold = 0.55  # Match GroqClassifier threshold
         router = AIRouter(
             classifier=classifier,
             session_store=session_store,
             log_repository=log_repository,
-            agent_registry=agent_registry
+            agent_registry=agent_registry,
+            confidence_threshold=confidence_threshold
         )
-        print("[OK] Router ready")
-        print("[*] Server ready on http://localhost:8888")
+        print(f"[*] Router confidence threshold: {confidence_threshold}", file=sys.stderr)
+        print("[OK] Router ready", file=sys.stderr)
+        print("[*] Server ready on http://localhost:8888", file=sys.stderr)
         if USE_GROQ_ROUTING:
-            print("[*] Using Groq LLM routing - fast startup, intelligent routing!")
+            print("[*] Using Groq LLM routing - fast startup, intelligent routing!", file=sys.stderr)
         else:
-            print("[*] Model loaded and cached - requests will be fast!")
+            print("[*] Model loaded and cached - requests will be fast!", file=sys.stderr)
 
     except Exception as e:
         print(f"[ERROR] Failed to initialize: {e}", file=sys.stderr)
@@ -177,11 +184,23 @@ async def route_query(request: RouteRequest):
             agent_response = result.get('agent_response')
             decision = result.get('decision')
 
+            # Log metadata for debugging
+            if agent_response and agent_response.metadata:
+                print(f"[HTTP Server] Agent metadata keys: {list(agent_response.metadata.keys())}", file=sys.stderr)
+                if 'sql_query' in agent_response.metadata:
+                    print(f"[HTTP Server] SQL query present in metadata: {agent_response.metadata['sql_query'][:100]}...", file=sys.stderr)
+                if 'result_count' in agent_response.metadata:
+                    print(f"[HTTP Server] Result count in metadata: {agent_response.metadata['result_count']}", file=sys.stderr)
+
             return RouteResponse(
                 success=True,
                 content=agent_response.content if agent_response else None,
                 agent=decision.primary_category.value if decision else None,
                 confidence=decision.primary_confidence if decision else None,
+                reasoning=decision.reasoning if decision else None,
+                system_prompt=getattr(decision, 'system_prompt', None) if decision else None,
+                classification_latency_ms=decision.classification_latency_ms if decision else None,
+                fallback_triggered=decision.fallback_triggered if decision else None,
                 latency_ms=result['latency_ms'],
                 metadata=agent_response.metadata if agent_response else None,
                 low_confidence_warning=result.get('low_confidence_warning')

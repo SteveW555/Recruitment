@@ -98,6 +98,7 @@ app.post('/api/chat', async (req, res) => {
         success: result.success,
         agent: result.agent,
         confidence: result.confidence,
+        fallback_triggered: result.fallback_triggered,
         error: result.error || null
       });
 
@@ -120,6 +121,17 @@ app.post('/api/chat', async (req, res) => {
         });
       }
 
+      // Log metadata for debugging
+      if (result.metadata) {
+        console.log(`[${new Date().toISOString()}] Result metadata keys:`, Object.keys(result.metadata));
+        if (result.metadata.sql_query) {
+          console.log(`[${new Date().toISOString()}] SQL query in result.metadata:`, result.metadata.sql_query.substring(0, 100) + '...');
+        }
+        if (result.metadata.result_count !== undefined) {
+          console.log(`[${new Date().toISOString()}] Result count in result.metadata:`, result.metadata.result_count);
+        }
+      }
+
       // Return successful response in format expected by frontend
       res.json({
         success: true,
@@ -127,6 +139,14 @@ app.post('/api/chat', async (req, res) => {
         metadata: {
           agent: result.agent || agent,
           confidence: result.confidence || 0.8,
+          reasoning: result.reasoning || null,  // Classification reasoning from GroqClassifier
+          system_prompt: result.system_prompt || null,  // Full system prompt sent to GroqClassifier
+          agent_prompt: result.metadata?.agent_prompt || null,  // Agent's prompt sent to LLM
+          sql_query: result.metadata?.sql_query || null,  // SQL query generated (for INFORMATION_RETRIEVAL)
+          sql_results: result.metadata?.sql_results || null,  // SQL results (for INFORMATION_RETRIEVAL)
+          result_count: result.metadata?.result_count || null,  // Number of results (for INFORMATION_RETRIEVAL)
+          classification_latency_ms: result.classification_latency_ms || null,
+          fallback_triggered: result.fallback_triggered || false,
           model: result.metadata?.llm_model || 'llama-3-70b-8192',
           tokens: result.metadata?.tokens || {},
           processingTime: result.latency_ms || responseTime,

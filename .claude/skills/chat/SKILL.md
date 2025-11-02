@@ -9,7 +9,7 @@ This skill provides comprehensive expertise on the ProActive People chat system�
 
 - **Chat Interface Architecture:** How the frontend chat UI works, message handling, user interactions
 - **Agent System:** The 7 specialized agents, their purposes, configurations, and how they're selected
-- **Query Classification:** How queries are classified using regex (frontend) and semantic ML (AI Router)
+- **Query Classification:** How queries are classified using regex (frontend) and Groq LLM (AI Router)
 - **API Integration:** Chat endpoints, request/response formats, error handling
 - **LLM Configuration:** Model selection, temperature settings, token management, provider setup
 - **Data Flow:** Complete message journey from UI through routing to LLM and back
@@ -42,7 +42,7 @@ The system routes queries to specialized agents based on semantic classification
 
 **AI Router (Intelligence Layer):**
 - `/utils/ai_router/router.py` - Main orchestrator
-- `/utils/ai_router/classifier.py` - Semantic classification (ML)
+- `/utils/ai_router/groq_classifier.py` - LLM-based classification (Groq)
 - `/utils/ai_router/agent_registry.py` - Agent management
 - `/utils/ai_router/agents/` - All 7 agent implementations
 
@@ -209,16 +209,17 @@ Displays banner:
 
 ### Layer 3: AI Router (Intelligent Routing)
 
-The AI Router (Python) represents the planned intelligent routing layer:
-1. Classifies queries using sentence-transformers (semantic ML)
+The AI Router (Python) provides intelligent query routing:
+1. Classifies queries using **GroqClassifier** (LLM-based intent analysis)
 2. Looks up appropriate agent from registry
 3. Executes agent with timeout/retry protection
 4. Falls back to General Chat on failures
 5. Logs all decisions to PostgreSQL
 6. Stores session context in Redis
 
-**Currently:** Frontend uses simple regex; backend routes based on agent parameter
-**Future:** Full AI Router integration for semantic routing
+**Routing Method:** Uses Groq LLM (llama-3.3-70b-versatile) to analyze query intent and classify into one of 7 categories with confidence scoring and reasoning.
+
+> **Note:** For detailed information about query classification, routing decisions, confidence thresholds, and debugging routing issues, see the **`router` skill** documentation.
 
 ## Classification System
 
@@ -236,19 +237,30 @@ Regex patterns for immediate feedback (no network latency):
 
 See `references/query-classification.md` for exact regex patterns.
 
-### AI Router Layer (Semantic ML)
+### AI Router Layer (GroqClassifier - LLM-Based)
 
-For intelligent classification, the AI Router uses:
-- **Model:** all-MiniLM-L6-v2 sentence transformer
-- **Method:** Encodes query and example queries to 384-dimensional vectors
-- **Similarity:** Calculates cosine similarity to find best match
+For intelligent classification, the AI Router uses **GroqClassifier**:
+- **Model:** llama-3.3-70b-versatile (Groq LLM)
+- **Method:** LLM analyzes query intent and context
+- **Output:** JSON with category, confidence, and reasoning
 - **Confidence:** Returns primary category + confidence (0.0-1.0)
-- **Threshold:** Routes if confidence >= 0.7; otherwise clarifies
+- **Threshold:** Routes if confidence >= 0.65; otherwise falls back to General Chat
 
-Example: "Find candidates with Python"
-- Information Retrieval: 0.92 ✓ (confidence 92%, route here)
-- Problem Solving: 0.34
-- Others: <0.3
+**Example Classification:**
+
+Query: "Find candidates with Python skills in Bristol"
+
+```json
+{
+  "category": "INFORMATION_RETRIEVAL",
+  "confidence": 0.92,
+  "reasoning": "Query explicitly requests finding/searching for candidates with specific technical skills in a location, which is information retrieval from external sources."
+}
+```
+
+**Result:** Routes to Information Retrieval Agent (confidence 92% > 65% threshold)
+
+> **For more details on classification logic, see the `router` skill** which provides comprehensive guidance on query analysis, confidence scoring, debugging routing decisions, and testing classification.
 
 ## API Endpoint Reference
 
@@ -319,7 +331,7 @@ All agents defined in `/config/agents.json`:
 - `timeout_seconds`: Max agent execution time (standard: 2)
 - `retry_count`: Automatic retries (standard: 1)
 - `temperature`: Controls randomness (0.3=factual, 0.7=creative)
-- `example_queries`: 5-10 examples for semantic classification
+- `example_queries`: 5-10 examples for LLM classification (used by GroqClassifier)
 - `enabled`: Can be toggled true/false without restart
 
 See `references/configuration.md` for complete configuration reference.
@@ -340,7 +352,7 @@ See `references/configuration.md` for complete configuration reference.
 
 ## Performance Targets
 
-- **Classification latency:** <100ms (semantic) or <1ms (regex)
+- **Classification latency:** <500ms (GroqClassifier LLM) or <1ms (frontend regex)
 - **Agent execution:** <2s (with timeout)
 - **End-to-end:** <3s (95th percentile)
 - **Throughput:** 1000+ req/s
@@ -351,10 +363,12 @@ See `references/configuration.md` for complete configuration reference.
 ### Confidence-Based Routing
 
 ```
-Confidence >= 0.7  → Route to primary agent
-Confidence < 0.7   → Return clarification request
-                      Fall back to General Chat
+Confidence >= 0.65  → Route to primary agent
+Confidence < 0.65   → Return clarification request
+                       Fall back to General Chat
 ```
+
+**Note:** The confidence threshold (0.65) is configurable in GroqClassifier. See the `router` skill for threshold tuning guidance.
 
 ### Agent Failure Recovery
 
@@ -366,10 +380,11 @@ Still fails             → Fallback to General Chat
 
 ### Session Management
 
-- **In-Memory:** Conversations Map on backend (persists while server running)
-- **Storage:** Max 20 messages per session (trimmed oldest)
-- **Format:** `{role: "user"|"assistant", content: "text"}`
-- **Expiration:** Manually cleared with `/api/chat/clear` endpoint
+- **Storage:** Redis (via AI Router) for persistent session context
+- **Fallback:** In-memory storage if Redis unavailable (development mode)
+- **History:** Conversation context maintained across queries
+- **Format:** Session context includes previous agent and conversation history
+- **Expiration:** Configurable TTL in Redis (default: session-based)
 
 ## Common Tasks
 
@@ -379,8 +394,8 @@ Still fails             → Fallback to General Chat
 2. Inherit from `BaseAgent`
 3. Implement `process(request: AgentRequest) -> AgentResponse`
 4. Add to `/config/agents.json` with configuration
-5. Create system prompt at `/backend-api/prompts/agent-system-prompts/[name].txt`
-6. Provide 5-10 example queries for semantic classification
+5. Provide 5-10 diverse example queries (used by GroqClassifier for category descriptions)
+6. Test classification using the `router` skill's testing tools
 
 ### How to Change an Agent's LLM Model
 
@@ -400,11 +415,14 @@ Still fails             → Fallback to General Chat
 
 ### How to Debug Query Routing
 
+**For detailed routing debugging, use the `router` skill** which provides comprehensive testing tools.
+
+Quick debugging steps:
 1. Check frontend console logs (classification result + regex pattern)
 2. Check system console in chat UI (shows classification + confidence)
 3. Check backend server logs (routing decision, agent execution)
-4. Use CLI: `python utils/ai_router/cli.py "query text"`
-5. Check latency metrics in response metadata
+4. Use CLI: `python -m utils.ai_router.cli "query text" --json`
+5. Check latency metrics and reasoning in response metadata
 
 ### How to Improve Classification Accuracy
 
@@ -427,33 +445,40 @@ Still fails             → Fallback to General Chat
 
 **Agent Contract:** All agents must respect 2-second timeout, handle exceptions gracefully, return AgentResponse with success/error.
 
-**Confidence Threshold:** Routing decisions use 0.7 (70%) threshold; below this triggers clarification or fallback.
+**Confidence Threshold:** GroqClassifier uses 0.65 (65%) threshold; below this triggers fallback to General Chat.
 
-**Session Continuity:** Each session maintains message history up to 20 messages (10 exchanges); older messages trimmed.
+**Session Continuity:** Session context stored in Redis with conversation history and previous agent context.
 
 **Temperature Settings:** Control LLM randomness (0.3=factual, 0.7=creative); varies by agent type and task.
 
 **Fallback Chain:** When primary agent fails, system automatically falls back to General Chat agent.
 
-**Semantic Classification:** Uses sentence embeddings to find similar queries in agent examples; captures meaning beyond keywords.
+**LLM Classification:** GroqClassifier uses Groq LLM (llama-3.3-70b-versatile) to analyze query intent, providing category, confidence score, and reasoning in JSON format.
+
+**Classification Prompt:** Uses prompts from `prompts/ai_router_classification.json` with category descriptions and examples from `config/agents.json`.
 
 ## When to Use This Skill
 
-Ask questions about:
+**Use this skill for questions about:**
 - "How does the chat interface work?"
 - "What agents are available and when are they used?"
-- "How are queries classified and routed?"
 - "What API endpoints are available?"
 - "How do I configure an agent?"
 - "How does conversation history work?"
 - "What are the performance targets?"
 - "How do I add a new agent?"
 - "What LLM models are being used?"
-- "How does semantic classification work?"
 - "What happens when an agent times out?"
-- "How do I debug routing issues?"
-- "How can I improve classification accuracy?"
 - "What temperature settings should I use?"
 - "How do I change which LLM an agent uses?"
 
-This skill provides the expert knowledge to answer any question about how the chat system works.
+**Use the `router` skill for query classification and routing questions:**
+- "How are queries classified and routed?"
+- "How does GroqClassifier work?"
+- "How do I debug routing issues?"
+- "How can I improve classification accuracy?"
+- "What confidence threshold should I use?"
+- "How do I test query classification?"
+- "Why did my query route to the wrong agent?"
+
+This skill provides the expert knowledge to answer questions about the chat system architecture, API integration, and agent configuration. For detailed routing analysis and classification debugging, refer to the `router` skill.

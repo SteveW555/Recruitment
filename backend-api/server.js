@@ -111,7 +111,12 @@ app.post('/api/chat', async (req, res) => {
       module: 'utils.ai_router.cli',
       query: message.substring(0, 50) + (message.length > 50 ? '...' : ''),
       sessionId,
-      cwd: projectRoot
+      cwd: projectRoot,
+      env: {
+        USE_GROQ_ROUTING: process.env.USE_GROQ_ROUTING || 'not set (defaults to true)',
+        GROQ_API_KEY: process.env.GROQ_API_KEY ? 'SET' : 'NOT SET',
+        ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY ? 'SET' : 'NOT SET'
+      }
     });
 
     const pythonProcess = spawn(pythonPath, pythonArgs, {
@@ -147,13 +152,17 @@ app.post('/api/chat', async (req, res) => {
 
           // Log Python stderr for debugging (initialization messages, warnings, etc.)
           if (stderr) {
-            console.log(`[${new Date().toISOString()}] Python stderr:`, stderr.substring(0, 500));
+            console.log(`[${new Date().toISOString()}] Python stderr (full output):`);
+            console.log(stderr);  // Show ALL stderr, not truncated
           }
 
           console.log(`[${new Date().toISOString()}] Python AI Router response in ${responseTime}ms:`, {
             success: result.success,
             agent: result.agent,
             confidence: result.confidence,
+            hasSystemPrompt: result.system_prompt !== undefined && result.system_prompt !== null,
+            systemPromptLength: result.system_prompt ? result.system_prompt.length : 0,
+            hasReasoning: result.reasoning !== undefined && result.reasoning !== null,
             hasGraphAnalysis: result.metadata?.graph_analysis !== undefined,
             error: result.error || null
           });
@@ -172,6 +181,10 @@ app.post('/api/chat', async (req, res) => {
             metadata: {
               agent: result.agent || agent,
               confidence: result.confidence || 0.8,
+              reasoning: result.reasoning || null,  // Classification reasoning from GroqClassifier
+              system_prompt: result.system_prompt || null,  // Full system prompt sent to GroqClassifier
+              classification_latency_ms: result.classification_latency_ms || null,
+              fallback_triggered: result.fallback_triggered || false,
               model: result.metadata?.llm_model || 'llama-3-70b-8192',
               tokens: result.metadata?.tokens || {},
               processingTime: result.latency_ms || responseTime,

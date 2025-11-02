@@ -16,9 +16,11 @@ import structlog
 
 from .router import AIRouter
 from .classifier import Classifier
+from .groq_classifier import GroqClassifier
 from .storage.session_store import SessionStore
 from .storage.log_repository import LogRepository
 from .agent_registry import AgentRegistry
+import os
 
 
 # Setup structured logging
@@ -68,12 +70,25 @@ class RouterCLI:
         print("[*] Initializing router dependencies...", file=sys.stderr)
 
         try:
-            # Initialize classifier
+            # Initialize classifier (use GroqClassifier by default for LLM-based routing)
+            # Set USE_GROQ_ROUTING=false to use semantic similarity instead
+            use_groq = os.environ.get("USE_GROQ_ROUTING", "true").lower() == "true"
+
             print("[*] Loading classifier...", file=sys.stderr)
-            self.classifier = Classifier(
-                model_name=self.classifier_model,
-                config_path=self.config_path
-            )
+            if use_groq:
+                print("[*] Using Groq LLM-based routing", file=sys.stderr)
+                self.classifier = GroqClassifier(
+                    config_path=self.config_path,
+                    confidence_threshold=0.65,
+                    routing_model="llama-3.3-70b-versatile",
+                    temperature=0.3
+                )
+            else:
+                print("[*] Using semantic similarity routing", file=sys.stderr)
+                self.classifier = Classifier(
+                    model_name=self.classifier_model,
+                    config_path=self.config_path
+                )
             print("[OK] Classifier ready", file=sys.stderr)
 
             # Initialize session store
@@ -258,6 +273,18 @@ class RouterCLI:
             decision = result['decision']
             output['agent'] = decision.primary_category.value
             output['confidence'] = decision.primary_confidence
+            output['reasoning'] = decision.reasoning  # Include classification reasoning
+            output['classification_latency_ms'] = decision.classification_latency_ms
+            output['fallback_triggered'] = decision.fallback_triggered
+
+            # Include system prompt if available (for transparency/debugging)
+            print(f"[DEBUG] Decision has system_prompt attribute: {hasattr(decision, 'system_prompt')}", file=sys.stderr)
+            if hasattr(decision, 'system_prompt'):
+                prompt_length = len(decision.system_prompt) if decision.system_prompt else 0
+                print(f"[DEBUG] System prompt length: {prompt_length} characters", file=sys.stderr)
+                output['system_prompt'] = decision.system_prompt
+            else:
+                print(f"[DEBUG] Decision attributes: {dir(decision)}", file=sys.stderr)
 
         return output
 
@@ -277,6 +304,10 @@ class RouterCLI:
                 'fallback_triggered': decision.fallback_triggered,
                 'classification_latency_ms': decision.classification_latency_ms
             }
+
+            # Include system prompt if available
+            if hasattr(decision, 'system_prompt'):
+                serialized['decision']['system_prompt'] = decision.system_prompt
 
         # Serialize agent response
         if result.get('agent_response'):

@@ -6,6 +6,7 @@ Manages session context, handles retries, and logs all routing decisions.
 """
 
 import asyncio
+import sys
 import time
 from typing import Optional, Dict, Any
 from datetime import datetime
@@ -162,9 +163,11 @@ class AIRouter:
             decision = self.classifier.classify(query.text, query.id, previous_agent)
 
             # Step 4: Check confidence and route
+            print(f"[Router] Checking confidence: {decision.primary_confidence} against threshold {self.confidence_threshold}", file=sys.stderr)
             if decision.primary_confidence < self.confidence_threshold:
                 # Low confidence - route to general chat with warning
                 warning_message = f"⚠ Low confidence ({decision.primary_confidence:.1%}). Routing to general chat."
+                print(f"[Router] LOW CONFIDENCE DETECTED - Routing to general chat", file=sys.stderr)
 
                 # Override decision to use general chat
                 decision.primary_category = Category.GENERAL_CHAT

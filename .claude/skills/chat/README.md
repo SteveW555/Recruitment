@@ -109,19 +109,21 @@ Any question about how the chat system works, how to configure it, how to extend
 - Configuration-driven agent definitions
 
 ### Classification
-- Dual-layer approach: regex (fast) + semantic ML (accurate)
-- Sentence transformer model (all-MiniLM-L6-v2) for embeddings
-- Cosine similarity for semantic matching
-- Confidence thresholds (0.7 for primary routing)
-- Secondary category routing when 0.5-0.7 confidence
+- Dual-layer approach: regex (fast, frontend) + GroqClassifier LLM (accurate, backend)
+- Groq LLM (llama-3.3-70b-versatile) for intent analysis
+- JSON response with category, confidence, and reasoning
+- Confidence threshold (0.65 for primary routing)
+- Fallback to General Chat when confidence < 0.65
+
+> **Note:** For detailed classification information, see the **`router` skill**.
 
 ### Performance & Reliability
-- <100ms classification latency (semantic)
+- <500ms classification latency (GroqClassifier LLM)
 - <2s agent execution timeout
 - <3s end-to-end latency target
 - Automatic retry with 500ms delay
 - Fallback to General Chat on failures
-- All failures logged to PostgreSQL
+- All decisions logged to PostgreSQL
 
 ### Configuration Options
 - Change LLM models per agent

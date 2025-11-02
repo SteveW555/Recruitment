@@ -72,10 +72,12 @@ class RoutingDecision:
                 )
 
         # Validate fallback trigger logic
-        if self.fallback_triggered and self.primary_confidence >= 0.7:
-            raise ValueError(
-                f"Fallback triggered but confidence is {self.primary_confidence} (>= 0.7 threshold)"
-            )
+        # Note: Threshold varies by classifier (0.55 for Groq, 0.7 for semantic)
+        # So we don't enforce strict validation here - just log a warning
+        if self.fallback_triggered and self.primary_confidence >= 0.9:
+            # Only warn if confidence is very high (>= 90%) but fallback triggered
+            import sys
+            print(f"[WARNING RoutingDecision] Fallback triggered with high confidence: {self.primary_confidence}", file=sys.stderr)
 
         # Validate reasoning length
         if self.reasoning and len(self.reasoning) > 500:

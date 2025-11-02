@@ -114,12 +114,38 @@ recruitment-automation-system/
 **Example:** `prompts/ai_router_classification.json` for query classification
 
 ## Development Commands
+
+### Primary Commands (Current System)
+
 ```bash
-make setup              # Initialize environment
-make start              # Start all services
-make test               # Run test suite
-make lint               # Code quality checks
-make deploy-staging     # Deploy to staging
+npm start               # Start all services (backend + frontend + Python router)
+                        # Backend automatically manages Python router lifecycle
+                        # Ctrl+C to stop everything gracefully
+```
+
+### Build & Test Commands (Makefile)
+
+```bash
+make -f scripts/Makefile setup              # Initialize environment
+make -f scripts/Makefile test               # Run test suite
+make -f scripts/Makefile lint               # Code quality checks
+make -f scripts/Makefile deploy-staging     # Deploy to staging
+```
+
+### Docker Commands
+
+```bash
+docker-compose -f infrastructure/docker/docker-compose.yml up    # Start with Docker
+docker-compose -f infrastructure/docker/docker-compose.yml down  # Stop Docker services
+```
+
+### Production Process Management (PM2)
+
+```bash
+pm2 start config/ecosystem.config.js        # Start with PM2
+pm2 status                                  # Check status
+pm2 logs                                    # View logs
+pm2 stop all                                # Stop all processes
 ```
 
 ## Local Ports
