@@ -24,7 +24,7 @@ from unittest.mock import Mock, AsyncMock, patch, MagicMock
 from pathlib import Path
 
 from utils.ai_router.router import AIRouter
-from utils.ai_router.classifier import Classifier
+from utils.ai_router.groq_classifier import GroqClassifier
 from utils.ai_router.storage.session_store import SessionStore
 from utils.ai_router.storage.log_repository import LogRepository
 from utils.ai_router.agent_registry import AgentRegistry

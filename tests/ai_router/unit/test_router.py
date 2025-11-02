@@ -17,7 +17,7 @@ from unittest.mock import Mock, AsyncMock, MagicMock, patch
 from datetime import datetime
 
 from utils.ai_router.router import AIRouter
-from utils.ai_router.classifier import Classifier
+from utils.ai_router.groq_classifier import GroqClassifier
 from utils.ai_router.storage.session_store import SessionStore
 from utils.ai_router.storage.log_repository import LogRepository
 from utils.ai_router.agent_registry import AgentRegistry
@@ -29,8 +29,8 @@ from utils.ai_router.agents.mock_agent import MockAgent, create_mock_agent
 
 @pytest.fixture
 def mock_classifier():
-    """Create a mock classifier."""
-    classifier = Mock(spec=Classifier)
+    """Create a mock Groq classifier."""
+    classifier = Mock(spec=GroqClassifier)
     classifier.classify = Mock(return_value=RoutingDecision(
         query_id="test_1",
         primary_category=Category.INFORMATION_RETRIEVAL,

@@ -346,7 +346,7 @@ class MockAgent(BaseAgent):
 def create_test_config(
     category: Category = Category.GENERAL_CHAT,
     llm_provider: str = "groq",
-    llm_model: str = "llama-3-70b-8192",
+    llm_model: str = "llama-3.3-70b-versatile",
     timeout: int = 2
 ) -> Dict[str, Any]:
     """

@@ -78,7 +78,7 @@ User: "Query 'get me data' is routing to GENERAL_CHAT but I expected DATA_OPERAT
 
 The skill will:
 1. Analyze the query ("get me data" is too vague)
-2. Explain why it routed to GENERAL_CHAT (confidence <0.65)
+2. Explain why it routed to GENERAL_CHAT (confidence <0.55)
 3. Suggest rephrasing: "List all candidates in the database for the Java Developer role"
 
 ### Configuring for New Requirements
@@ -109,8 +109,8 @@ The skill will:
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| confidence_threshold | 0.65 | Minimum confidence for routing |
-| routing_model | llama-3.3-70b-versatile | Groq model for classification |
+| confidence_threshold | 0.55 | Minimum confidence for routing (LLM-based) |
+| routing_model | llama-3.3-70b-versatile | Groq LLM model for classification |
 | temperature | 0.3 | Temperature for routing decisions |
 
 ## Performance Targets

@@ -38,7 +38,7 @@ class ReportGenerationAgent(BaseAgent):
     - Creating markdown-formatted reports
     - Ensuring presentation quality and professional appearance
 
-    Uses Groq llama-3-70b-8192 for fast report generation.
+    Uses Groq llama-3.3-70b-versatile for fast report generation.
     """
 
     def __init__(self, config: Dict[str, Any]):

@@ -2,7 +2,7 @@
 AI Router HTTP Server - Persistent server for fast responses.
 
 Runs a FastAPI server that keeps the AI Router loaded in memory,
-eliminating the 13-second model loading overhead on every request.
+providing fast Groq LLM-based routing with no model download overhead.
 
 Usage:
     python -m utils.ai_router.http_server
@@ -25,16 +25,10 @@ import asyncio
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from utils.ai_router.router import AIRouter
-from utils.ai_router.classifier import Classifier
 from utils.ai_router.groq_classifier import GroqClassifier
 from utils.ai_router.storage.session_store import SessionStore
 from utils.ai_router.storage.log_repository import LogRepository
 from utils.ai_router.agent_registry import AgentRegistry
-
-# Configuration: Choose classifier type
-# Set USE_GROQ_ROUTING=true to use Groq LLM for routing
-# Set USE_GROQ_ROUTING=false (or unset) to use semantic similarity
-USE_GROQ_ROUTING = os.environ.get("USE_GROQ_ROUTING", "true").lower() == "true"
 
 # Initialize FastAPI app
 app = FastAPI(title="AI Router Service", version="1.0.0")
@@ -84,24 +78,16 @@ async def startup_event():
     print("[*] Initializing router dependencies...")
 
     try:
-        # Initialize classifier based on configuration
-        print("[*] Loading classifier...")
-        if USE_GROQ_ROUTING:
-            print("[*] Using Groq LLM-based routing (fast startup, no model download)")
-            classifier = GroqClassifier(
-                config_path="config/agents.json",
-                confidence_threshold=0.55,
-                routing_model="llama-3.3-70b-versatile",
-                temperature=0.3
-            )
-        else:
-            print("[*] Using semantic similarity routing (13s startup, sentence-transformers)")
-            classifier = Classifier(
-                model_name="all-MiniLM-L6-v2",
-                config_path="config/agents.json",
-                confidence_threshold=0.55  # Lowered from 0.65 to improve routing
-            )
-        print("[OK] Classifier ready")
+        # Initialize Groq LLM-based classifier
+        print("[*] Loading Groq classifier...")
+        print("[*] Using Groq LLM-based routing (fast startup, no model download)")
+        classifier = GroqClassifier(
+            config_path="config/agents.json",
+            confidence_threshold=0.70,  # Raised to reduce false positives on vague queries
+            routing_model="llama-3.3-70b-versatile",
+            temperature=0.3
+        )
+        print("[OK] Groq classifier ready")
 
         # Initialize session store
         print("[*] Connecting to Redis...")
@@ -140,7 +126,7 @@ async def startup_event():
 
         # Initialize router
         print("[*] Initializing router...", file=sys.stderr)
-        confidence_threshold = 0.55  # Match GroqClassifier threshold
+        confidence_threshold = 0.70  # Raised to reduce false positives on vague queries
         router = AIRouter(
             classifier=classifier,
             session_store=session_store,
@@ -151,10 +137,7 @@ async def startup_event():
         print(f"[*] Router confidence threshold: {confidence_threshold}", file=sys.stderr)
         print("[OK] Router ready", file=sys.stderr)
         print("[*] Server ready on http://localhost:8888", file=sys.stderr)
-        if USE_GROQ_ROUTING:
-            print("[*] Using Groq LLM routing - fast startup, intelligent routing!", file=sys.stderr)
-        else:
-            print("[*] Model loaded and cached - requests will be fast!", file=sys.stderr)
+        print("[*] Using Groq LLM routing - fast startup, intelligent routing!", file=sys.stderr)
 
     except Exception as e:
         print(f"[ERROR] Failed to initialize: {e}", file=sys.stderr)

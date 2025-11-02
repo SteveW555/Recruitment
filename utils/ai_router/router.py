@@ -20,7 +20,7 @@ from .models.query import Query
 from .models.routing_decision import RoutingDecision
 from .models.session_context import SessionContext
 from .models.category import Category
-from .classifier import Classifier
+from .groq_classifier import GroqClassifier
 from .storage.session_store import SessionStore
 from .storage.log_repository import LogRepository
 from .agent_registry import AgentRegistry
@@ -61,7 +61,7 @@ class AIRouter:
 
     def __init__(
         self,
-        classifier: Classifier,
+        classifier: GroqClassifier,
         session_store: SessionStore,
         log_repository: Optional[LogRepository],
         agent_registry: AgentRegistry,
@@ -75,7 +75,7 @@ class AIRouter:
         Initialize router with dependencies.
 
         Args:
-            classifier: Classifier for query classification
+            classifier: GroqClassifier for query classification
             session_store: Redis session storage
             log_repository: PostgreSQL log repository (optional - None disables logging)
             agent_registry: Agent registry for loading agents

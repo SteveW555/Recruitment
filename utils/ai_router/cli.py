@@ -15,7 +15,6 @@ from typing import Optional, Dict, Any
 import structlog
 
 from .router import AIRouter
-from .classifier import Classifier
 from .groq_classifier import GroqClassifier
 from .storage.session_store import SessionStore
 from .storage.log_repository import LogRepository
@@ -49,17 +48,14 @@ class RouterCLI:
 
     def __init__(
         self,
-        classifier_model: str = "all-MiniLM-L6-v2",
         config_path: str = "config/agents.json",
     ):
         """
         Initialize CLI with router dependencies.
 
         Args:
-            classifier_model: Sentence-transformers model name
             config_path: Path to agents.json configuration
         """
-        self.classifier_model = classifier_model
         self.config_path = config_path
 
         # Initialize components
@@ -70,26 +66,16 @@ class RouterCLI:
         print("[*] Initializing router dependencies...", file=sys.stderr)
 
         try:
-            # Initialize classifier (use GroqClassifier by default for LLM-based routing)
-            # Set USE_GROQ_ROUTING=false to use semantic similarity instead
-            use_groq = os.environ.get("USE_GROQ_ROUTING", "true").lower() == "true"
-
-            print("[*] Loading classifier...", file=sys.stderr)
-            if use_groq:
-                print("[*] Using Groq LLM-based routing", file=sys.stderr)
-                self.classifier = GroqClassifier(
-                    config_path=self.config_path,
-                    confidence_threshold=0.65,
-                    routing_model="llama-3.3-70b-versatile",
-                    temperature=0.3
-                )
-            else:
-                print("[*] Using semantic similarity routing", file=sys.stderr)
-                self.classifier = Classifier(
-                    model_name=self.classifier_model,
-                    config_path=self.config_path
-                )
-            print("[OK] Classifier ready", file=sys.stderr)
+            # Initialize Groq LLM-based classifier
+            print("[*] Loading Groq classifier...", file=sys.stderr)
+            print("[*] Using Groq LLM-based routing", file=sys.stderr)
+            self.classifier = GroqClassifier(
+                config_path=self.config_path,
+                confidence_threshold=0.65,
+                routing_model="llama-3.3-70b-versatile",
+                temperature=0.3
+            )
+            print("[OK] Groq classifier ready", file=sys.stderr)
 
             # Initialize session store
             print("[*] Connecting to Redis...", file=sys.stderr)
@@ -442,12 +428,6 @@ async def main():
     )
 
     parser.add_argument(
-        "--model",
-        default="all-MiniLM-L6-v2",
-        help="Classifier model name"
-    )
-
-    parser.add_argument(
         "--stats",
         action="store_true",
         help="Display router statistics and exit"
@@ -463,7 +443,6 @@ async def main():
 
     # Initialize CLI
     cli = RouterCLI(
-        classifier_model=args.model,
         config_path=args.config
     )
 

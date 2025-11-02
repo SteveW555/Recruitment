@@ -1,10 +1,6 @@
 # AI Router Dependencies
 # Created: 2025-10-22
-# Purpose: Chat Routing AI system requirements
-
-# Core NLP and ML
-sentence-transformers>=2.3.0  # Fast semantic similarity classification (updated for huggingface_hub compatibility)
-transformers>=4.35.0  # Dependency for sentence-transformers
+# Purpose: Chat Routing AI system requirements (Groq LLM-based routing only)
 
 # LLM Providers
 groq>=0.4.0  # Fast LLM inference (primary provider)

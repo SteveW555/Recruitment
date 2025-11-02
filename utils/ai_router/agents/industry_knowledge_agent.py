@@ -36,7 +36,7 @@ class IndustryKnowledgeAgent(BaseAgent):
     - Legal requirements for agencies and contractors
     - Always cites validated sources
 
-    Uses Groq API (llama-3-70b-8192) for cost-effective inference.
+    Uses Groq API (llama-3.3-70b-versatile) for cost-effective inference.
     """
 
     def __init__(self, config: Dict[str, Any]):

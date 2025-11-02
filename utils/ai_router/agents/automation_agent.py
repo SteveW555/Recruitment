@@ -36,7 +36,7 @@ class AutomationAgent(BaseAgent):
     - Creating implementable automation specs
     - Integrations with common platforms (n8n, Zapier, Make)
 
-    Uses Groq llama-3-70b-8192 for workflow design and specification.
+    Uses Groq llama-3.3-70b-versatile for workflow design and specification.
     """
 
     def __init__(self, config: Dict[str, Any]):

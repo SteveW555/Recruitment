@@ -96,7 +96,7 @@ recruitment-automation-system/
 - Query classification
 - Agent routing
 - 7 specialized agents (Information Retrieval, Data Operations, Problem Solving, etc.)
-- Uses sentence-transformers for classification
+- Uses Groq LLM for intelligent classification
 
 **Node.js Backend** (port 3002)
 - Express API
@@ -125,8 +125,8 @@ recruitment-automation-system/
 7. **General Chat** - Casual conversation fallback
 
 ### Agent Routing
-- Semantic similarity classification
-- Confidence scoring (65% threshold)
+- Groq LLM-based classification with reasoning
+- Confidence scoring (55% threshold)
 - Automatic fallback to general chat
 - Query logging and analytics
 

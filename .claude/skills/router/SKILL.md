@@ -66,13 +66,13 @@ The GroqClassifier follows this process:
 3. **Call Groq LLM** (llama-3.3-70b-versatile) with system + user prompts
 4. **Parse JSON response** containing category, confidence, and reasoning
 5. **Validate category** and convert to Category enum
-6. **Check confidence threshold** (default: 0.65) to determine fallback
+6. **Check confidence threshold** (default: 0.55) to determine fallback
 7. **Return RoutingDecision** with classification results and latency
 
 ### Key Configuration Parameters
 
-- **confidence_threshold**: Minimum confidence for routing (default: 0.65)
-- **routing_model**: Groq model for classification (default: llama-3.3-70b-versatile)
+- **confidence_threshold**: Minimum confidence for routing (default: 0.55)
+- **routing_model**: Groq LLM model for classification (default: llama-3.3-70b-versatile)
 - **temperature**: Temperature for routing decisions (default: 0.3)
 - **max_tokens**: Maximum tokens for classification response (default: 200)
 

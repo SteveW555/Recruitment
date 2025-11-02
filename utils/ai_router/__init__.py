@@ -20,10 +20,9 @@ Usage:
 """
 
 __version__ = "0.1.0"
-__all__ = ["Classifier"]
+__all__ = ["GroqClassifier", "AIRouter", "AgentRegistry"]
 
-from .classifier import Classifier
-
-# These will be imported when implemented
-# from .router import AIRouter
-# from .agent_registry import AgentRegistry
+# Import main classes
+from .groq_classifier import GroqClassifier
+from .router import AIRouter
+from .agent_registry import AgentRegistry

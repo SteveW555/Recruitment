@@ -7,13 +7,16 @@ Handles candidate search queries by:
 3. Formatting results for user
 4. Returning formatted response with metadata
 
-Uses Groq API (llama-3-70b-8192) for NL2SQL conversion.
+Uses Groq API (llama-3.3-70b-versatile) for NL2SQL conversion.
 """
 
 import asyncio
 import os
 import sys
 import time
+import logging
+from datetime import datetime
+from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 import structlog
 from groq import Groq
@@ -24,6 +27,16 @@ from ..models.category import Category
 
 
 logger = structlog.get_logger()
+
+# Set up SQL file logger
+sql_log_dir = Path("logs")
+sql_log_dir.mkdir(exist_ok=True)
+sql_file_logger = logging.getLogger("sql_logger")
+sql_file_logger.setLevel(logging.INFO)
+sql_handler = logging.FileHandler(sql_log_dir / "sql.log", encoding="utf-8")
+sql_handler.setFormatter(logging.Formatter("%(asctime)s - %(message)s"))
+sql_file_logger.addHandler(sql_handler)
+sql_file_logger.propagate = False  # Don't propagate to root logger
 
 
 class InformationRetrievalAgent(BaseAgent):
@@ -217,7 +230,7 @@ class InformationRetrievalAgent(BaseAgent):
             # Call Groq API for NL2SQL conversion
             completion = await asyncio.to_thread(
                 self.client.chat.completions.create,
-                model="llama-3-70b-8192",
+                model="llama-3.3-70b-versatile",
                 messages=[
                     {
                         "role": "system",
@@ -242,6 +255,17 @@ class InformationRetrievalAgent(BaseAgent):
             if sql_query.endswith("```"):
                 sql_query = sql_query[:-3]
             sql_query = sql_query.strip()
+
+            # Log to terminal (stderr)
+            print(f"\n{'='*80}", file=sys.stderr)
+            print(f"[SQL GENERATED] Query: {query}", file=sys.stderr)
+            print(f"[SQL GENERATED] SQL:\n{sql_query}", file=sys.stderr)
+            print(f"{'='*80}\n", file=sys.stderr)
+
+            # Log to file (logs/sql.log)
+            sql_file_logger.info(f"QUERY: {query}")
+            sql_file_logger.info(f"SQL: {sql_query}")
+            sql_file_logger.info("-" * 80)
 
             logger.info("nl2sql_conversion", query=query[:50], sql=sql_query[:100])
             return sql_query, self.nl2sql_prompt
@@ -331,7 +355,7 @@ Format the response in a clear, readable way suitable for a recruiter."""
             # Call Groq to format the response
             completion = await asyncio.to_thread(
                 self.client.chat.completions.create,
-                model="llama-3-70b-8192",
+                model="llama-3.3-70b-versatile",
                 messages=[
                     {
                         "role": "system",
