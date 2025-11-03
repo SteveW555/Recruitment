@@ -18,27 +18,45 @@
 
 ## Technical Context
 
-<!--
-  ACTION REQUIRED: Replace the content in this section with the technical details
-  for the project. The structure here is presented in advisory capacity to guide
-  the iteration process.
--->
-
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
-**Project Type**: [single/web/mobile - determines source structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
+**Language/Version**: Node.js 20 LTS (backend), TypeScript 5.3 (both), React 18 (frontend)
+**Primary Dependencies**:
+- Backend: NestJS 10.x, googleapis (Gmail API client), passport-google-oauth20, prisma (ORM), bull (job queue for file cleanup)
+- Frontend: Next.js 14, React Query, Tailwind CSS, shadcn/ui components
+**Storage**: PostgreSQL 15 (user sessions, OAuth tokens), Redis 7 (token cache, session store), File system (temporary CV storage with 24h TTL)
+**Testing**: Jest (unit), Playwright (E2E), Supertest (API integration)
+**Target Platform**: Docker containers on Linux (backend), Vercel/Node.js server (frontend)
+**Project Type**: Web application (backend API + frontend SPA)
+**Performance Goals**:
+- Email search: <5s for any date range (SC-002)
+- CV download: <3 clicks to access (SC-003)
+- Bulk download: 50+ CVs in <30s (SC-009)
+- API throughput: Handle 100 concurrent users per recruiter account
+**Constraints**:
+- Gmail API rate limits: 250 quota units/user/second
+- OAuth token refresh: Automatic before expiration (no user interruption)
+- File storage: 25MB max per file with warnings
+- Session persistence: Until browser close (no timeout)
+- GDPR compliance: 24-hour file retention maximum
+**Scale/Scope**:
+- Users: 50-100 recruiters initially
+- Email volume: 10,000+ emails per search operation
+- Concurrent searches: 20-30 active searches
+- Storage: ~500GB temporary file storage (rotating 24h window)
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+**Constitution Status**: No project constitution currently defined in `.specify/memory/constitution.md`. Template exists but principles not yet ratified.
+
+**Recommended Future Constitution Principles** (for consideration):
+1. **Microservices Architecture**: This feature integrates with existing 14-microservice system
+2. **API-First Design**: RESTful API contracts before implementation
+3. **Security by Default**: OAuth 2.0, encrypted storage, audit logging
+4. **GDPR Compliance**: Data minimization, right to deletion, 24h retention
+5. **Test Coverage**: Unit (>80%), Integration (critical paths), E2E (user journeys)
+
+**Current Assessment**: ✅ PASS - No violations possible as constitution not yet defined. Feature aligns with ProActive People system architecture documented in project CLAUDE.md.
 
 ## Project Structure
 
@@ -55,57 +73,75 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
-<!--
-  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-  for this feature. Delete unused options and expand the chosen structure with
-  real paths (e.g., apps/admin, packages/something). The delivered plan must
-  not include Option labels.
--->
 
 ```text
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-src/
-├── models/
-├── services/
-├── cli/
-└── lib/
-
-tests/
-├── contract/
-├── integration/
-└── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-backend/
+backend/services/gmail-service/
 ├── src/
-│   ├── models/
-│   ├── services/
-│   └── api/
-└── tests/
+│   ├── auth/
+│   │   ├── oauth.controller.ts      # OAuth 2.0 flow endpoints
+│   │   ├── oauth.service.ts         # Google OAuth integration
+│   │   └── token.service.ts         # Token encryption & refresh
+│   ├── gmail/
+│   │   ├── gmail.controller.ts      # Email search API endpoints
+│   │   ├── gmail.service.ts         # Gmail API client wrapper
+│   │   └── email.transformer.ts     # Gmail API → internal model
+│   ├── attachments/
+│   │   ├── attachments.controller.ts # CV download endpoints
+│   │   ├── attachments.service.ts    # File handling & MIME detection
+│   │   └── cleanup.job.ts            # Bull queue for 24h cleanup
+│   ├── sessions/
+│   │   ├── sessions.controller.ts    # Session management
+│   │   └── sessions.service.ts       # Session persistence
+│   ├── database/
+│   │   ├── prisma/
+│   │   │   └── schema.prisma         # DB schema definition
+│   │   └── migrations/               # Prisma migrations
+│   └── main.ts
+├── tests/
+│   ├── unit/                         # Unit tests for services
+│   ├── integration/                  # API endpoint tests
+│   └── e2e/                          # End-to-end flows
+└── docker/
+    └── Dockerfile
 
 frontend/
 ├── src/
+│   ├── app/
+│   │   ├── gmail-search/
+│   │   │   ├── page.tsx              # Main search interface
+│   │   │   └── layout.tsx
+│   │   └── auth/
+│   │       └── callback/
+│   │           └── page.tsx          # OAuth callback handler
 │   ├── components/
-│   ├── pages/
-│   └── services/
+│   │   ├── search/
+│   │   │   ├── SearchForm.tsx        # Date range & filter form
+│   │   │   ├── EmailList.tsx         # Paginated results list
+│   │   │   ├── EmailCard.tsx         # Individual email display
+│   │   │   └── AttachmentList.tsx    # CV attachments display
+│   │   └── ui/                       # shadcn/ui components
+│   ├── lib/
+│   │   ├── api/
+│   │   │   ├── gmail.ts              # Gmail API client
+│   │   │   └── auth.ts               # Auth API client
+│   │   └── hooks/
+│   │       ├── useEmailSearch.ts     # React Query hook
+│   │       └── useAuth.ts            # Auth state hook
+│   └── types/
+│       └── gmail.ts                  # TypeScript interfaces
 └── tests/
+    ├── unit/                         # Component tests
+    └── e2e/                          # Playwright E2E tests
 
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-api/
-└── [same as backend above]
-
-ios/ or android/
-└── [platform-specific structure: feature modules, UI flows, platform tests]
+shared/
+└── contracts/
+    └── gmail-api.yaml                # OpenAPI 3.1 spec
 ```
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+**Structure Decision**: Web application architecture with backend microservice and frontend SPA. The gmail-service backend follows NestJS module structure, while frontend uses Next.js 14 App Router. Shared contracts directory for API specification versioning.
 
 ## Complexity Tracking
 
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+**No violations**: Constitution not yet defined. Feature follows existing ProActive People architecture patterns (microservices, REST API, React frontend).
