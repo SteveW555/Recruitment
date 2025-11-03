@@ -228,16 +228,20 @@ decision = classifier.classify(
 
 This skill includes detailed reference documentation:
 
+- **`references/complete_system_architecture.md`**: Full system architecture, end-to-end flow, file locations, performance metrics ✨ NEW
 - **`references/category_definitions.md`**: Complete category descriptions, decision trees, and extensive examples
 - **`references/groq_classifier_implementation.md`**: Technical implementation details of the GroqClassifier
 - **`references/configuration_guide.md`**: Comprehensive configuration and tuning guide
 - **`references/staff_specialisations.md`**: Staff role integration and routing patterns
 
 Load these references when:
+- Need complete system architecture and flow → `complete_system_architecture.md` ⭐
 - Need detailed technical implementation details → `groq_classifier_implementation.md`
 - Need comprehensive category examples → `category_definitions.md`
 - Configuring advanced routing parameters → `configuration_guide.md`
 - Working with staff-role-specific routing → `staff_specialisations.md`
+
+**See also**: `INFORMATION_RETRIEVAL_FLOW_GUIDE.md` (project root) for complete 12-step trace with code examples
 
 ## Scripts
 

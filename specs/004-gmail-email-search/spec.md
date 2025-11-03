@@ -123,12 +123,12 @@ Recruiters need to quickly scan through email content without opening each email
 - **FR-010**: System MUST handle pagination for large result sets, displaying 50 emails per page with navigation controls for moving between pages
 - **FR-011**: System MUST display attachment metadata including filename, file type, and file size
 - **FR-012**: System MUST allow users to select multiple emails and bulk download all attachments
-- **FR-013**: System MUST handle Gmail API rate limits gracefully with appropriate retry logic
+- **FR-013**: System MUST handle Gmail API rate limits with exponential backoff retry logic (1s, 2s, 4s delays), display user-facing message after 3 failed attempts explaining rate limit status, and log all rate limit events for monitoring. System MUST continue processing after rate limit window expires without requiring user intervention.
 - **FR-014**: System MUST persist Gmail access tokens securely and refresh them when expired
 - **FR-015**: System MUST validate date range inputs and display clear error messages for invalid ranges
-- **FR-016**: System MUST handle network errors during email retrieval with appropriate user messaging and retry options
+- **FR-016**: System MUST handle network errors during email retrieval by displaying error messages that include: (1) error type classification (connection timeout, DNS failure, etc.), (2) suggested user action (check connection, retry, contact support), and (3) manual retry button with visual countdown timer (5 seconds). System MUST automatically retry once after 2-second delay before showing error to user.
 - **FR-017**: System MUST detect and handle attachment files that exceed 25MB, displaying a warning message to users before allowing download of larger files
-- **FR-018**: System MUST allow users to preview email body content without downloading attachments
+- **FR-018**: System MUST allow users to preview email body content without downloading attachments by displaying the first 200 characters of plain text body (with HTML tags stripped and sanitized), showing truncation indicator "[...]" for longer emails, and providing "View Full Email" link to expand complete content inline.
 - **FR-019**: System MUST indicate when attachments cannot be previewed or downloaded due to format or access restrictions
 - **FR-020**: System MUST automatically delete downloaded CV attachments from temporary storage after 24 hours to minimize data retention and comply with GDPR principles
 - **FR-021**: System MUST maintain user sessions until browser close or explicit logout (no automatic inactivity timeout), while ensuring OAuth tokens are refreshed as needed
@@ -155,7 +155,7 @@ Recruiters need to quickly scan through email content without opening each email
 - **SC-004**: System successfully handles searches across 10,000+ emails without performance degradation
 - **SC-005**: 95% of CV attachments in common formats (PDF, DOC, DOCX) are successfully extractable and viewable
 - **SC-006**: Users can filter search results to reduce result count by at least 70% when applying sender or subject filters
-- **SC-007**: System maintains stable performance under Gmail API rate limits, completing searches even when limits are encountered (with appropriate delays)
+- **SC-007**: System maintains stable performance under Gmail API rate limits, defined as: 95th percentile latency remains within 2x baseline (<10s for searches), error rate stays below 1%, zero application crashes occur, and all searches complete successfully with transparent delay messaging when rate limits are encountered.
 - **SC-008**: Zero user data is exposed due to authentication or authorization failures
 - **SC-009**: Users can successfully complete bulk download of 50+ CV attachments in under 30 seconds
 

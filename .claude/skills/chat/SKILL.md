@@ -42,6 +42,7 @@ The system routes queries to specialized agents based on semantic classification
 - `/backend-api/prompts/agent-system-prompts/[agent-type].txt` - System prompts
 
 **AI Router (Intelligence Layer):**
+- `/utils/ai_router/ai_router_api.py` - FastAPI service entry point (persistent server on port 8888) ✨
 - `/utils/ai_router/router.py` - Main orchestrator
 - `/utils/ai_router/groq_classifier.py` - LLM-based classification (Groq)
 - `/utils/ai_router/agent_registry.py` - Agent management
@@ -435,12 +436,17 @@ Quick debugging steps:
 
 ## Reference Documents
 
+- **information_retrieval_flow.md** - Complete NL2SQL query flow with code examples ✨ NEW
 - **frontend-backend-implementation.md** - Actual code implementation details, state management, message flow
 - **chat-architecture.md** - Complete system architecture and data flow
 - **agent-types.md** - Detailed specifications for all 7 agents
 - **api-endpoints.md** - Complete API documentation with examples
 - **configuration.md** - Configuration file reference and tuning guide
 - **query-classification.md** - Classification system details and patterns
+
+**See also**:
+- `INFORMATION_RETRIEVAL_FLOW_GUIDE.md` (project root) - 12-step trace from query → SQL → display
+- Router skill's `complete_system_architecture.md` - Full system architecture reference
 
 ## Key Concepts
 
@@ -472,6 +478,9 @@ Quick debugging steps:
 - "What happens when an agent times out?"
 - "What temperature settings should I use?"
 - "How do I change which LLM an agent uses?"
+- "How does NL2SQL work in Information Retrieval?" ✨
+- "What is the exec_sql function?" ✨
+- "How do queries get translated to SQL?" ✨
 
 **Use the `router` skill for query classification and routing questions:**
 - "How are queries classified and routed?"
