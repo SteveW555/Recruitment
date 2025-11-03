@@ -40,7 +40,7 @@ export class DownloadTrackingService {
           attachmentId: data.attachmentId,
           filename: data.filename,
           mimeType: data.mimeType,
-          size: BigInt(data.size),
+          size: data.size,
           localPath: data.localPath,
           expiresAt: data.expiresAt,
         },

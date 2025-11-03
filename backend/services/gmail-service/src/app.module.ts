@@ -33,7 +33,7 @@ import { CsrfMiddleware } from './middleware/csrf.middleware';
     BullModule.forRoot({
       redis: {
         host: process.env.BULL_REDIS_HOST || 'localhost',
-        port: parseInt(process.env.BULL_REDIS_PORT) || 6379,
+        port: parseInt(process.env.BULL_REDIS_PORT || '6379'),
       },
     }),
 

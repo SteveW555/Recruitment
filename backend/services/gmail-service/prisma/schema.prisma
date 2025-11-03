@@ -1,12 +1,12 @@
 // Prisma schema for Gmail Service
-// Based on data-model.md specification
+// SQLite-compatible version
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -36,10 +36,10 @@ model User {
 model UserToken {
   id            String   @id @default(uuid())
   userId        String
-  accessToken   String   @db.Text // Encrypted with AES-256-GCM
-  refreshToken  String   @db.Text // Encrypted with AES-256-GCM
+  accessToken   String   // Encrypted with AES-256-GCM (removed @db.Text)
+  refreshToken  String   // Encrypted with AES-256-GCM (removed @db.Text)
   tokenExpiry   DateTime
-  scopes        String[] // Array of granted OAuth scopes
+  scopes        String   // JSON string of granted OAuth scopes (changed from String[])
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -62,7 +62,7 @@ model DownloadedFile {
   attachmentId        String   // Gmail attachment ID
   filename            String
   mimeType            String
-  size                BigInt   // File size in bytes
+  size                Int      // File size in bytes (changed from BigInt for SQLite)
   localPath           String   // Absolute path to downloaded file
   downloadedAt        DateTime @default(now())
   expiresAt           DateTime // downloadedAt + 24 hours (FR-010)
@@ -105,7 +105,7 @@ model SavedSearch {
   userId        String
   name          String   // User-friendly name for the search
   description   String?
-  filters       Json     // Stored AdvancedSearchDto as JSON
+  filters       String   // Stored AdvancedSearchDto as JSON string (changed from Json)
   useCount      Int      @default(0)
   lastUsedAt    DateTime?
   createdAt     DateTime @default(now())
@@ -125,7 +125,7 @@ model AuditLog {
   action        String   // Enum: oauth_login, search_emails, download_attachment, etc.
   resourceType  String?  // gmail_message, attachment, etc.
   resourceId    String?  // Gmail message ID or attachment ID
-  metadata      Json?    // Additional context
+  metadata      String?  // Additional context as JSON string (changed from Json?)
   ipAddress     String
   userAgent     String
   createdAt     DateTime @default(now())

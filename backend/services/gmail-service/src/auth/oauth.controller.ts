@@ -51,6 +51,10 @@ export class OAuthController {
         scope: 'gmail.readonly userinfo.email userinfo.profile',
       });
 
+      if (!user) {
+        throw new Error('Failed to create or retrieve user');
+      }
+
       // Store user in session
       (req.session as any).userId = user.id;
       (req.session as any).gmailAddress = user.gmailAddress;

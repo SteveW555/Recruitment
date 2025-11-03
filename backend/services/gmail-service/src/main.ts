@@ -3,8 +3,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import helmet from 'helmet';
-import * as session from 'express-session';
-import * as RedisStore from 'connect-redis';
+import session from 'express-session';
+import RedisStore from 'connect-redis';
 import { createClient } from 'redis';
 import { AppModule } from './app.module';
 
@@ -57,7 +57,7 @@ async function bootstrap() {
   // Session configuration
   app.use(
     session({
-      store: new (RedisStore as any)({ client: redisClient }),
+      store: new RedisStore({ client: redisClient }),
       secret: configService.get('SESSION_SECRET'),
       resave: false,
       saveUninitialized: false,

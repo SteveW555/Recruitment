@@ -1,5 +1,5 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
-import { fileTypeFromBuffer } from 'file-type';
+import * as FileType from 'file-type';
 import * as path from 'path';
 
 /**
@@ -51,7 +51,7 @@ export class MimeValidationService {
   async detectMimeType(buffer: Buffer, filename: string): Promise<string> {
     try {
       // Try to detect from file content (magic numbers)
-      const fileType = await fileTypeFromBuffer(buffer);
+      const fileType = await FileType.fromBuffer(buffer);
 
       if (fileType?.mime) {
         this.logger.debug(
