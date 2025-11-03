@@ -116,6 +116,7 @@ app.post('/api/chat', async (req, res) => {
         success: result.success,
         agent: result.agent,
         confidence: result.confidence,
+        suggested_table: result.suggested_table || null,
         fallback_triggered: result.fallback_triggered,
         error: result.error || null
       });
@@ -123,6 +124,7 @@ app.post('/api/chat', async (req, res) => {
       logger.info(`*** AI Router response received in ${responseTime}ms`, {
         agent: result.agent,
         confidence: result.confidence,
+        suggested_table: result.suggested_table || null,
         success: result.success
       });
 
