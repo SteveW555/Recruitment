@@ -200,6 +200,7 @@ export default function Dashboard() {
       addLog('Routing query to appropriate agent...', 'info');
       addLog(`Classified as: ${agentType}`, 'info');
 
+      //===========================================================================
       // Call backend API through Vite proxy (no hardcoded URL needed)
       // Proxy automatically routes /api/* to http://localhost:3002/api/*
       const response = await fetch('/api/chat', {
@@ -214,6 +215,7 @@ export default function Dashboard() {
           agent: agentType // Send the classified agent type
         })
       });
+      //===========================================================================
 
       const routeEndTime = performance.now();
       const routingLatency = (routeEndTime - routeStartTime).toFixed(0);
@@ -499,11 +501,10 @@ export default function Dashboard() {
                                   key={idx}
                                   onClick={() => handleExampleClick(example)}
                                   disabled={isSending}
-                                  className={`w-full text-left text-sm p-2 rounded-lg transition-colors ${
-                                    isSending
+                                  className={`w-full text-left text-sm p-2 rounded-lg transition-colors ${isSending
                                       ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
                                       : 'hover:bg-gray-100 text-gray-700'
-                                  }`}
+                                    }`}
                                 >
                                   {example}
                                 </button>
@@ -556,72 +557,71 @@ export default function Dashboard() {
                       const isError = message.type === 'ai' && message.text?.startsWith('Error:');
 
                       return (
-                      <div key={message.id} className={`flex flex-col ${message.type === 'user' ? 'items-start' : 'items-end'}`}>
-                        <p className="text-xs font-semibold text-gray-600 mb-1 px-2">
-                          {message.type === 'user' ? 'You' : 'AI Assistant'}
-                        </p>
-                        <div className={`max-w-[70%] rounded-2xl px-4 py-3 ${
-                          message.type === 'user'
-                            ? 'bg-blue-500 text-white'
-                            : isError
-                            ? 'bg-red-50 text-red-900 border border-red-200'
-                            : 'bg-gray-100 text-gray-900'
-                        }`}>
-                          {message.type === 'user' ? (
-                            <p className="text-xs">{message.text}</p>
-                          ) : (
-                            <>
-                              <div className="text-xs prose prose-xs max-w-none prose-headings:mt-3 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-li:my-0.5 prose-strong:font-bold prose-a:text-blue-600 hover:prose-a:text-blue-800">
-                                <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.text}</ReactMarkdown>
-                              </div>
-                              {/* Graph Analysis Display */}
-                              {message.metadata?.graph_analysis && message.metadata.graph_analysis.requires_graph && (
-                                <div className="mt-3 pt-3 border-t border-gray-300">
-                                  <div className="flex items-start gap-2 mb-2">
-                                    <BarChart3 size={16} className="text-blue-600 mt-0.5" />
-                                    <div className="flex-1">
-                                      <p className="text-xs font-bold text-gray-800 mb-1">Data Visualization Available</p>
-                                      <p className="text-xs text-gray-600 mb-2">{message.metadata.graph_analysis.reasoning}</p>
-                                      <div className="bg-white border border-gray-200 rounded-lg p-2 text-xs">
-                                        <div className="grid grid-cols-2 gap-2 mb-2">
-                                          <div>
-                                            <span className="font-semibold">Chart Type:</span>
-                                            <span className="ml-1 text-gray-700">{message.metadata.graph_analysis.graph_type}</span>
+                        <div key={message.id} className={`flex flex-col ${message.type === 'user' ? 'items-start' : 'items-end'}`}>
+                          <p className="text-xs font-semibold text-gray-600 mb-1 px-2">
+                            {message.type === 'user' ? 'You' : 'AI Assistant'}
+                          </p>
+                          <div className={`max-w-[70%] rounded-2xl px-4 py-3 ${message.type === 'user'
+                              ? 'bg-blue-500 text-white'
+                              : isError
+                                ? 'bg-red-50 text-red-900 border border-red-200'
+                                : 'bg-gray-100 text-gray-900'
+                            }`}>
+                            {message.type === 'user' ? (
+                              <p className="text-xs">{message.text}</p>
+                            ) : (
+                              <>
+                                <div className="text-xs prose prose-xs max-w-none prose-headings:mt-3 prose-headings:mb-2 prose-p:my-2 prose-ul:my-2 prose-li:my-0.5 prose-strong:font-bold prose-a:text-blue-600 hover:prose-a:text-blue-800">
+                                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.text}</ReactMarkdown>
+                                </div>
+                                {/* Graph Analysis Display */}
+                                {message.metadata?.graph_analysis && message.metadata.graph_analysis.requires_graph && (
+                                  <div className="mt-3 pt-3 border-t border-gray-300">
+                                    <div className="flex items-start gap-2 mb-2">
+                                      <BarChart3 size={16} className="text-blue-600 mt-0.5" />
+                                      <div className="flex-1">
+                                        <p className="text-xs font-bold text-gray-800 mb-1">Data Visualization Available</p>
+                                        <p className="text-xs text-gray-600 mb-2">{message.metadata.graph_analysis.reasoning}</p>
+                                        <div className="bg-white border border-gray-200 rounded-lg p-2 text-xs">
+                                          <div className="grid grid-cols-2 gap-2 mb-2">
+                                            <div>
+                                              <span className="font-semibold">Chart Type:</span>
+                                              <span className="ml-1 text-gray-700">{message.metadata.graph_analysis.graph_type}</span>
+                                            </div>
+                                            <div>
+                                              <span className="font-semibold">Library:</span>
+                                              <span className="ml-1 text-gray-700">{message.metadata.graph_analysis.recommended_library || 'Plotly'}</span>
+                                            </div>
                                           </div>
-                                          <div>
-                                            <span className="font-semibold">Library:</span>
-                                            <span className="ml-1 text-gray-700">{message.metadata.graph_analysis.recommended_library || 'Plotly'}</span>
-                                          </div>
+                                          {message.metadata.graph_analysis.sql_query && (
+                                            <div className="mt-2">
+                                              <p className="font-semibold mb-1">SQL Query:</p>
+                                              <pre className="bg-gray-50 p-2 rounded text-[10px] overflow-x-auto font-mono">
+                                                {message.metadata.graph_analysis.sql_query}
+                                              </pre>
+                                              <button
+                                                onClick={() => {
+                                                  navigator.clipboard.writeText(message.metadata.graph_analysis.sql_query);
+                                                  addLog('SQL query copied to clipboard', 'success');
+                                                }}
+                                                className="mt-2 text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
+                                              >
+                                                Copy SQL
+                                              </button>
+                                            </div>
+                                          )}
                                         </div>
-                                        {message.metadata.graph_analysis.sql_query && (
-                                          <div className="mt-2">
-                                            <p className="font-semibold mb-1">SQL Query:</p>
-                                            <pre className="bg-gray-50 p-2 rounded text-[10px] overflow-x-auto font-mono">
-                                              {message.metadata.graph_analysis.sql_query}
-                                            </pre>
-                                            <button
-                                              onClick={() => {
-                                                navigator.clipboard.writeText(message.metadata.graph_analysis.sql_query);
-                                                addLog('SQL query copied to clipboard', 'success');
-                                              }}
-                                              className="mt-2 text-xs bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600"
-                                            >
-                                              Copy SQL
-                                            </button>
-                                          </div>
-                                        )}
                                       </div>
                                     </div>
                                   </div>
-                                </div>
-                              )}
-                            </>
-                          )}
+                                )}
+                              </>
+                            )}
+                          </div>
+                          <p className={`text-xs mt-1 ${message.type === 'user' ? 'text-blue-100' : 'text-gray-500'}`}>
+                            {message.timestamp}
+                          </p>
                         </div>
-                        <p className={`text-xs mt-1 ${message.type === 'user' ? 'text-blue-100' : 'text-gray-500'}`}>
-                          {message.timestamp}
-                        </p>
-                      </div>
                       );
                     })}
                     <div ref={messagesEndRef} />
@@ -644,11 +644,10 @@ export default function Dashboard() {
                       <button
                         onClick={handleSendMessage}
                         disabled={isSending}
-                        className={`p-2 rounded-lg transition-colors ${
-                          isSending
+                        className={`p-2 rounded-lg transition-colors ${isSending
                             ? 'bg-gray-400 cursor-not-allowed'
                             : 'bg-blue-500 hover:bg-blue-600'
-                        }`}
+                          }`}
                       >
                         <Send size={20} className="text-white" />
                       </button>
@@ -678,9 +677,9 @@ export default function Dashboard() {
                         <div key={log.id} className="flex items-start gap-3">
                           <span className="text-gray-600 flex-shrink-0">[{log.timestamp}]</span>
                           <span className={`flex-shrink-0 font-bold ${log.level === 'error' ? 'text-red-400' :
-                              log.level === 'success' ? 'text-green-400' :
-                                log.level === 'warn' ? 'text-yellow-400' :
-                                  'text-blue-400'
+                            log.level === 'success' ? 'text-green-400' :
+                              log.level === 'warn' ? 'text-yellow-400' :
+                                'text-blue-400'
                             }`}>
                             {log.level.toUpperCase()}
                           </span>

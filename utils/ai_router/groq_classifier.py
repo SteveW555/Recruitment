@@ -188,7 +188,7 @@ Your task is to analyze user queries and classify them into ONE of the following
         import sys
 
         # DIAGNOSTIC: Use both print and logger to see which works
-        print(f"[GroqClassifier] ******classify() ENTERED for query_id: {query_id}******", file=sys.stderr)
+        print(f"[*] **** GroqClassifier.classify() CALLED for query_id: {query_id}", file=sys.stderr)
         sys.stderr.flush()
         logger.info(f"******classify() called for query_id: {query_id}******")
 
@@ -259,7 +259,7 @@ Your task is to analyze user queries and classify them into ONE of the following
             print(f"[DEBUG GroqClassifier] Attached system_prompt to decision (length: {len(system_prompt)} chars)", file=sys.stderr)
 
             # DIAGNOSTIC: Confirm classify() is completing successfully
-            print(f"[GroqClassifier] ******classify() RETURNING for query_id: {query_id}******", file=sys.stderr)
+            print(f"[*] GroqClassifier.classify() RETURNING: category={primary_category.value}, confidence={confidence:.2f}", file=sys.stderr)
             logger.info(f"******classify() returning for query_id: {query_id}******")
             sys.stderr.flush()
 

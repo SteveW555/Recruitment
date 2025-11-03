@@ -356,7 +356,9 @@ class AIRouter:
                 'error': f"Router error: {str(e)}",
                 'latency_ms': latency_ms
             }
-
+    #========================================================================
+    #  _execute_agent_with_retry
+    #========================================================================
     async def _execute_agent_with_retry(
         self,
         agent,
@@ -380,7 +382,8 @@ class AIRouter:
             AgentResponse (success or failure)
         """
 
-        print(f"[Router] Executing agent {agent} for query {query.id}", file=sys.stderr)
+        print(f"[*] **** Router._execute_agent_with_retry() CALLED: agent={agent.__class__.__name__}, query_id={query.id}", file=sys.stderr)
+        sys.stderr.flush()
 
         for attempt in range(self.max_retries + 1):
             try:
@@ -410,6 +413,8 @@ class AIRouter:
                     timeout=self.agent_timeout
                 )
 
+                print(f"[*] Router._execute_agent_with_retry() SUCCESS: agent={agent.__class__.__name__}, success={response.success}", file=sys.stderr)
+                sys.stderr.flush()
                 return response
 
             except asyncio.TimeoutError:

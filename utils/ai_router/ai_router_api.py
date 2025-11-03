@@ -14,6 +14,7 @@ Then call via HTTP:
 
 import sys
 import os
+import logging
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -29,6 +30,16 @@ from utils.ai_router.groq_classifier import GroqClassifier
 from utils.ai_router.storage.session_store import SessionStore
 from utils.ai_router.storage.log_repository import LogRepository
 from utils.ai_router.agent_registry import AgentRegistry
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stderr)
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # Initialize FastAPI app
 app = FastAPI(title="AI Router Service", version="1.0.0")
@@ -151,6 +162,11 @@ async def route_query(request: RouteRequest):
 
     This endpoint is fast because the model is already loaded!
     """
+
+    logger.info(f"*** Received routing request: user_id={request.user_id}, session_id={request.session_id}")
+    print(f"[*] +++ Routing request: user={request.user_id}, session={request.session_id}", file=sys.stderr)
+
+
     if router is None:
         raise HTTPException(status_code=503, detail="Router not initialized")
 

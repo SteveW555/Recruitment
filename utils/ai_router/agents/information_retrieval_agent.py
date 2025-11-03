@@ -118,7 +118,8 @@ class InformationRetrievalAgent(BaseAgent):
             AgentResponse with query results
         """
         start_time = time.time()
-        print(f"[INFO RetrievalAgent] Processing query: {request.query[:50]}...", file=sys.stderr)
+        print(f"[*] InformationRetrievalAgent.process() CALLED: query={request.query[:50]}...", file=sys.stderr)
+        sys.stderr.flush()
 
         try:
             # Validate request
@@ -189,6 +190,8 @@ class InformationRetrievalAgent(BaseAgent):
             print(f"[RETURN RetrievalAgent] Returning response with metadata keys: {list(metadata.keys())}", file=sys.stderr)
             print(f"[RETURN RetrievalAgent] SQL query in metadata: {metadata['sql_query'][:100]}...", file=sys.stderr)
             print(f"[RETURN RetrievalAgent] Result count in metadata: {metadata['result_count']}", file=sys.stderr)
+            print(f"[*] InformationRetrievalAgent.process() RETURNING: success=True, result_count={metadata['result_count']}", file=sys.stderr)
+            sys.stderr.flush()
 
             return AgentResponse(
                 success=True,
@@ -226,6 +229,9 @@ class InformationRetrievalAgent(BaseAgent):
         Returns:
             Tuple of (SQL query string, NL2SQL prompt used)
         """
+        print(f"[*]     ****    InformationRetrievalAgent._convert_to_sql() CALLED: query={query[:50]}...", file=sys.stderr)
+        sys.stderr.flush()
+
         try:
             # Call Groq API for NL2SQL conversion
             completion = await asyncio.to_thread(
@@ -256,6 +262,11 @@ class InformationRetrievalAgent(BaseAgent):
                 sql_query = sql_query[:-3]
             sql_query = sql_query.strip()
 
+            # Remove trailing semicolon (PostgreSQL EXECUTE doesn't like it)
+            if sql_query.endswith(';'):
+                sql_query = sql_query[:-1].strip()
+                print(f"[*]   Removed trailing semicolon from SQL", file=sys.stderr)
+
             # Log to terminal (stderr)
             print(f"\n{'='*80}", file=sys.stderr)
             print(f"[SQL GENERATED] Query: {query}", file=sys.stderr)
@@ -268,12 +279,14 @@ class InformationRetrievalAgent(BaseAgent):
             sql_file_logger.info("-" * 80)
 
             logger.info("nl2sql_conversion", query=query[:50], sql=sql_query[:100])
+            print(f"[*] InformationRetrievalAgent._convert_to_sql() RETURNING: SQL generated ({len(sql_query)} chars)", file=sys.stderr)
+            sys.stderr.flush()
             return sql_query, self.nl2sql_prompt
 
         except Exception as e:
             logger.error("nl2sql_conversion_error", error=str(e))
             return "", self.nl2sql_prompt
-
+    #========================================================================
     async def _execute_sql(self, sql_query: str) -> Tuple[List[Dict[str, Any]], int]:
         """
         Execute SQL query against Supabase.
@@ -284,33 +297,70 @@ class InformationRetrievalAgent(BaseAgent):
         Returns:
             Tuple of (results list, result count)
         """
-        try:
-            # Execute query via Supabase
-            response = await asyncio.to_thread(
-                self.supabase.rpc,
-                'exec_sql',
-                {'query': sql_query}
-            )
+        print(f"[*]     ****    InformationRetrievalAgent._execute_sql() CALLED: sql={sql_query[:80]}...", file=sys.stderr)
+        sys.stderr.flush()
 
-            # If rpc not available, try direct postgrest query
-            if not response or not hasattr(response, 'data'):
+        try:
+            # Execute query via Supabase RPC first
+            print(f"[*]   Attempting Supabase RPC: exec_sql()", file=sys.stderr)
+            sys.stderr.flush()
+
+            # Important: Need to call .execute() on the RPC builder
+            # supabase.rpc() returns a builder, not the result
+            rpc_builder = self.supabase.rpc('exec_sql', {'query': sql_query})
+            print(f"[*]   RPC builder created, calling .execute()...", file=sys.stderr)
+            sys.stderr.flush()
+
+            response = await asyncio.to_thread(rpc_builder.execute)
+
+            # Debug: Show response type and structure
+            print(f"[*]   RPC response type: {type(response)}", file=sys.stderr)
+            print(f"[*]   RPC response hasattr('data'): {hasattr(response, 'data') if response else 'None'}", file=sys.stderr)
+            if response and hasattr(response, 'data'):
+                print(f"[*]   RPC response.data type: {type(response.data)}", file=sys.stderr)
+                print(f"[*]   RPC response.data: {str(response.data)[:200]}...", file=sys.stderr)
+            sys.stderr.flush()
+
+            # Check if RPC succeeded and has data
+            if not response or not hasattr(response, 'data') or response.data is None:
                 # Parse the SQL to extract table and conditions
                 # For now, try a simple select
                 logger.warning("rpc_not_available", msg="Falling back to direct table query")
+                print(f"[*]   RPC failed - Falling back to direct table query: supabase.table('candidates').select('*').limit(100)", file=sys.stderr)
+                sys.stderr.flush()
+
                 response = await asyncio.to_thread(
                     self.supabase.table('candidates').select('*').limit(100).execute
                 )
+                print(f"[*]   Using fallback method: Direct table='candidates' query", file=sys.stderr)
+                results = response.data if response and hasattr(response, 'data') else []
+            else:
+                # Check if response contains an error from exec_sql function
+                if isinstance(response.data, dict) and 'error' in response.data:
+                    error_msg = response.data.get('error', 'Unknown error')
+                    error_detail = response.data.get('detail', '')
+                    print(f"[*]   ❌ SQL EXECUTION ERROR: {error_msg} (code: {error_detail})", file=sys.stderr)
+                    logger.error("sql_execution_error", error=error_msg, detail=error_detail, sql=sql_query[:100])
+                    results = []
+                else:
+                    print(f"[*]   Using RPC method: exec_sql() executed successfully", file=sys.stderr)
+                    # RPC returns JSONB directly - it's already a list
+                    results = response.data if isinstance(response.data, list) else []
 
-            results = response.data if response and hasattr(response, 'data') else []
+            sys.stderr.flush()
             result_count = len(results)
 
             logger.info("sql_execution", count=result_count)
+            print(f"[*] InformationRetrievalAgent._execute_sql() RETURNING: result_count={result_count}", file=sys.stderr)
+            sys.stderr.flush()
             return results, result_count
 
         except Exception as e:
             logger.error("sql_execution_error", error=str(e), sql=sql_query[:100])
+            print(f"[*] InformationRetrievalAgent._execute_sql() ERROR: {str(e)[:80]}", file=sys.stderr)
+            sys.stderr.flush()
             return [], 0
-
+    #========================================================================
     async def _format_results(
         self,
         original_query: str,
