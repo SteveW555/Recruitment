@@ -8,6 +8,7 @@ Manages session context, handles retries, and logs all routing decisions.
 import asyncio
 import sys
 import time
+import os
 from typing import Optional, Dict, Any
 from datetime import datetime
 
@@ -31,6 +32,11 @@ from .staff_specialisations import (
     enhance_agent_request_with_specialisation,
     enhance_agent_response_with_specialisation,
 )
+
+# CV Matching bypass imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../backend/services/matching-engine"))
+from cv_matcher.quick_match import quick_match, quick_match_multi
+import json
 
 
 class AIRouter:
@@ -141,6 +147,142 @@ class AIRouter:
         sys.stderr.flush()  # Force immediate output
 
         try:
+            # CV MATCHING BYPASS: Check for exact match query
+            # Load configuration
+            project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+            config_path = os.path.join(project_root, "config/cv_matching_config.json")
+
+            cv_matching_config = None
+            if os.path.exists(config_path):
+                with open(config_path, 'r', encoding='utf-8') as f:
+                    cv_matching_config = json.load(f).get('cv_matching', {})
+
+            trigger_query = cv_matching_config.get('trigger_query', 'Find best matching CVs') if cv_matching_config else 'Find best matching CVs'
+
+            if query_text.strip() == trigger_query and cv_matching_config and cv_matching_config.get('enabled', True):
+                logger.info("CV Matching Bypass activated - skipping AI routing")
+                print("[Router] CV MATCHING BYPASS ACTIVATED", file=sys.stderr)
+                sys.stderr.flush()
+
+                try:
+                    # Load scenario from config
+                    default_scenario = cv_matching_config.get('default_scenario', 'elena_customer_support')
+                    scenarios = cv_matching_config.get('scenarios', {})
+                    scenario = scenarios.get(default_scenario, {})
+
+                    if not scenario:
+                        raise ValueError(f"Scenario '{default_scenario}' not found in config")
+
+                    # Get job description
+                    job_desc_path = os.path.join(project_root, scenario['job_description_path'])
+                    logger.info(f"Using scenario: {default_scenario}")
+                    logger.info(f"Reading job description from: {job_desc_path}")
+                    with open(job_desc_path, 'r', encoding='utf-8') as f:
+                        job_description = f.read()
+
+                    # Check if we're doing single or multiple CV matching
+                    find_multiple = scenario.get('find_multiple', False)
+
+                    if find_multiple:
+                        # MULTIPLE CV MATCHING
+                        cv_paths = scenario.get('cv_paths', [])
+                        candidate_names = scenario.get('candidate_names', [])
+
+                        if not cv_paths:
+                            raise ValueError("cv_paths list is required when find_multiple=true")
+
+                        # Convert to absolute paths
+                        cv_paths_abs = [os.path.join(project_root, p) for p in cv_paths]
+
+                        logger.info(f"Matching {len(cv_paths)} CVs")
+                        print(f"[Router] Calling quick_match_multi for {len(cv_paths)} candidates", file=sys.stderr)
+                        sys.stderr.flush()
+
+                        match_result = quick_match_multi(job_description, cv_paths_abs, candidate_names)
+                    else:
+                        # SINGLE CV MATCHING
+                        cv_path = os.path.join(project_root, scenario['cv_path'])
+                        candidate_name = scenario.get('candidate_name', 'Unknown')
+
+                        logger.info(f"Matching CV: {cv_path}")
+                        print(f"[Router] Calling quick_match for {candidate_name}", file=sys.stderr)
+                        sys.stderr.flush()
+
+                        match_result = quick_match(job_description, cv_path, candidate_name)
+
+                    # Log the result to terminal
+                    logger.info("CV MATCH RESULT:")
+                    logger.info(match_result)
+                    print("\n" + "="*60, file=sys.stderr)
+                    print("CV MATCHING RESULT:", file=sys.stderr)
+                    print("="*60, file=sys.stderr)
+                    print(match_result, file=sys.stderr)
+                    print("="*60 + "\n", file=sys.stderr)
+                    sys.stderr.flush()
+
+                    # Create a properly formatted AgentResponse
+                    from .agents.base_agent import AgentResponse
+
+                    # Build metadata based on matching mode
+                    metadata = {
+                        'agent_latency_ms': int((time.time() - start_time) * 1000),
+                        'bypass': 'cv_matching',
+                        'scenario': default_scenario,
+                        'job': scenario.get('name', 'Unknown Job'),
+                        'expected_outcome': scenario.get('expected_outcome', 'N/A'),
+                        'find_multiple': find_multiple
+                    }
+
+                    if find_multiple:
+                        metadata['candidates_count'] = len(cv_paths)
+                        metadata['candidates'] = candidate_names if candidate_names else [f"Candidate {i+1}" for i in range(len(cv_paths))]
+                    else:
+                        metadata['candidate'] = candidate_name
+
+                    agent_response = AgentResponse(
+                        success=True,
+                        content=f"CV Matching Complete:\n\n{match_result}",
+                        metadata=metadata,
+                        error=None
+                    )
+
+                    # Create a dummy decision for logging
+                    from .models.routing_decision import RoutingDecision
+                    decision = RoutingDecision(
+                        query_id="bypass",
+                        primary_category=Category.INFORMATION_RETRIEVAL,
+                        primary_confidence=1.0,
+                        reasoning="CV Matching Bypass",
+                        timestamp=datetime.utcnow()
+                    )
+
+                    # Create query for result
+                    query = Query(
+                        text=query_text,
+                        user_id=user_id,
+                        session_id=session_id
+                    )
+
+                    result = {
+                        'success': True,
+                        'query': query,
+                        'decision': decision,
+                        'agent_response': agent_response,
+                        'error': None,
+                        'latency_ms': int((time.time() - start_time) * 1000)
+                    }
+
+                    return result
+
+                except Exception as e:
+                    error_msg = f"CV Matching failed: {str(e)}"
+                    logger.error(error_msg)
+                    print(f"[Router] CV MATCHING ERROR: {error_msg}", file=sys.stderr)
+                    sys.stderr.flush()
+
+                    # Fall through to normal routing on error
+                    pass
+
             # Step 1: Extract staff_role from kwargs (if provided)
             staff_role = get_staff_role_from_kwargs(kwargs) if self.enable_specialisations else None
 

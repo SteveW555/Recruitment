@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import {
   Search, Bell, ChevronDown, Send, Paperclip, Calendar, ChevronRight, Plus,
-  Mail, FolderOpen, Briefcase, FileSpreadsheet, Monitor,
-  Lightbulb, TrendingUp, Zap, Menu
+  Mail, FolderOpen, Briefcase, FileSpreadsheet, Monitor, FileText,
+  Lightbulb, TrendingUp, Zap, Menu, FileSearch
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -26,6 +26,7 @@ export default function Dashboard() {
   ]);
 
   const connectedSources = [
+    { icon: FileText, name: 'Job Postings', count: '1 posting', status: 'Connected', color: 'bg-orange-100' },
     { icon: Mail, name: 'Gmail', count: '2,847 emails', status: 'Connected', color: 'bg-red-100' },
     { icon: FolderOpen, name: 'Google Drive', count: '1,234 files', status: 'Connected', color: 'bg-blue-100' },
     { icon: Briefcase, name: 'Salesforce', count: '456 records', status: 'Connected', color: 'bg-cyan-100' },
@@ -94,6 +95,13 @@ export default function Dashboard() {
       icon: Zap,
       color: 'bg-purple-100',
       examples: roleWorkflows[selectedRole].automation
+    },
+    {
+      id: 'cv-finder',
+      name: 'CV Finder',
+      icon: FileSearch,
+      color: 'bg-pink-100',
+      directQuery: 'Find best matching CVs'
     }
   ];
 
@@ -387,6 +395,30 @@ export default function Dashboard() {
     handleSendMessage(exampleQuery);
   };
 
+  const handleSourceClick = async (sourceName) => {
+    if (sourceName === 'Job Postings') {
+      try {
+        // Fetch the job description file from the backend
+        const response = await fetch('/jobs/job-description.md');
+        const content = await response.text();
+
+        const timestamp = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+
+        // Add the job description as an AI message
+        setMessages(prev => [...prev, {
+          id: prev.length + 1,
+          type: 'ai',
+          text: content,
+          timestamp
+        }]);
+
+        addLog('Loaded job posting: Customer Support Specialist', 'success');
+      } catch (error) {
+        addLog(`Failed to load job posting: ${error.message}`, 'error');
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-6">
       <div className="max-w-7xl mx-auto">
@@ -441,11 +473,16 @@ export default function Dashboard() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-5 gap-4 mb-4">
+              <div className="grid grid-cols-6 gap-4 mb-4">
                 {connectedSources.map((source, index) => {
                   const IconComponent = source.icon;
+                  const isClickable = source.name === 'Job Postings';
                   return (
-                    <div key={index} className="flex flex-col items-center p-4 rounded-xl hover:bg-gray-50 transition-colors border border-gray-200">
+                    <div
+                      key={index}
+                      onClick={() => isClickable && handleSourceClick(source.name)}
+                      className={`flex flex-col items-center p-4 rounded-xl hover:bg-gray-50 transition-colors border border-gray-200 ${isClickable ? 'cursor-pointer hover:shadow-lg' : ''}`}
+                    >
                       <div className={`w-16 h-16 ${source.color} rounded-xl flex items-center justify-center mb-3`}>
                         <IconComponent size={32} className="text-gray-700" />
                       </div>
@@ -476,11 +513,14 @@ export default function Dashboard() {
                   <div className="space-y-3 mb-4">
                     {workflowCategories.map((category) => {
                       const CategoryIcon = category.icon;
+                      const isDirectQuery = !!category.directQuery;
+
                       return (
                         <div key={category.id} className="border border-gray-200 rounded-xl overflow-hidden">
                           <button
-                            onClick={() => setExpandedCategory(expandedCategory === category.id ? null : category.id)}
-                            className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                            onClick={() => isDirectQuery ? handleExampleClick(category.directQuery) : setExpandedCategory(expandedCategory === category.id ? null : category.id)}
+                            disabled={isDirectQuery && isSending}
+                            className={`w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors ${isDirectQuery && isSending ? 'opacity-50 cursor-not-allowed' : ''}`}
                           >
                             <div className="flex items-center gap-3">
                               <div className={`w-10 h-10 ${category.color} rounded-lg flex items-center justify-center`}>
@@ -488,13 +528,15 @@ export default function Dashboard() {
                               </div>
                               <span className="font-semibold">{category.name}</span>
                             </div>
-                            <ChevronRight
-                              size={20}
-                              className={`transition-transform ${expandedCategory === category.id ? 'rotate-90' : ''}`}
-                            />
+                            {!isDirectQuery && (
+                              <ChevronRight
+                                size={20}
+                                className={`transition-transform ${expandedCategory === category.id ? 'rotate-90' : ''}`}
+                              />
+                            )}
                           </button>
 
-                          {expandedCategory === category.id && (
+                          {!isDirectQuery && expandedCategory === category.id && (
                             <div className="px-4 pb-4 space-y-2">
                               {category.examples.map((example, idx) => (
                                 <button
@@ -530,7 +572,7 @@ export default function Dashboard() {
               {/* Chat Interface + Console Container */}
               <div className="col-span-3 flex flex-col gap-6">
                 {/* Chat Interface */}
-                <div className="bg-white rounded-2xl shadow-sm flex flex-col" style={{ height: '650px' }}>
+                <div className="bg-white rounded-2xl shadow-sm flex flex-col" style={{ height: '910px' }}>
                   {/* Chat Header */}
                   <div className="p-4 border-b border-gray-200 flex items-center justify-between">
                     <h2 className="text-2xl font-bold">AI Assistant</h2>

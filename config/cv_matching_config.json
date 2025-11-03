@@ -1,0 +1,35 @@
+{
+  "cv_matching": {
+    "enabled": true,
+    "trigger_query": "Find best matching CVs",
+    "default_scenario": "multiple_customer_support",
+    "scenarios": {
+      "elena_customer_support": {
+        "name": "Elena Rossi - Customer Support",
+        "job_description_path": "jobs/job-description.md",
+        "cv_path": "jobs/CVs/Good CVs/Elena_Rossi_CV (good fit).pdf",
+        "candidate_name": "Elena Rossi",
+        "expected_outcome": "Highly Suitable",
+        "find_multiple": false
+      },
+      "multiple_customer_support": {
+        "name": "Customer Support - Multiple Candidates",
+        "job_description_path": "jobs/job-description.md",
+        "cv_paths": [
+          "jobs/CVs/Bad CVs/Ben_Carter_CV (bad fit).pdf",
+          "jobs/CVs/Bad CVs/Maya_Sharma_CV (bad fit).pdf",
+          "jobs/CVs/Good CVs/Elena_Rossi_CV (good fit).pdf",
+          "jobs/CVs/Good CVs/Rhea Patel (good fit).pdf"
+        ],
+        "candidate_names": [
+          "Ben Carter",
+          "Maya Sharma",
+          "Elena Rossi",
+          "Rhea Patel"
+        ],
+        "expected_outcome": "Multiple matches ranked by score",
+        "find_multiple": true
+      }
+    }
+  }
+}
