@@ -697,39 +697,41 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                {/* Console Logs Panel */}
-                <div className="bg-gray-900 rounded-2xl shadow-sm flex flex-col" style={{ height: '280px' }}>
-                  {/* Console Header */}
-                  <div className="p-3 border-b border-gray-700 flex items-center justify-between">
-                    <h3 className="text-sm font-bold text-gray-300 uppercase tracking-wide">System Console</h3>
-                    <button
-                      onClick={() => setConsoleLogs([])}
-                      className="text-xs text-gray-500 hover:text-gray-300 px-2 py-1 rounded border border-gray-700 transition-colors"
-                    >
-                      Clear
-                    </button>
-                  </div>
+                {/* Console Logs Panel - HIDDEN */}
+                <div className="hidden">
+                  <div className="bg-gray-900 rounded-2xl shadow-sm flex flex-col" style={{ height: '280px' }}>
+                    {/* Console Header */}
+                    <div className="p-3 border-b border-gray-700 flex items-center justify-between">
+                      <h3 className="text-sm font-bold text-gray-300 uppercase tracking-wide">System Console</h3>
+                      <button
+                        onClick={() => setConsoleLogs([])}
+                        className="text-xs text-gray-500 hover:text-gray-300 px-2 py-1 rounded border border-gray-700 transition-colors"
+                      >
+                        Clear
+                      </button>
+                    </div>
 
-                  {/* Console Output */}
-                  <div className="flex-1 overflow-y-auto p-3 font-mono text-xs space-y-1 bg-gray-950">
-                    {consoleLogs.length === 0 ? (
-                      <div className="text-gray-500">No logs yet...</div>
-                    ) : (
-                      consoleLogs.map((log) => (
-                        <div key={log.id} className="flex items-start gap-3">
-                          <span className="text-gray-600 flex-shrink-0">[{log.timestamp}]</span>
-                          <span className={`flex-shrink-0 font-bold ${log.level === 'error' ? 'text-red-400' :
-                            log.level === 'success' ? 'text-green-400' :
-                              log.level === 'warn' ? 'text-yellow-400' :
-                                'text-blue-400'
-                            }`}>
-                            {log.level.toUpperCase()}
-                          </span>
-                          <span className="text-gray-300 break-words">{log.message}</span>
-                        </div>
-                      ))
-                    )}
-                    <div ref={consoleEndRef} />
+                    {/* Console Output */}
+                    <div className="flex-1 overflow-y-auto p-3 font-mono text-xs space-y-1 bg-gray-950">
+                      {consoleLogs.length === 0 ? (
+                        <div className="text-gray-500">No logs yet...</div>
+                      ) : (
+                        consoleLogs.map((log) => (
+                          <div key={log.id} className="flex items-start gap-3">
+                            <span className="text-gray-600 flex-shrink-0">[{log.timestamp}]</span>
+                            <span className={`flex-shrink-0 font-bold ${log.level === 'error' ? 'text-red-400' :
+                              log.level === 'success' ? 'text-green-400' :
+                                log.level === 'warn' ? 'text-yellow-400' :
+                                  'text-blue-400'
+                              }`}>
+                              {log.level.toUpperCase()}
+                            </span>
+                            <span className="text-gray-300 break-words">{log.message}</span>
+                          </div>
+                        ))
+                      )}
+                      <div ref={consoleEndRef} />
+                    </div>
                   </div>
                 </div>
               </div>

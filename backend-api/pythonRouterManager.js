@@ -78,8 +78,9 @@ async function startRouter() {
     // Ensure logs directory exists
     ensureLogsDirectory();
 
-    // Spawn Python process
-    routerProcess = spawn('python', ['-m', 'utils.ai_router.ai_router_api'], {
+    // Spawn Python process using .venv
+    const pythonPath = join(projectRoot, '.venv', 'bin', 'python');
+    routerProcess = spawn(pythonPath, ['-m', 'utils.ai_router.ai_router_api'], {
       cwd: projectRoot,
       env: {
         ...process.env,

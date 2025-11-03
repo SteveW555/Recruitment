@@ -159,3 +159,4 @@ docs/.doctrees/
 # Monitoring data
 prometheus_data/
 grafana_data/
+.venv/
