@@ -35,6 +35,7 @@ class AgentRequest:
         metadata (Dict): Additional request metadata (timestamps, request_id, etc.)
         staff_role (Optional[str]): Optional staff role for specialisation (e.g., "person_1_managing_director")
         specialisation_context (Optional[Dict]): Loaded specialisation resources and context (if staff_role specified)
+        suggested_table (Optional[str]): Suggested database table for INFORMATION_RETRIEVAL queries (e.g., "clients", "candidates", "finance", "multi")
     """
     query: str
     user_id: str
@@ -43,6 +44,7 @@ class AgentRequest:
     metadata: Dict[str, Any] = field(default_factory=dict)
     staff_role: Optional[str] = None
     specialisation_context: Optional[Dict[str, Any]] = None
+    suggested_table: Optional[str] = None
 
     def __post_init__(self):
         """Validate request after initialization"""

@@ -218,7 +218,7 @@ class AIRouter:
 
                 # Execute general chat agent
                 agent_response = await self._execute_agent_with_retry(
-                    agent, query, session_context, staff_role
+                    agent, query, session_context, staff_role, decision
                 )
 
                 # Save conversation history for low-confidence fallback
@@ -284,7 +284,7 @@ class AIRouter:
 
             # Step 6: Execute agent with retry logic
             agent_response = await self._execute_agent_with_retry(
-                agent, query, session_context, staff_role
+                agent, query, session_context, staff_role, decision
             )
 
             # Step 7: Handle agent failure - fallback to general chat
@@ -364,7 +364,8 @@ class AIRouter:
         agent,
         query: Query,
         session_context: SessionContext,
-        staff_role: Optional[str] = None
+        staff_role: Optional[str] = None,
+        decision: Optional[Any] = None
     ) -> AgentResponse:
         """
         Execute agent with retry logic.
@@ -395,6 +396,10 @@ class AIRouter:
                     'context': session_context.to_dict(),
                     'metadata': {'attempt': attempt + 1}
                 }
+
+                # Add suggested_table from routing decision (if available)
+                if decision and hasattr(decision, 'suggested_table'):
+                    request_dict['suggested_table'] = decision.suggested_table
 
                 # Enhance with staff specialisation context (if enabled and staff_role provided)
                 if self.enable_specialisations and staff_role:

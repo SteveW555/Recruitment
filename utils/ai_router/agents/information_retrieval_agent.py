@@ -139,10 +139,8 @@ class InformationRetrievalAgent(BaseAgent):
         start_time = time.time()
         print(f"[*] InformationRetrievalAgent.process() CALLED: query={request.query[:50]}...", file=sys.stderr)
 
-        # Extract suggested table from routing decision (default to candidates)
-        suggested_table = getattr(request, 'suggested_table', None) or "candidates"
-        if hasattr(request, 'routing_decision') and hasattr(request.routing_decision, 'suggested_table'):
-            suggested_table = request.routing_decision.suggested_table or "candidates"
+        # Extract suggested table from request (default to candidates)
+        suggested_table = request.suggested_table or "candidates"
 
         print(f"[INFO] Using table: {suggested_table}", file=sys.stderr)
 
