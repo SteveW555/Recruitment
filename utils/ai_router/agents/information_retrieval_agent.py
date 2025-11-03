@@ -75,41 +75,60 @@ class InformationRetrievalAgent(BaseAgent):
             self.supabase = create_client(supabase_url, supabase_key)
             logger.info("supabase_connected", url=supabase_url)
 
-        # Load NL2SQL system prompt
-        self.nl2sql_prompt = self._load_nl2sql_prompt()
+        # NL2SQL prompt will be loaded dynamically in process() based on suggested_table
+        self.nl2sql_prompt = None
 
     def get_category(self) -> Category:
         """Return the category this agent handles."""
         return Category.INFORMATION_RETRIEVAL
 
-    def _load_nl2sql_prompt(self) -> str:
+    def _load_nl2sql_prompt(self, table_name: str = "candidates") -> str:
         """
-        Load NL2SQL system prompt from file.
+        Load NL2SQL system prompt from file based on table name.
+
+        Args:
+            table_name: Database table name (candidates, clients, finance, multi)
 
         Returns:
             NL2SQL system prompt text
         """
-        prompt_path = "prompts/candidates_nl2sql_system_prompt.txt"
+        # Handle multi-table queries
+        if table_name == "multi":
+            prompt_path = "prompts/multi_table_nl2sql_system_prompt.txt"
+        else:
+            prompt_path = f"prompts/{table_name}_nl2sql_system_prompt.txt"
 
         try:
             with open(prompt_path, "r", encoding="utf-8") as f:
                 prompt = f.read()
-                logger.info("nl2sql_prompt_loaded", path=prompt_path, length=len(prompt))
+                logger.info("nl2sql_prompt_loaded", path=prompt_path, table=table_name, length=len(prompt))
+                print(f"[OK] Loaded NL2SQL prompt for table: {table_name}", file=sys.stderr)
                 return prompt
+        except FileNotFoundError:
+            logger.warning("nl2sql_prompt_not_found", path=prompt_path, table=table_name)
+            print(f"[WARNING] Prompt not found: {prompt_path}, falling back to candidates", file=sys.stderr)
+            # Fallback to candidates prompt
+            if table_name != "candidates":
+                return self._load_nl2sql_prompt("candidates")
+            else:
+                # Ultimate fallback if even candidates prompt is missing
+                return "Convert the following natural language query to a PostgreSQL query for the candidates table."
         except Exception as e:
             logger.error("nl2sql_prompt_load_error", error=str(e), path=prompt_path)
             # Fallback minimal prompt
-            return "Convert the following natural language query to a PostgreSQL query for the candidates table."
+            return f"Convert the following natural language query to a PostgreSQL query for the {table_name} table."
 
     async def process(self, request: AgentRequest) -> AgentResponse:
         """
         Process candidate information retrieval query.
 
         Steps:
-        1. Convert natural language to SQL using Groq
-        2. Execute SQL against Supabase
-        3. Format results
-        4. Return with source citations
+        1. Extract suggested table from routing decision
+        2. Load appropriate NL2SQL prompt for the table
+        3. Convert natural language to SQL using Groq
+        4. Execute SQL against Supabase
+        5. Format results
+        6. Return with source citations
 
         Args:
             request: AgentRequest with query and context
@@ -119,6 +138,17 @@ class InformationRetrievalAgent(BaseAgent):
         """
         start_time = time.time()
         print(f"[*] InformationRetrievalAgent.process() CALLED: query={request.query[:50]}...", file=sys.stderr)
+
+        # Extract suggested table from routing decision (default to candidates)
+        suggested_table = getattr(request, 'suggested_table', None) or "candidates"
+        if hasattr(request, 'routing_decision') and hasattr(request.routing_decision, 'suggested_table'):
+            suggested_table = request.routing_decision.suggested_table or "candidates"
+
+        print(f"[INFO] Using table: {suggested_table}", file=sys.stderr)
+
+        # Load appropriate NL2SQL prompt for the table
+        self.nl2sql_prompt = self._load_nl2sql_prompt(suggested_table)
+
         sys.stderr.flush()
 
         try:
@@ -180,7 +210,8 @@ class InformationRetrievalAgent(BaseAgent):
             # Build metadata
             metadata = {
                 'agent_latency_ms': latency_ms,
-                'sources': ['Supabase Candidates Database'],
+                'sources': [f'Supabase {suggested_table.capitalize()} Database'],
+                'table_used': suggested_table,
                 'result_count': result_count,
                 'sql_query': sql_query,
                 'sql_results': results[:10],  # Include first 10 results for display

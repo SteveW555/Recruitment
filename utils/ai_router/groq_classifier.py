@@ -228,6 +228,7 @@ Your task is to analyze user queries and classify them into ONE of the following
             category_name = result.get("category", "GENERAL_CHAT")
             confidence = float(result.get("confidence", 0.5))
             reasoning = result.get("reasoning", "No reasoning provided")
+            suggested_table = result.get("suggested_table", None)
 
             # Convert to Category enum
             try:
@@ -237,6 +238,19 @@ Your task is to analyze user queries and classify them into ONE of the following
                 primary_category = Category.GENERAL_CHAT
                 confidence = 0.5
                 reasoning = f"Invalid category '{category_name}', defaulted to GENERAL_CHAT"
+
+            # Validate and process suggested_table
+            valid_tables = ["candidates", "clients", "finance", "multi"]
+            if suggested_table:
+                # Validate table name
+                if suggested_table not in valid_tables:
+                    print(f"[WARNING] Invalid table '{suggested_table}', defaulting to 'candidates'", file=sys.stderr)
+                    suggested_table = "candidates"
+
+            # Default to candidates for INFORMATION_RETRIEVAL if not specified
+            if primary_category == Category.INFORMATION_RETRIEVAL and not suggested_table:
+                suggested_table = "candidates"
+                print(f"[INFO] No table specified for INFORMATION_RETRIEVAL, defaulting to 'candidates'", file=sys.stderr)
 
             # Calculate latency
             latency_ms = int((time.time() - start_time) * 1000)
@@ -250,6 +264,7 @@ Your task is to analyze user queries and classify them into ONE of the following
                 primary_category=primary_category,
                 primary_confidence=confidence,
                 reasoning=reasoning,
+                suggested_table=suggested_table,
                 classification_latency_ms=latency_ms,
                 fallback_triggered=fallback_triggered,
             )
@@ -277,6 +292,7 @@ Your task is to analyze user queries and classify them into ONE of the following
                 primary_category=Category.GENERAL_CHAT,
                 primary_confidence=0.5,
                 reasoning=f"Classification error: {str(e)}",
+                suggested_table=None,
                 classification_latency_ms=latency_ms,
                 fallback_triggered=True,
             )

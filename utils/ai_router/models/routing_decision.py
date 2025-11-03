@@ -29,6 +29,7 @@ class RoutingDecision:
         classification_latency_ms: Time taken to classify (milliseconds)
         fallback_triggered: Whether confidence < 0.7 triggered clarification
         user_override: Whether user explicitly requested category
+        suggested_table: Suggested database table for INFORMATION_RETRIEVAL queries
         timestamp: When decision was made (UTC)
     """
 
@@ -42,6 +43,7 @@ class RoutingDecision:
     classification_latency_ms: int = 0
     fallback_triggered: bool = False
     user_override: bool = False
+    suggested_table: Optional[str] = None
     timestamp: datetime = field(default_factory=datetime.utcnow)
 
     def __post_init__(self):
@@ -101,6 +103,7 @@ class RoutingDecision:
             "classification_latency_ms": self.classification_latency_ms,
             "fallback_triggered": self.fallback_triggered,
             "user_override": self.user_override,
+            "suggested_table": self.suggested_table,
             "timestamp": self.timestamp.isoformat(),
         }
 
@@ -137,6 +140,7 @@ class RoutingDecision:
             classification_latency_ms=data.get("classification_latency_ms", 0),
             fallback_triggered=data.get("fallback_triggered", False),
             user_override=data.get("user_override", False),
+            suggested_table=data.get("suggested_table"),
             timestamp=timestamp or datetime.utcnow(),
         )
 
