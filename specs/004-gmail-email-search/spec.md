@@ -12,6 +12,8 @@
 - Q: Downloaded CV File Lifecycle - What is the retention policy for downloaded CV attachments stored on the server? → A: Files automatically deleted after 24 hours
 - Q: Multi-User Access Model - Can multiple recruiters share access to a single Gmail account, or does each recruiter connect their own? → A: Each recruiter connects their own personal Gmail account
 - Q: CV Attachment Identification - How does the system distinguish CV attachments from other document attachments? → A: All PDF/DOC/DOCX attachments are treated as potential CVs
+- Q: Session Timeout Duration - How long should user sessions remain active before automatic timeout? → A: No automatic timeout (only on browser close)
+- Q: Results Pagination Size - How many emails should be displayed per page in search results? → A: 50 emails per page
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -103,6 +105,8 @@ Recruiters need to quickly scan through email content without opening each email
 
 - **Expired Downloaded Files**: What happens when a user tries to access a previously downloaded CV after 24 hours? System should detect the expired file, remove it from temporary storage, and allow the user to re-download from Gmail if needed.
 
+- **Long-Running Sessions**: What happens when a user leaves their browser open for extended periods (days)? System should maintain the session and automatically refresh OAuth tokens before expiration, ensuring uninterrupted access without requiring re-authentication.
+
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
@@ -116,7 +120,7 @@ Recruiters need to quickly scan through email content without opening each email
 - **FR-007**: System MUST allow users to filter search results by sender email address
 - **FR-008**: System MUST allow users to filter search results by subject line keywords
 - **FR-009**: System MUST allow users to filter search results by email body content keywords
-- **FR-010**: System MUST handle pagination for large result sets (more than 100 emails)
+- **FR-010**: System MUST handle pagination for large result sets, displaying 50 emails per page with navigation controls for moving between pages
 - **FR-011**: System MUST display attachment metadata including filename, file type, and file size
 - **FR-012**: System MUST allow users to select multiple emails and bulk download all attachments
 - **FR-013**: System MUST handle Gmail API rate limits gracefully with appropriate retry logic
@@ -127,6 +131,7 @@ Recruiters need to quickly scan through email content without opening each email
 - **FR-018**: System MUST allow users to preview email body content without downloading attachments
 - **FR-019**: System MUST indicate when attachments cannot be previewed or downloaded due to format or access restrictions
 - **FR-020**: System MUST automatically delete downloaded CV attachments from temporary storage after 24 hours to minimize data retention and comply with GDPR principles
+- **FR-021**: System MUST maintain user sessions until browser close or explicit logout (no automatic inactivity timeout), while ensuring OAuth tokens are refreshed as needed
 
 ### Key Entities
 
@@ -134,11 +139,11 @@ Recruiters need to quickly scan through email content without opening each email
 
 - **Attachment**: Represents a file attached to an email with attributes including filename, file type/MIME type, file size in bytes, content/download URL, and download timestamp for automatic cleanup after 24 hours. All PDF, DOC, and DOCX attachments are treated as potential CVs. Related to the parent Email Message.
 
-- **Search Query**: Represents the user's search criteria including date range (start date, end date), sender filter (email address or domain), subject filter (keywords), body filter (keywords), and pagination settings (page number, results per page).
+- **Search Query**: Represents the user's search criteria including date range (start date, end date), sender filter (email address or domain), subject filter (keywords), body filter (keywords), and pagination settings (page number, results per page with default of 50 emails per page).
 
 - **Search Result Set**: Collection of Email Messages matching the Search Query, including total count, current page, and metadata about the search (query execution time, whether results were truncated).
 
-- **User Session**: Represents an individual recruiter's authenticated connection to their personal Gmail account, including OAuth tokens (access token, refresh token), token expiration times, recruiter identifier, and associated Gmail account identifier. Each recruiter maintains their own independent session.
+- **User Session**: Represents an individual recruiter's authenticated connection to their personal Gmail account, including OAuth tokens (access token, refresh token), token expiration times, recruiter identifier, and associated Gmail account identifier. Sessions persist until browser close or explicit logout (no automatic timeout). Each recruiter maintains their own independent session.
 
 ## Success Criteria *(mandatory)*
 
@@ -206,5 +211,5 @@ Recruiters need to quickly scan through email content without opening each email
 - **User Consent**: Clearly inform users what data will be accessed and why before requesting Gmail authorization
 - **Data Retention**: Downloaded CV attachments are automatically deleted from temporary storage after 24 hours to minimize data retention and comply with GDPR data minimization principles. Users retain the right to immediate deletion upon request.
 - **Audit Logging**: Log all Gmail API access and attachment downloads for security audit purposes
-- **Session Management**: Implement secure session handling with automatic timeout for inactive users
+- **Session Management**: Implement secure session handling that persists until browser close or explicit logout (no automatic inactivity timeout). OAuth tokens must be automatically refreshed before expiration to maintain uninterrupted access.
 - **Error Handling**: Never expose sensitive error details (API keys, tokens, internal paths) to users

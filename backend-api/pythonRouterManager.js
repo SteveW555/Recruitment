@@ -79,7 +79,7 @@ async function startRouter() {
     ensureLogsDirectory();
 
     // Spawn Python process
-    routerProcess = spawn('python', ['-m', 'utils.ai_router.router_api'], {
+    routerProcess = spawn('python', ['-m', 'utils.ai_router.airouter_api'], {
       cwd: projectRoot,
       env: {
         ...process.env,

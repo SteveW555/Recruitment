@@ -127,7 +127,7 @@ const response = await fetch(`${AI_ROUTER_URL}/route`, {
 
 ## Step 3: AI Router HTTP Server (Python FastAPI)
 
-**File**: [utils/ai_router/router_api.py](utils/ai_router/router_api.py)
+**File**: [utils/ai_router/airouter_api.py](utils/ai_router/airouter_api.py)
 
 ### Main Functions:
 
@@ -693,7 +693,7 @@ AgentResponse(
 ```
 
 ### 11.2 Router → HTTP Server
-**File**: [utils/ai_router/router_api.py](utils/ai_router/router_api.py:195)
+**File**: [utils/ai_router/airouter_api.py](utils/ai_router/airouter_api.py:195)
 
 **RouteResponse Object**:
 ```python
@@ -890,7 +890,7 @@ Target: <3,000ms (95th percentile) ✅ ACHIEVED
 - **[backend-api/server-fast.js](backend-api/server-fast.js)**: Express gateway, proxies to Python router
 
 ### AI Router Core
-- **[utils/ai_router/router_api.py](utils/ai_router/router_api.py)**: FastAPI server, persistent router
+- **[utils/ai_router/airouter_api.py](utils/ai_router/airouter_api.py)**: FastAPI server, persistent router
 - **[utils/ai_router/router.py](utils/ai_router/router.py)**: Orchestration, session management, agent execution
 - **[utils/ai_router/groq_classifier.py](utils/ai_router/groq_classifier.py)**: LLM-based query classification
 

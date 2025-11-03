@@ -25,7 +25,7 @@ module.exports = {
     {
       name: 'ai-router',
       script: 'python',
-      args: ['-m', 'utils.ai_router.router_api'],
+      args: ['-m', 'utils.ai_router.airouter_api'],
       cwd: 'd:/Recruitment',
       interpreter: 'none',
       instances: 1,
