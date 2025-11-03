@@ -489,31 +489,43 @@ Format the response in a clear, readable way suitable for a recruiter."""
 
     def _format_results_for_llm(self, results: List[Dict[str, Any]]) -> str:
         """
-        Format results data for LLM context.
+        Format results data for LLM context - works for any table type.
 
         Args:
-            results: Query results
+            results: Query results (from any table: candidates, clients, finance, etc.)
 
         Returns:
-            Formatted string representation
+            Formatted string representation showing all fields
         """
         if not results:
             return "No results found"
 
         formatted = []
-        for result in results:
-            candidate_info = []
-            if 'first_name' in result and 'last_name' in result:
-                candidate_info.append(f"Name: {result['first_name']} {result['last_name']}")
-            if 'job_title_target' in result:
-                candidate_info.append(f"Role: {result['job_title_target']}")
-            if 'primary_skills' in result:
-                candidate_info.append(f"Skills: {result['primary_skills']}")
-            if 'current_status' in result:
-                candidate_info.append(f"Status: {result['current_status']}")
-            if 'desired_salary' in result:
-                candidate_info.append(f"Salary: £{result['desired_salary']:,.0f}")
+        for i, result in enumerate(results, 1):
+            # Build readable key-value pairs for ALL fields in the result
+            record_info = []
+            for key, value in result.items():
+                # Skip internal/timestamp fields for cleaner output
+                if key in ('created_at', 'updated_at'):
+                    continue
 
-            formatted.append(" | ".join(candidate_info))
+                # Format the value nicely
+                if value is None:
+                    continue  # Skip null values
+                elif isinstance(value, (int, float)):
+                    # Format numbers nicely (add commas for large numbers)
+                    if isinstance(value, float) and key in ('desired_salary', 'lifetime_revenue_gbp', 'credit_limit_gbp'):
+                        formatted_value = f"£{value:,.2f}"
+                    else:
+                        formatted_value = f"{value:,}" if value >= 1000 else str(value)
+                else:
+                    formatted_value = str(value)
 
-        return "\n".join(formatted)
+                # Create readable field name (convert snake_case to Title Case)
+                readable_key = key.replace('_', ' ').title()
+                record_info.append(f"{readable_key}: {formatted_value}")
+
+            # Format as numbered record with all fields
+            formatted.append(f"Record {i}:\n  " + "\n  ".join(record_info))
+
+        return "\n\n".join(formatted)
