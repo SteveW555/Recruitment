@@ -1,0 +1,175 @@
+# Prometheus Alert Rules for Gmail Service
+# Defines alert conditions for monitoring
+
+groups:
+  # =============================================================================
+  # Service Health Alerts
+  # =============================================================================
+  - name: service_health
+    interval: 30s
+    rules:
+      - alert: GmailServiceDown
+        expr: up{job="gmail-service"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: gmail-service
+        annotations:
+          summary: "Gmail Service is down"
+          description: "Gmail Service instance {{ $labels.instance }} has been down for more than 1 minute."
+
+      - alert: GmailServiceHighErrorRate
+        expr: rate(http_requests_total{job="gmail-service",status=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          component: gmail-service
+        annotations:
+          summary: "High error rate in Gmail Service"
+          description: "Gmail Service has a high error rate (>5%) on {{ $labels.instance }} for the last 5 minutes."
+
+  # =============================================================================
+  # Database Alerts
+  # =============================================================================
+  - name: database_health
+    interval: 30s
+    rules:
+      - alert: DatabaseConnectionFailed
+        expr: database_connection_status{job="gmail-service"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "Database connection failed"
+          description: "Gmail Service cannot connect to the database on {{ $labels.instance }}."
+
+      - alert: DatabaseSlowQueries
+        expr: database_query_duration_seconds{quantile="0.95"} > 1
+        for: 5m
+        labels:
+          severity: warning
+          component: database
+        annotations:
+          summary: "Slow database queries detected"
+          description: "95th percentile of database queries is above 1 second on {{ $labels.instance }}."
+
+  # =============================================================================
+  # Redis Alerts
+  # =============================================================================
+  - name: redis_health
+    interval: 30s
+    rules:
+      - alert: RedisConnectionFailed
+        expr: redis_connection_status{job="gmail-service"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          component: redis
+        annotations:
+          summary: "Redis connection failed"
+          description: "Gmail Service cannot connect to Redis on {{ $labels.instance }}."
+
+      - alert: RedisHighMemoryUsage
+        expr: (redis_memory_used_bytes / redis_memory_max_bytes) * 100 > 90
+        for: 5m
+        labels:
+          severity: warning
+          component: redis
+        annotations:
+          summary: "Redis memory usage is high"
+          description: "Redis memory usage is above 90% on {{ $labels.instance }}."
+
+  # =============================================================================
+  # Performance Alerts
+  # =============================================================================
+  - name: performance
+    interval: 30s
+    rules:
+      - alert: HighResponseTime
+        expr: http_request_duration_seconds{quantile="0.95"} > 2
+        for: 5m
+        labels:
+          severity: warning
+          component: gmail-service
+        annotations:
+          summary: "High API response time"
+          description: "95th percentile response time is above 2 seconds on {{ $labels.instance }}."
+
+      - alert: HighCPUUsage
+        expr: process_cpu_usage_percent > 80
+        for: 10m
+        labels:
+          severity: warning
+          component: gmail-service
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is above 80% on {{ $labels.instance }} for 10 minutes."
+
+      - alert: HighMemoryUsage
+        expr: (process_memory_used_bytes / process_memory_total_bytes) * 100 > 85
+        for: 10m
+        labels:
+          severity: warning
+          component: gmail-service
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is above 85% on {{ $labels.instance }} for 10 minutes."
+
+  # =============================================================================
+  # Rate Limiting Alerts
+  # =============================================================================
+  - name: rate_limiting
+    interval: 30s
+    rules:
+      - alert: HighRateLimitRejections
+        expr: rate(rate_limit_rejections_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          component: gmail-service
+        annotations:
+          summary: "High rate of rate limit rejections"
+          description: "More than 10 requests per second are being rejected by rate limiting on {{ $labels.instance }}."
+
+  # =============================================================================
+  # GDPR Compliance Alerts
+  # =============================================================================
+  - name: gdpr_compliance
+    interval: 1h
+    rules:
+      - alert: DataRetentionViolation
+        expr: files_expired_not_deleted > 100
+        for: 1h
+        labels:
+          severity: warning
+          component: gdpr
+        annotations:
+          summary: "Data retention policy violation"
+          description: "More than 100 expired files have not been deleted on {{ $labels.instance }}. Check file cleanup cron job."
+
+  # =============================================================================
+  # Security Alerts
+  # =============================================================================
+  - name: security
+    interval: 30s
+    rules:
+      - alert: HighAuthenticationFailures
+        expr: rate(authentication_failures_total[5m]) > 5
+        for: 5m
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "High authentication failure rate"
+          description: "More than 5 authentication failures per second on {{ $labels.instance }}. Possible brute force attack."
+
+      - alert: UnauthorizedAccessAttempts
+        expr: rate(authorization_denied_total[5m]) > 10
+        for: 5m
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "High rate of unauthorized access attempts"
+          description: "More than 10 unauthorized access attempts per second on {{ $labels.instance }}."

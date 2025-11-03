@@ -1,0 +1,139 @@
+// Prisma schema for Gmail Service
+// Based on data-model.md specification
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// =============================================================================
+// USER MANAGEMENT
+// =============================================================================
+
+model User {
+  id            String   @id @default(uuid())
+  email         String   @unique
+  name          String?
+  gmailAddress  String   @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  lastLoginAt   DateTime?
+
+  // Relationships
+  tokens        UserToken[]
+  searches      SearchQuery[]
+  savedSearches SavedSearch[]
+  downloads     DownloadedFile[]
+  auditLogs     AuditLog[]
+
+  @@map("users")
+}
+
+model UserToken {
+  id            String   @id @default(uuid())
+  userId        String
+  accessToken   String   @db.Text // Encrypted with AES-256-GCM
+  refreshToken  String   @db.Text // Encrypted with AES-256-GCM
+  tokenExpiry   DateTime
+  scopes        String[] // Array of granted OAuth scopes
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relationships
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenExpiry])
+  @@map("user_tokens")
+}
+
+// =============================================================================
+// FILE MANAGEMENT
+// =============================================================================
+
+model DownloadedFile {
+  id                  String   @id @default(uuid())
+  userId              String
+  emailId             String   // Gmail message ID
+  attachmentId        String   // Gmail attachment ID
+  filename            String
+  mimeType            String
+  size                BigInt   // File size in bytes
+  localPath           String   // Absolute path to downloaded file
+  downloadedAt        DateTime @default(now())
+  expiresAt           DateTime // downloadedAt + 24 hours (FR-010)
+  deletedAt           DateTime?
+
+  // Relationships
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, downloadedAt])
+  @@index([expiresAt])
+  @@index([userId, expiresAt])
+  @@map("downloaded_files")
+}
+
+// =============================================================================
+// SEARCH & AUDIT
+// =============================================================================
+
+model SearchQuery {
+  id            String   @id @default(uuid())
+  userId        String
+  startDate     DateTime
+  endDate       DateTime
+  senderFilter  String?
+  subjectFilter String?
+  bodyFilter    String?
+  resultCount   Int
+  executionTime Int      // Milliseconds
+  createdAt     DateTime @default(now())
+
+  // Relationships
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@map("search_queries")
+}
+
+model SavedSearch {
+  id            String   @id @default(uuid())
+  userId        String
+  name          String   // User-friendly name for the search
+  description   String?
+  filters       Json     // Stored AdvancedSearchDto as JSON
+  useCount      Int      @default(0)
+  lastUsedAt    DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relationships
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([userId, lastUsedAt])
+  @@map("saved_searches")
+}
+
+model AuditLog {
+  id            String   @id @default(uuid())
+  userId        String?  // Nullable for system events
+  action        String   // Enum: oauth_login, search_emails, download_attachment, etc.
+  resourceType  String?  // gmail_message, attachment, etc.
+  resourceId    String?  // Gmail message ID or attachment ID
+  metadata      Json?    // Additional context
+  ipAddress     String
+  userAgent     String
+  createdAt     DateTime @default(now())
+
+  // Relationships
+  user          User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+  @@map("audit_logs")
+}

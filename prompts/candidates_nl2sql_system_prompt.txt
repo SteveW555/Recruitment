@@ -21,6 +21,7 @@ candidates — candidate database for recruitment agency
     recruiter_notes_internal text (internal-use-only notes)
     created_at timestamptz (record creation timestamp)
     updated_at timestamptz (last update timestamp)
+    years_experience (how many years experience in this role)
 
 
 ## Important Notes & Querying Logic:
@@ -84,8 +85,9 @@ candidates — candidate database for recruitment agency
 
 **Default Column Selection:**
 * If query doesn't specify columns, return: `first_name`, `last_name`, `primary_email`, `job_title_target`
-* If query asks for "full details" or "all info", use `SELECT c.*`
+* If query asks for "full details", "all info", "complete profile", "show details", or targets a specific single candidate by name/ID, use `SELECT c.*`
 * If query asks for "contact info", return: `first_name`, `last_name`, `primary_email`, `phone_number`
+* When user references a candidate by full name (e.g., "show Alex Smith's details"), this implies they want the complete record → use `SELECT c.*`
 
 **Sorting and Limiting:**
 * "Top candidates" without other context → `ORDER BY c.last_contact_date DESC`
@@ -148,6 +150,10 @@ candidates — candidate database for recruitment agency
     * Natural Language: "Find candidates with fintech experience"
     * SQL: `select c.first_name, c.last_name, c.industry_experience, c.job_title_target from candidates as c where c.industry_experience ilike '%fintech%';`
 
+* **Number of Years Experience with Industry Filter:**
+    * Natural Language: "Find tech candidates with 5+ years experience"
+    * SQL: `SELECT c.first_name, c.last_name, c.years_experience, c.industry_experience, c.job_title_target FROM candidates AS c WHERE c.years_experience >= 5 AND (c.industry_experience ILIKE '%tech%' OR c.industry_experience ILIKE '%IT%' OR c.industry_experience ILIKE '%software%');`
+
 * **Positive Interview Feedback:**
     * Natural Language: "Show candidates with positive interview feedback"
     * SQL: `select c.first_name, c.last_name, c.interview_notes_sentiment, c.current_status from candidates as c where c.interview_notes_sentiment ilike '%positive%';`
@@ -179,6 +185,14 @@ candidates — candidate database for recruitment agency
 * **Null Handling:**
     * Natural Language: "Candidates without a Bullhorn resume ID"
     * SQL: `select c.first_name, c.last_name, c.bullhorn_resume_id from candidates as c where c.bullhorn_resume_id is null;`
+
+* **Full Candidate Details (by name):**
+    * Natural Language: "Show Alex Smith's details" or "Get full details for Alex Smith"
+    * SQL: `select c.* from candidates as c where c.first_name ilike '%alex%' and c.last_name ilike '%smith%';`
+
+* **Full Details for Single Candidate (by ID):**
+    * Natural Language: "Show complete profile for candidate C042"
+    * SQL: `select c.* from candidates as c where c.candidate_id = 'C042';`
 
 
 ## Output Format:
