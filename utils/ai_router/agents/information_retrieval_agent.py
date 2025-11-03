@@ -198,7 +198,8 @@ class InformationRetrievalAgent(BaseAgent):
                 request.query,
                 sql_query,
                 results,
-                result_count
+                result_count,
+                suggested_table
             )
             print(f"[STEP 3 RetrievalAgent] Response formatted ({len(formatted_response)} chars)", file=sys.stderr)
 
@@ -395,7 +396,8 @@ class InformationRetrievalAgent(BaseAgent):
         original_query: str,
         sql_query: str,
         results: List[Dict[str, Any]],
-        result_count: int
+        result_count: int,
+        table_type: str = "candidates"
     ) -> Tuple[str, str]:
         """
         Format query results into user-friendly response.
@@ -405,27 +407,50 @@ class InformationRetrievalAgent(BaseAgent):
             sql_query: SQL query that was executed
             results: Query results
             result_count: Number of results
+            table_type: Database table queried (candidates, clients, finance, multi)
 
         Returns:
             Tuple of (formatted response, agent prompt used)
         """
+        # Adapt prompt based on table type
+        if table_type == "clients":
+            data_type = "clients"
+            entity_plural = "clients"
+            entity_singular = "client"
+            key_details = "company names, account tiers, account managers, revenue"
+        elif table_type == "finance":
+            data_type = "financial records"
+            entity_plural = "transactions"
+            entity_singular = "transaction"
+            key_details = "amounts, dates, categories, payment status"
+        elif table_type == "multi":
+            data_type = "records"
+            entity_plural = "records"
+            entity_singular = "record"
+            key_details = "key relationships and combined data"
+        else:  # candidates (default)
+            data_type = "candidates"
+            entity_plural = "candidates"
+            entity_singular = "candidate"
+            key_details = "names, skills, roles"
+
         # Build agent prompt for formatting
-        agent_prompt = f"""You are a recruitment assistant helping to present candidate search results.
+        agent_prompt = f"""You are a recruitment assistant helping to present {data_type} search results.
 
 User Query: {original_query}
 
 SQL Query Executed:
 {sql_query}
 
-Results Retrieved: {result_count} candidates
+Results Retrieved: {result_count} {entity_plural}
 
 Results Data:
 {self._format_results_for_llm(results[:5])}  # Show max 5 for context
 
 Please provide a concise, professional summary of the results:
-1. State how many candidates were found
-2. Highlight key details from the top results (names, skills, roles)
-3. Mention any notable patterns or standout candidates
+1. State how many {entity_plural} were found
+2. Highlight key details from the top results ({key_details})
+3. Mention any notable patterns or standout {entity_plural}
 4. Keep response to 150-200 words maximum
 
 Format the response in a clear, readable way suitable for a recruiter."""
@@ -442,7 +467,7 @@ Format the response in a clear, readable way suitable for a recruiter."""
                     },
                     {
                         "role": "user",
-                        "content": "Please format the candidate search results."
+                        "content": f"Please format the {data_type} search results."
                     }
                 ],
                 temperature=0.3,
@@ -455,12 +480,10 @@ Format the response in a clear, readable way suitable for a recruiter."""
         except Exception as e:
             logger.error("format_results_error", error=str(e))
             # Fallback to simple formatting
-            fallback = f"Found {result_count} candidate(s) matching your search."
+            fallback = f"Found {result_count} {entity_plural} matching your search."
             if results:
                 fallback += "\n\nTop results:\n"
-                for i, candidate in enumerate(results[:3], 1):
-                    name = f"{candidate.get('first_name', '')} {candidate.get('last_name', '')}"
-                    fallback += f"{i}. {name} - {candidate.get('job_title_target', 'N/A')}\n"
+                fallback += self._format_results_for_llm(results[:3])
 
             return fallback, agent_prompt
 
