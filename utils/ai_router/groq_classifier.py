@@ -126,7 +126,7 @@ Your task is to analyze user queries and classify them into ONE of the following
 
 **Guidelines:**
 - If unclear or casual greeting/chat, use GENERAL_CHAT
-- For queries about finding information (salaries, job boards, candidates), use INFORMATION_RETRIEVAL
+- For queries about finding information (salaries, job boards, candidates, clients), use INFORMATION_RETRIEVAL
 - For complex problem analysis with recommendations, use PROBLEM_SOLVING
 - For workflow/automation design requests, use AUTOMATION
 - For UK recruitment regulations/compliance/best practices, use INDUSTRY_KNOWLEDGE
@@ -198,6 +198,13 @@ Your task is to analyze user queries and classify them into ONE of the following
         # Build classification system prompt
         system_prompt = self._build_classification_prompt()
 
+        # DEBUG: Log a snippet of the system prompt to verify table instructions are included
+        table_instructions_check = "Available Tables for INFORMATION_RETRIEVAL" in system_prompt
+        print(f"[DEBUG GroqClassifier] System prompt includes table instructions: {table_instructions_check}", file=sys.stderr)
+        if not table_instructions_check:
+            print(f"[WARNING GroqClassifier] System prompt missing table selection instructions!", file=sys.stderr)
+        sys.stderr.flush()
+
         # Add context about previous agent if available
         user_message = query_text
         if previous_agent:
@@ -224,11 +231,17 @@ Your task is to analyze user queries and classify them into ONE of the following
             if result is None:
                 raise ValueError("Failed to parse JSON response from Groq")
 
+            # DEBUG: Log the complete Groq response to diagnose table selection
+            print(f"[DEBUG GroqClassifier] Groq JSON response: {result}", file=sys.stderr)
+            sys.stderr.flush()
+
             # Extract classification results
             category_name = result.get("category", "GENERAL_CHAT")
             confidence = float(result.get("confidence", 0.5))
             reasoning = result.get("reasoning", "No reasoning provided")
             suggested_table = result.get("suggested_table", None)
+
+            print(f"[DEBUG GroqClassifier] Extracted: category={category_name}, confidence={confidence}, suggested_table={suggested_table}", file=sys.stderr)
 
             # Convert to Category enum
             try:
