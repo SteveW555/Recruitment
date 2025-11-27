@@ -32,7 +32,8 @@
       "Bash(claude mcp add --transport stdio brave-search --scope user --env BRAVE_API_KEY=BSAip_MB9Ct-4C3tB1H1nm_ropfJRJF -- cmd /c npx -y brave-search-mcp)",
       "Bash(claude mcp add:*)",
       "Bash(claude mcp:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(node -e:*)"
     ],
     "deny": [],
     "ask": []
