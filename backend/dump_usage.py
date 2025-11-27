@@ -203,14 +203,25 @@ def main():
         print("CALLING API...")
         print("=" * 80)
 
-    # Load the CSV content
+    # Load the file content (CSV or Excel)
     csv_path = Path(args.file)
     if not csv_path.exists():
-        print(f"CSV file not found: {csv_path}")
+        print(f"File not found: {csv_path}")
         return 1
 
-    with open(csv_path, 'r', encoding='utf-8') as f:
-        csv_content = f.read()
+    # Handle Excel files (.xlsx, .xls)
+    if csv_path.suffix.lower() in ['.xlsx', '.xls']:
+        try:
+            import pandas as pd
+            df = pd.read_excel(csv_path)
+            csv_content = df.to_csv(index=False)
+            print(f"Converted Excel file to CSV ({len(df)} rows)")
+        except ImportError:
+            print("Error: pandas is required to read Excel files. Install with: pip install pandas openpyxl")
+            return 1
+    else:
+        with open(csv_path, 'r', encoding='utf-8') as f:
+            csv_content = f.read()
 
     # Replace the sample CSV in the user message with actual content
     user_msg = data["messages"][1]["content"]

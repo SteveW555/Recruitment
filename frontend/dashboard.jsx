@@ -22,7 +22,7 @@ export default function Dashboard() {
   const [isSending, setIsSending] = useState(false);
   const [consoleLogs, setConsoleLogs] = useState([
     { id: 1, level: 'info', message: 'System initialized', timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) },
-    { id: 2, level: 'success', message: 'Connected to AI Router service', timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) }
+    { id: 2, level: 'success', message: 'Connected to Elephant AI Router service', timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) }
   ]);
   const [isInvoiceBuilderRunning, setIsInvoiceBuilderRunning] = useState(false);
 
@@ -450,10 +450,25 @@ export default function Dashboard() {
           timestamp
         }]);
       } else {
-        addLog(`Invoice Builder failed: ${data.error || 'Unknown error'}`, 'error');
-        if (data.output) {
-          addLog(`Output: ${data.output.substring(0, 200)}...`, 'warn');
+        addLog(`Invoice Builder failed (exit code: ${data.exitCode})`, 'error');
+        if (data.error) {
+          addLog(`Error: ${data.error}`, 'error');
         }
+        if (data.csvPath) {
+          addLog(`CSV Path: ${data.csvPath}`, 'warn');
+        }
+        if (data.output) {
+          addLog(`Output: ${data.output.substring(0, 300)}`, 'warn');
+        }
+
+        // Add error to chat
+        const timestamp = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+        setMessages(prev => [...prev, {
+          id: prev.length + 1,
+          type: 'ai',
+          text: `**Invoice Builder Error**\n\n${data.error || 'Unknown error'}\n\n${data.output ? `\`\`\`\n${data.output}\n\`\`\`` : ''}`,
+          timestamp
+        }]);
       }
     } catch (error) {
       addLog(`Invoice Builder error: ${error.message}`, 'error');

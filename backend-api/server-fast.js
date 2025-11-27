@@ -78,6 +78,33 @@ app.post('/api/invoice-builder', async (req, res) => {
   console.log(`  Model: ${model}`);
   console.log(`  CSV: ${resolvedCsvPath}`);
 
+  // Pre-flight checks
+  const fs = await import('fs');
+
+  // Check if script exists
+  if (!fs.existsSync(scriptPath)) {
+    const error = `Script not found: ${scriptPath}`;
+    console.error(`[${new Date().toISOString()}] ${error}`);
+    return res.json({
+      success: false,
+      output: '',
+      error: error,
+      exitCode: -1
+    });
+  }
+
+  // Check if CSV file exists
+  if (!fs.existsSync(resolvedCsvPath)) {
+    const error = `CSV file not found: ${resolvedCsvPath}`;
+    console.error(`[${new Date().toISOString()}] ${error}`);
+    return res.json({
+      success: false,
+      output: '',
+      error: error,
+      exitCode: -1
+    });
+  }
+
   try {
     const pythonProcess = spawn('python', [
       scriptPath,
@@ -104,11 +131,19 @@ app.post('/api/invoice-builder', async (req, res) => {
     pythonProcess.on('close', (code) => {
       console.log(`[${new Date().toISOString()}] Invoice Builder completed with code ${code}`);
 
+      if (code !== 0) {
+        console.error(`[${new Date().toISOString()}] Invoice Builder failed:`);
+        console.error(`  stdout: ${stdout.substring(0, 500)}`);
+        console.error(`  stderr: ${stderr.substring(0, 500)}`);
+      }
+
       res.json({
         success: code === 0,
         output: stdout,
-        error: stderr || null,
-        exitCode: code
+        error: code !== 0 ? (stderr || stdout || `Process exited with code ${code}`) : null,
+        exitCode: code,
+        model,
+        csvPath: resolvedCsvPath
       });
     });
 
