@@ -4,7 +4,7 @@ import {
   Search, Bell, ChevronDown, Send, Paperclip, Calendar, Plus,
   Mail, FolderOpen, Briefcase, FileSpreadsheet, Monitor,
   Lightbulb, TrendingUp, Zap, Menu, X, AlertTriangle, CheckCircle, Info,
-  Eye, ClipboardList, Receipt, Maximize2, PanelRight
+  Eye, ClipboardList, Receipt, Maximize2, PanelRight, Terminal, ChevronUp
 } from 'lucide-react';
 
 export default function Dashboard() {
@@ -21,8 +21,17 @@ export default function Dashboard() {
   const [showReviewPanel, setShowReviewPanel] = useState(true);
   const [isTyping, setIsTyping] = useState(false);
   const [highlightedRow, setHighlightedRow] = useState(null);
+  const [showConsole, setShowConsole] = useState(false);
+  const [consoleLogs, setConsoleLogs] = useState([]);
   const messagesEndRef = useRef(null);
   const rowRefs = useRef({});
+  const consoleEndRef = useRef(null);
+
+  // Helper to add log entries to console
+  const addLog = (type, message, data = null) => {
+    const timestamp = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+    setConsoleLogs(prev => [...prev, { type, message, data, timestamp }]);
+  };
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {
@@ -116,6 +125,7 @@ export default function Dashboard() {
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
+      addLog('info', `File selected: ${file.name}`, { size: file.size, type: file.type });
       setUploadedFile(file);
       setShowCanvas(true);
       setCanvasTab('preview');
@@ -129,6 +139,7 @@ export default function Dashboard() {
         const worksheet = workbook.Sheets[firstSheetName];
         const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
         setSpreadsheetData(jsonData);
+        addLog('success', `Spreadsheet parsed: ${jsonData.length} rows`, { sheet: firstSheetName });
       };
       reader.readAsArrayBuffer(file);
     }
@@ -159,6 +170,8 @@ export default function Dashboard() {
     const userMessage = inputMessage;
     const timestamp = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
 
+    addLog('info', `Sending message: "${userMessage.substring(0, 50)}${userMessage.length > 50 ? '...' : ''}"`);
+
     // Add user message to chat
     setMessages(prev => [...prev, {
       id: prev.length + 1,
@@ -172,6 +185,7 @@ export default function Dashboard() {
     setIsTyping(true);
 
     try {
+      addLog('info', 'Calling backend API...');
       // Call backend API
       const response = await fetch('http://localhost:3001/api/chat', {
         method: 'POST',
@@ -189,6 +203,7 @@ export default function Dashboard() {
       setIsTyping(false);
 
       if (data.success) {
+        addLog('success', 'Received AI response', { length: data.message?.length });
         // Add AI response to chat
         setMessages(prev => [...prev, {
           id: prev.length + 1,
@@ -198,6 +213,7 @@ export default function Dashboard() {
           metadata: data.metadata
         }]);
       } else {
+        addLog('error', `API error: ${data.error || 'Unknown error'}`);
         // Handle error response
         setMessages(prev => [...prev, {
           id: prev.length + 1,
@@ -208,6 +224,7 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error('Chat error:', error);
+      addLog('error', `Connection error: ${error.message}`);
       setIsTyping(false);
       // Add error message to chat
       setMessages(prev => [...prev, {
@@ -220,7 +237,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-4 flex flex-col overflow-hidden">
+    <div className="h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-4 pb-14 flex flex-col overflow-hidden">
       <div className="w-full flex flex-col flex-1 min-h-0">
         {/* Header */}
         <div className="bg-white rounded-2xl shadow-sm p-4 mb-4 flex-shrink-0">
@@ -837,6 +854,57 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+      </div>
+
+      {/* System Console */}
+      <div className={`fixed bottom-0 left-0 right-0 bg-gray-900 text-gray-100 transition-all duration-300 ${showConsole ? 'h-48' : 'h-10'}`}>
+        {/* Console Header */}
+        <div
+          className="h-10 px-4 flex items-center justify-between border-b border-gray-700 cursor-pointer hover:bg-gray-800"
+          onClick={() => setShowConsole(!showConsole)}
+        >
+          <div className="flex items-center gap-2">
+            <Terminal size={16} className="text-green-400" />
+            <span className="text-sm font-medium">System Console</span>
+            <span className="text-xs text-gray-500">({consoleLogs.length} logs)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={(e) => { e.stopPropagation(); setConsoleLogs([]); }}
+              className="text-xs text-gray-500 hover:text-gray-300 px-2 py-1"
+            >
+              Clear
+            </button>
+            <ChevronUp size={16} className={`text-gray-400 transition-transform ${showConsole ? '' : 'rotate-180'}`} />
+          </div>
+        </div>
+        {/* Console Content */}
+        {showConsole && (
+          <div className="h-[calc(100%-40px)] overflow-auto p-2 font-mono text-xs">
+            {consoleLogs.length === 0 ? (
+              <p className="text-gray-500 text-center py-4">No logs yet. Interact with the app to see events.</p>
+            ) : (
+              consoleLogs.map((log, idx) => (
+                <div key={idx} className="flex gap-2 py-0.5 hover:bg-gray-800 px-2 rounded">
+                  <span className="text-gray-500 flex-shrink-0">{log.timestamp}</span>
+                  <span className={`flex-shrink-0 ${
+                    log.type === 'error' ? 'text-red-400' :
+                    log.type === 'success' ? 'text-green-400' :
+                    log.type === 'warning' ? 'text-yellow-400' :
+                    'text-blue-400'
+                  }`}>
+                    [{log.type.toUpperCase()}]
+                  </span>
+                  <span className="text-gray-100">{log.message}</span>
+                  {log.data && (
+                    <span className="text-gray-500">{JSON.stringify(log.data)}</span>
+                  )}
+                </div>
+              ))
+            )}
+            <div ref={consoleEndRef} />
           </div>
         )}
       </div>
