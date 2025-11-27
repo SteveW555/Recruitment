@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import {
   Search, Bell, ChevronDown, Send, Paperclip, Calendar, Plus,
@@ -19,6 +19,15 @@ export default function Dashboard() {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [spreadsheetData, setSpreadsheetData] = useState(null);
   const [showReviewPanel, setShowReviewPanel] = useState(true);
+  const [isTyping, setIsTyping] = useState(false);
+  const [highlightedRow, setHighlightedRow] = useState(null);
+  const messagesEndRef = useRef(null);
+  const rowRefs = useRef({});
+
+  // Auto-scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isTyping, uploadedFile]);
 
   // Mock review issues - in production this would be AI-generated
   const reviewIssues = [
@@ -125,6 +134,25 @@ export default function Dashboard() {
     }
   };
 
+  // Handle clicking on a review issue to highlight the row
+  const handleReviewIssueClick = (row) => {
+    if (row !== null) {
+      setHighlightedRow(row);
+      // Scroll to the highlighted row
+      if (rowRefs.current[row]) {
+        rowRefs.current[row].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  };
+
+  // Handle cell edit
+  const handleCellEdit = (rowIdx, colIdx, value) => {
+    const newData = [...spreadsheetData];
+    // rowIdx is 0-based from slice(1), so actual index is rowIdx + 1
+    newData[rowIdx + 1][colIdx] = value;
+    setSpreadsheetData(newData);
+  };
+
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
 
@@ -139,8 +167,9 @@ export default function Dashboard() {
       timestamp
     }]);
 
-    // Clear input immediately
+    // Clear input immediately and show typing indicator
     setInputMessage('');
+    setIsTyping(true);
 
     try {
       // Call backend API
@@ -157,6 +186,7 @@ export default function Dashboard() {
       });
 
       const data = await response.json();
+      setIsTyping(false);
 
       if (data.success) {
         // Add AI response to chat
@@ -178,6 +208,7 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error('Chat error:', error);
+      setIsTyping(false);
       // Add error message to chat
       setMessages(prev => [...prev, {
         id: prev.length + 1,
@@ -353,6 +384,18 @@ export default function Dashboard() {
 
             {/* Messages Area */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              {/* Empty state */}
+              {!selectedWorkflow && messages.length === 0 && !uploadedFile && (
+                <div className="h-full flex flex-col items-center justify-center text-center">
+                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
+                    <Zap size={28} className="text-gray-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-700 mb-2">Start a conversation</h3>
+                  <p className="text-sm text-gray-500 max-w-sm">
+                    Select a workflow above or type a message to get started.
+                  </p>
+                </div>
+              )}
               {selectedWorkflow && (
                 <>
                   <div className="flex items-center justify-center">
@@ -409,6 +452,21 @@ export default function Dashboard() {
                   </div>
                 </div>
               )}
+              {/* Typing indicator */}
+              {isTyping && (
+                <div className="flex flex-col items-end">
+                  <p className="text-xs font-semibold text-gray-600 mb-1 px-2">AI Assistant</p>
+                  <div className="bg-gray-100 rounded-2xl px-4 py-3">
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                    </div>
+                  </div>
+                </div>
+              )}
+              {/* Auto-scroll anchor */}
+              <div ref={messagesEndRef} />
             </div>
 
             {/* Input Area */}
@@ -497,15 +555,35 @@ export default function Dashboard() {
                             </tr>
                           </thead>
                           <tbody>
-                            {spreadsheetData.slice(1).map((row, rowIdx) => (
-                              <tr key={rowIdx} className={rowIdx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                                {spreadsheetData[0].map((_, colIdx) => (
-                                  <td key={colIdx} className="border border-gray-300 px-3 py-2 text-gray-600 whitespace-nowrap">
-                                    {row[colIdx] !== undefined ? row[colIdx] : ''}
-                                  </td>
-                                ))}
-                              </tr>
-                            ))}
+                            {spreadsheetData.slice(1).map((row, rowIdx) => {
+                              const actualRowNum = rowIdx + 2; // +1 for header, +1 for 1-based indexing
+                              const isHighlighted = highlightedRow === actualRowNum - 1; // reviewIssues use 1-based row numbers after header
+                              return (
+                                <tr
+                                  key={rowIdx}
+                                  ref={el => rowRefs.current[actualRowNum - 1] = el}
+                                  className={`transition-colors ${
+                                    isHighlighted
+                                      ? 'bg-amber-100 ring-2 ring-amber-400 ring-inset'
+                                      : rowIdx % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+                                  }`}
+                                  onClick={() => setHighlightedRow(null)}
+                                >
+                                  {spreadsheetData[0].map((_, colIdx) => (
+                                    <td key={colIdx} className="border border-gray-300 px-0 py-0 text-gray-600">
+                                      <input
+                                        type="text"
+                                        value={row[colIdx] !== undefined ? row[colIdx] : ''}
+                                        onChange={(e) => handleCellEdit(rowIdx, colIdx, e.target.value)}
+                                        className={`w-full px-3 py-2 bg-transparent border-none outline-none focus:bg-blue-50 focus:ring-2 focus:ring-blue-400 focus:ring-inset ${
+                                          isHighlighted ? 'bg-amber-100' : ''
+                                        }`}
+                                      />
+                                    </td>
+                                  ))}
+                                </tr>
+                              );
+                            })}
                           </tbody>
                         </table>
                       </div>
@@ -551,7 +629,12 @@ export default function Dashboard() {
                           {reviewIssues.map((issue, idx) => (
                             <div
                               key={idx}
-                              className="p-3 rounded-2xl bg-gray-50 hover:bg-gray-100 transition-colors cursor-pointer"
+                              onClick={() => handleReviewIssueClick(issue.row)}
+                              className={`p-3 rounded-2xl transition-colors cursor-pointer ${
+                                highlightedRow === issue.row
+                                  ? 'bg-amber-100 ring-2 ring-amber-400'
+                                  : 'bg-gray-50 hover:bg-gray-100'
+                              } ${issue.row === null ? 'cursor-default' : ''}`}
                             >
                               <div className="flex items-start gap-3">
                                 <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5 ${
@@ -571,9 +654,14 @@ export default function Dashboard() {
                                     <Info size={11} className="text-blue-600" />
                                   )}
                                 </div>
-                                <p className="text-sm text-gray-700 leading-relaxed">
-                                  {issue.message}
-                                </p>
+                                <div className="flex-1">
+                                  <p className="text-sm text-gray-700 leading-relaxed">
+                                    {issue.message}
+                                  </p>
+                                  {issue.row !== null && (
+                                    <p className="text-xs text-gray-400 mt-1">Click to highlight row</p>
+                                  )}
+                                </div>
                               </div>
                             </div>
                           ))}
