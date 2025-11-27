@@ -23,7 +23,7 @@ from .models.session_context import SessionContext
 from .models.category import Category
 from .groq_classifier import GroqClassifier
 from .storage.session_store import SessionStore
-from .storage.log_repository import LogRepository
+from .storage import LogRepository  # Uses stub if psycopg2 unavailable
 from .agent_registry import AgentRegistry
 from .agents.base_agent import AgentRequest, AgentResponse
 from .staff_specialisations import (

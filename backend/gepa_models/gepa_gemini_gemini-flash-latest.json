@@ -1,0 +1,32 @@
+{
+  "prog.predict": {
+    "traces": [],
+    "train": [],
+    "demos": [],
+    "signature": {
+      "instructions": "Extract staff names and hours from a messy CSV string.\nIgnore COLUMNS labeled Activity Log, Task ID, Bonus or similar\nInclude all hours values (including 0, but expect typically 3+ hours),\nbut ignore tiny task durations like 0.25 that represent partial hours.",
+      "fields": [
+        {
+          "prefix": "Messy Csv:",
+          "description": "The raw, messy CSV content containing various tables."
+        },
+        {
+          "prefix": "Reasoning: Let's think step by step in order to",
+          "description": "${reasoning}"
+        },
+        {
+          "prefix": "Staff List:",
+          "description": "List of staff members and their total hours."
+        }
+      ]
+    },
+    "lm": null
+  },
+  "metadata": {
+    "dependency_versions": {
+      "python": "3.13",
+      "dspy": "3.0.4",
+      "cloudpickle": "3.1"
+    }
+  }
+}

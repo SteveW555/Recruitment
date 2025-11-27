@@ -5,6 +5,7 @@ import Groq from 'groq-sdk';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { spawn } from 'child_process';
 import { ensureRouterRunning, stopRouter, getStatus } from './pythonRouterManager.js';
 import { Logger } from '../logging_new.js';
 
@@ -54,6 +55,82 @@ app.get('/health', async (req, res) => {
     aiRouter: routerStatus,
     timestamp: new Date().toISOString()
   });
+});
+
+// Invoice Builder endpoint - runs dump_usage.py script
+app.post('/api/invoice-builder', async (req, res) => {
+  logger.info(`*******/api/invoice-builder endpoint called*******`);
+
+  const projectRoot = join(__dirname, '..');
+  const scriptPath = join(projectRoot, 'backend', 'dump_usage.py');
+
+  // Get model and csvPath from request body, with defaults
+  const {
+    model = 'groq/llama-3.3-70b-versatile',
+    csvPath = 'ExamplesRealOnly/strat_messy.csv'
+  } = req.body;
+
+  // Resolve csvPath relative to project root
+  const resolvedCsvPath = join(projectRoot, csvPath);
+
+  console.log(`[${new Date().toISOString()}] Invoice Builder request`);
+  console.log(`  Script: ${scriptPath}`);
+  console.log(`  Model: ${model}`);
+  console.log(`  CSV: ${resolvedCsvPath}`);
+
+  try {
+    const pythonProcess = spawn('python', [
+      scriptPath,
+      '-m', model,
+      '-p',
+      '-f', resolvedCsvPath,
+      '-t'
+    ], {
+      cwd: projectRoot,
+      env: { ...process.env }
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    pythonProcess.stdout.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+      stderr += data.toString();
+    });
+
+    pythonProcess.on('close', (code) => {
+      console.log(`[${new Date().toISOString()}] Invoice Builder completed with code ${code}`);
+
+      res.json({
+        success: code === 0,
+        output: stdout,
+        error: stderr || null,
+        exitCode: code
+      });
+    });
+
+    pythonProcess.on('error', (error) => {
+      console.error(`[${new Date().toISOString()}] Invoice Builder spawn error:`, error);
+      res.status(500).json({
+        success: false,
+        error: error.message
+      });
+    });
+
+  } catch (error) {
+    console.error('Error in /api/invoice-builder:', error);
+    logger.error(`*** Error in /api/invoice-builder endpoint`, {
+      error: error.message
+    });
+
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Internal server error'
+    });
+  }
 });
 
 // Chat endpoint - Fast version using persistent Python server

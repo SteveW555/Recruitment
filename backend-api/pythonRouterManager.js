@@ -5,13 +5,64 @@
  * Handles startup, health checks, logging, and graceful shutdown.
  */
 
-import { spawn } from 'child_process';
+import { spawn, spawnSync } from 'child_process';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { existsSync, mkdirSync, createWriteStream } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+/**
+ * Find Python executable - checks common locations on Windows
+ * @returns {string} Path to Python executable
+ */
+function getPythonCommand() {
+  // 1. Check environment variable override
+  if (process.env.PYTHON_PATH && existsSync(process.env.PYTHON_PATH)) {
+    return process.env.PYTHON_PATH;
+  }
+
+  // 2. Check if 'python' is in PATH
+  const pythonCheck = spawnSync('python', ['--version'], { shell: true, stdio: 'pipe' });
+  if (pythonCheck.status === 0) {
+    return 'python';
+  }
+
+  // 3. Check if 'python3' is in PATH (Linux/Mac)
+  const python3Check = spawnSync('python3', ['--version'], { shell: true, stdio: 'pipe' });
+  if (python3Check.status === 0) {
+    return 'python3';
+  }
+
+  // 4. Check if 'py' launcher is available (Windows)
+  const pyCheck = spawnSync('py', ['--version'], { shell: true, stdio: 'pipe' });
+  if (pyCheck.status === 0) {
+    return 'py';
+  }
+
+  // 5. Check common Windows installation paths
+  const windowsPaths = [
+    join(process.env.LOCALAPPDATA || '', 'Programs', 'Python', 'Python313', 'python.exe'),
+    join(process.env.LOCALAPPDATA || '', 'Programs', 'Python', 'Python312', 'python.exe'),
+    join(process.env.LOCALAPPDATA || '', 'Programs', 'Python', 'Python311', 'python.exe'),
+    join(process.env.LOCALAPPDATA || '', 'Programs', 'Python', 'Python310', 'python.exe'),
+    join(process.env.LOCALAPPDATA || '', 'Programs', 'Python', 'Python39', 'python.exe'),
+    'C:\\Python313\\python.exe',
+    'C:\\Python312\\python.exe',
+    'C:\\Python311\\python.exe',
+  ];
+
+  for (const pythonPath of windowsPaths) {
+    if (existsSync(pythonPath)) {
+      console.log(`[Router Manager] Found Python at: ${pythonPath}`);
+      return pythonPath;
+    }
+  }
+
+  // Fallback to 'python' and let it fail with a clear error
+  return 'python';
+}
 
 // Global state
 let routerProcess = null;
@@ -78,8 +129,12 @@ async function startRouter() {
     // Ensure logs directory exists
     ensureLogsDirectory();
 
+    // Find Python executable
+    const pythonCmd = getPythonCommand();
+    console.log(`[Router Manager] Using Python: ${pythonCmd}`);
+
     // Spawn Python process
-    routerProcess = spawn('python', ['-m', 'utils.ai_router.ai_router_api'], {
+    routerProcess = spawn(pythonCmd, ['-m', 'utils.ai_router.ai_router_api'], {
       cwd: projectRoot,
       env: {
         ...process.env,

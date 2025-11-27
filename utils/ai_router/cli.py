@@ -17,7 +17,7 @@ import structlog
 from .router import AIRouter
 from .groq_classifier import GroqClassifier
 from .storage.session_store import SessionStore
-from .storage.log_repository import LogRepository
+from .storage import LogRepository  # Uses stub if psycopg2 unavailable
 from .agent_registry import AgentRegistry
 import os
 

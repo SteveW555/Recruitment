@@ -1,0 +1,13 @@
+{
+  "model": "gemini/gemini-flash-latest",
+  "messages": [
+    {
+      "role": "system",
+      "content": "Your input fields are:\n1. `messy_csv` (str): The raw, messy CSV content containing various tables.\nYour output fields are:\n1. `reasoning` (str): \n2. `staff_list` (list[StaffMember]): List of staff members and their total hours.\nAll interactions will be structured in the following way, with the appropriate values filled in.\n\n[[ ## messy_csv ## ]]\n{messy_csv}\n\n[[ ## reasoning ## ]]\n{reasoning}\n\n[[ ## staff_list ## ]]\n{staff_list}        # note: the value you produce must adhere to the JSON schema: {\"type\": \"array\", \"$defs\": {\"StaffMember\": {\"type\": \"object\", \"properties\": {\"hours\": {\"type\": \"number\", \"title\": \"Hours\"}, \"name\": {\"type\": \"string\", \"title\": \"Name\"}}, \"required\": [\"name\", \"hours\"], \"title\": \"StaffMember\"}}, \"items\": {\"$ref\": \"#/$defs/StaffMember\"}}\n\n[[ ## completed ## ]]\nIn adhering to this structure, your objective is: \n        Extract staff names and hours from a messy CSV string.\n        Ignore COLUMNS labeled Activity Log, Task ID, Bonus or similar\n        Include all hours values (including 0, but expect typically 3+ hours),\n        but ignore tiny task durations like 0.25 that represent partial hours."
+    },
+    {
+      "role": "user",
+      "content": "[[ ## messy_csv ## ]]\nName,Hours,Notes\nJohn Smith,8.5,Regular shift\nJane Doe,10.25,Overtime\nBob Wilson,0,Sick leave\n\n\nRespond with the corresponding output fields, starting with the field `[[ ## reasoning ## ]]`, then `[[ ## staff_list ## ]]` (must be formatted as a valid Python list[StaffMember]), and then ending with the marker for `[[ ## completed ## ]]`."
+    }
+  ]
+}

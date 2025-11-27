@@ -28,7 +28,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../.
 from utils.ai_router.router import AIRouter
 from utils.ai_router.groq_classifier import GroqClassifier
 from utils.ai_router.storage.session_store import SessionStore
-from utils.ai_router.storage.log_repository import LogRepository
+from utils.ai_router.storage import LogRepository  # Uses stub if psycopg2 unavailable
 from utils.ai_router.agent_registry import AgentRegistry
 
 # Configure logging

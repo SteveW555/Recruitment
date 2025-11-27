@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   Search, Bell, ChevronDown, Send, Paperclip, Calendar, ChevronRight, Plus,
   Mail, FolderOpen, Briefcase, FileSpreadsheet, Monitor, FileText,
-  Lightbulb, TrendingUp, Zap, Menu, FileSearch
+  Lightbulb, TrendingUp, Zap, Menu, FileSearch, Receipt
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -24,6 +24,7 @@ export default function Dashboard() {
     { id: 1, level: 'info', message: 'System initialized', timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) },
     { id: 2, level: 'success', message: 'Connected to AI Router service', timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false }) }
   ]);
+  const [isInvoiceBuilderRunning, setIsInvoiceBuilderRunning] = useState(false);
 
   const connectedSources = [
     { icon: FileText, name: 'Job Postings', count: '1 posting', status: 'Connected', color: 'bg-orange-100' },
@@ -419,6 +420,48 @@ export default function Dashboard() {
     }
   };
 
+  const handleInvoiceBuilder = async (model = 'groq/llama-3.3-70b-versatile', csvPath = 'ExamplesRealOnly/strat_messy.csv') => {
+    if (isInvoiceBuilderRunning) return;
+
+    setIsInvoiceBuilderRunning(true);
+    addLog('Starting Invoice Builder...', 'info');
+    addLog(`Running: dump_usage.py -m ${model} -p -f ${csvPath} -t`, 'info');
+
+    try {
+      const response = await fetch('/api/invoice-builder', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ model, csvPath })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        addLog('Invoice Builder completed successfully', 'success');
+
+        // Add output to chat as AI message
+        const timestamp = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+        setMessages(prev => [...prev, {
+          id: prev.length + 1,
+          type: 'ai',
+          text: `**Invoice Builder Output**\n\n\`\`\`\n${data.output}\n\`\`\``,
+          timestamp
+        }]);
+      } else {
+        addLog(`Invoice Builder failed: ${data.error || 'Unknown error'}`, 'error');
+        if (data.output) {
+          addLog(`Output: ${data.output.substring(0, 200)}...`, 'warn');
+        }
+      }
+    } catch (error) {
+      addLog(`Invoice Builder error: ${error.message}`, 'error');
+    } finally {
+      setIsInvoiceBuilderRunning(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 p-6">
       <div className="max-w-7xl mx-auto">
@@ -445,6 +488,18 @@ export default function Dashboard() {
                 className={activePage === 'analytics' ? 'bg-black text-white px-6 py-2 rounded-full' : 'text-gray-600 hover:text-gray-900'}
               >
                 Analytics
+              </button>
+              <button
+                onClick={() => handleInvoiceBuilder()}
+                disabled={isInvoiceBuilderRunning}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full transition-colors ${
+                  isInvoiceBuilderRunning
+                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    : 'bg-emerald-500 text-white hover:bg-emerald-600'
+                }`}
+              >
+                <Receipt size={18} />
+                {isInvoiceBuilderRunning ? 'Running...' : 'Invoice Builder'}
               </button>
               <button className="text-gray-600 hover:text-gray-900">Account</button>
               <button className="text-gray-600 hover:text-gray-900">Support</button>
