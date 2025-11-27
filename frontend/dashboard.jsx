@@ -332,27 +332,31 @@ export default function Dashboard() {
               <div className="flex items-center gap-2">
                 {workflowCategories.map((category) => {
                   const CategoryIcon = category.icon;
+                  const isDisabled = category.id !== 'automation';
                   return (
                     <div key={category.id} className="relative">
                       <button
-                        onClick={() => setExpandedCategory(expandedCategory === category.id ? null : category.id)}
+                        onClick={() => !isDisabled && setExpandedCategory(expandedCategory === category.id ? null : category.id)}
+                        disabled={isDisabled}
                         className={`flex items-center gap-3 px-4 py-2 rounded-full border transition-colors ${
-                          expandedCategory === category.id
+                          isDisabled
+                            ? 'border-gray-200 bg-gray-50 opacity-50 cursor-not-allowed'
+                            : expandedCategory === category.id
                             ? 'border-gray-400 bg-gray-50'
                             : 'border-gray-200 hover:bg-gray-50'
                         }`}
                       >
-                        <div className={`w-8 h-8 ${category.color} rounded-full flex items-center justify-center`}>
-                          <CategoryIcon size={16} className="text-gray-700" />
+                        <div className={`w-8 h-8 ${isDisabled ? 'bg-gray-100' : category.color} rounded-full flex items-center justify-center`}>
+                          <CategoryIcon size={16} className={isDisabled ? 'text-gray-400' : 'text-gray-700'} />
                         </div>
-                        <span className="font-semibold text-gray-900">{category.name}</span>
+                        <span className={isDisabled ? 'font-semibold text-gray-400' : 'font-semibold text-gray-900'}>{category.name}</span>
                         <ChevronDown
                           size={16}
-                          className={`text-gray-500 transition-transform ${expandedCategory === category.id ? 'rotate-180' : ''}`}
+                          className={`transition-transform ${isDisabled ? 'text-gray-300' : 'text-gray-500'} ${expandedCategory === category.id ? 'rotate-180' : ''}`}
                         />
                       </button>
 
-                      {expandedCategory === category.id && (
+                      {!isDisabled && expandedCategory === category.id && (
                         <div className="absolute top-full left-0 mt-2 w-72 bg-white rounded-2xl shadow-lg border border-gray-200 z-10 py-2">
                           {category.examples.map((example, idx) => (
                             <button
